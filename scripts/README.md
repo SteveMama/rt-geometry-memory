@@ -36,6 +36,16 @@ Included:
   - run a segment-span ablation for the current Paper 3 families
 - [`run_paper3_next_batch.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_next_batch.sh)
   - run the next surgical Paper 3 batch: fairness sweep plus 3B probe
+- [`prepare_public_benchmark_jsonl.py`](/Users/pranav/Documents/RT/scripts/prepare_public_benchmark_jsonl.py)
+  - normalize LoCoMo-, LongMemEval-, or already-normalized benchmark files into the project's JSONL conversation format
+- [`run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)
+  - run the Paper 3 policy family on one normalized public benchmark with a Qwen model
+- [`run_paper3_nonqwen_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_nonqwen_3b_probe.sh)
+  - run the non-Qwen 3B hard-set confirmation with `uniform`, `geometry`, and `geometry_keep_compress_drop`
+- [`run_paper3_crossover_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_crossover_sweep.sh)
+  - run a dense crossover sweep over the hard set plus one public benchmark using `uniform`, `semantic`, `geometry`, and `geometry_keep_compress_drop`
+- [`run_paper3_public_solidification.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_solidification.sh)
+  - run the full recommended Paper 3 solidification order: public benchmark, non-Qwen 3B, and crossover sweep
 - [`publish_artifact.sh`](/Users/pranav/Documents/RT/scripts/publish_artifact.sh)
   - copy an ignored `results/` run into tracked `artifacts/` and optionally commit/push it
 - [`run_next_phase_suite.sh`](/Users/pranav/Documents/RT/scripts/run_next_phase_suite.sh)
@@ -45,3 +55,4 @@ Recommended usage:
 
 - use the notebook in [`notebooks`](/Users/pranav/Documents/RT/notebooks) on Colab
 - use these scripts directly when you want a reproducible command-line rerun
+- normalize public benchmarks into one JSONL before using the new public-benchmark runners

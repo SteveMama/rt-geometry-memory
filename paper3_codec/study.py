@@ -9,7 +9,14 @@ from typing import Any
 
 import numpy as np
 
-from .run_paper3 import DEFAULT_INPUT, DEFAULT_OUTPUT, _parse_families, _parse_float_list, run_codec_pilot
+from .run_paper3 import (
+    DEFAULT_INPUT,
+    DEFAULT_OUTPUT,
+    _parse_families,
+    _parse_float_list,
+    _parse_policies,
+    run_codec_pilot,
+)
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -127,7 +134,6 @@ def _behavior_confidence_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
 def _paired_delta_summary(rows: list[dict[str, Any]], metric_key: str) -> dict[str, Any]:
     rng = np.random.default_rng(20260401 if metric_key == "logit_l2" else 20260402)
     summary: dict[str, Any] = {}
-    comparison_policies = ["geometry", "geometry_segment_actions", "geometry_keep_compress_drop"]
     for model_key in sorted({str(row["model_key"]) for row in rows}):
         model_rows = [row for row in rows if str(row["model_key"]) == model_key]
         budget_payload: dict[str, Any] = {}
@@ -138,6 +144,9 @@ def _paired_delta_summary(rows: list[dict[str, Any]], metric_key: str) -> dict[s
                 for row in budget_rows
                 if str(row["policy_name"]) == "uniform"
             }
+            comparison_policies = sorted(
+                {str(row["policy_name"]) for row in budget_rows if str(row["policy_name"]) != "uniform"}
+            )
             comparison_payload: dict[str, Any] = {}
             for policy_name in comparison_policies:
                 deltas: list[float] = []
@@ -176,6 +185,7 @@ def _format_report(
         f"- Models: {', '.join(summary['model_keys'])}",
         f"- Families: {', '.join(summary['families']) if summary['families'] else 'all'}",
         f"- Budgets: {', '.join(f'{float(item):.2f}' for item in summary['budgets'])}",
+        f"- Policies: {', '.join(summary['policies'])}",
         "",
     ]
     for model_key, payload in summary["models"].items():
@@ -247,6 +257,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
     parser.add_argument("--segment-span", type=int, default=2)
+    parser.add_argument(
+        "--policies",
+        default="uniform,semantic,geometry,geometry_segment_actions,geometry_keep_compress_drop",
+    )
     return parser
 
 
@@ -256,6 +270,7 @@ def main() -> None:
     if args.extra_input_paths:
         input_paths.extend(Path(item.strip()) for item in args.extra_input_paths.split(",") if item.strip())
     model_keys = [item.strip() for item in args.model_keys.split(",") if item.strip()]
+    policies = _parse_policies(args.policies)
     study_dir = args.output_root / args.study_name
     study_dir.mkdir(parents=True, exist_ok=True)
 
@@ -277,6 +292,7 @@ def main() -> None:
             limit_conversations=args.limit_conversations,
             output_dir=study_dir / model_key,
             segment_span=args.segment_span,
+            policies=policies,
         )
         model_results.append(result)
         combined_rows.extend(result["rows"])
@@ -288,6 +304,7 @@ def main() -> None:
         "model_keys": model_keys,
         "families": _parse_families(args.families),
         "budgets": _parse_float_list(args.budgets),
+        "policies": list(policies),
         "models": _study_summary(model_results),
     }
 

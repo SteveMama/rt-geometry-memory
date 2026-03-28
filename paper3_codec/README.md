@@ -23,3 +23,19 @@ Current checkpoint:
 - `geometry_segment_actions` remains a strong competing family
 - next experiment track: fairness sweep, direct pairwise policy significance, and a 3B Paper 3 probe
 - the latest tracked Paper 3 checkpoint is [`artifacts/paper3/paper3_pilot_v3_full`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_pilot_v3_full)
+
+Current solidification track:
+
+- one normalized public benchmark on Qwen using `uniform`, `semantic`, `geometry`, `geometry_segment_actions`, and `geometry_keep_compress_drop`
+- one non-Qwen 3B hard-set probe using `uniform`, `geometry`, and `geometry_keep_compress_drop`
+- one dense crossover sweep over the hard set plus the public benchmark using `uniform`, `semantic`, `geometry`, and `geometry_keep_compress_drop`
+
+Use:
+
+- [`benchmarks/README.md`](/Users/pranav/Documents/RT/benchmarks/README.md)
+- [`scripts/prepare_public_benchmark_jsonl.py`](/Users/pranav/Documents/RT/scripts/prepare_public_benchmark_jsonl.py)
+- [`scripts/run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)
+- [`scripts/run_paper3_nonqwen_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_nonqwen_3b_probe.sh)
+- [`scripts/run_paper3_crossover_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_crossover_sweep.sh)
+- [`scripts/run_paper3_public_solidification.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_solidification.sh)
+- [`notebooks/rt_paper3_public_solidification_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_public_solidification_runner.ipynb)

@@ -58,6 +58,15 @@ DEFAULT_MODELS: tuple[ModelSpec, ...] = (
         mac_notes="Prefer Colab or discrete GPU; usually too slow for comfortable Mac iteration.",
     ),
     ModelSpec(
+        key="llama32_3b",
+        model_name="meta-llama/Llama-3.2-3B-Instruct",
+        notes="Non-Qwen 3B validation target for Paper 3 generalization checks.",
+        min_transformers_version="4.45.0",
+        parameter_size="3B",
+        context_length=131072,
+        mac_notes="Prefer Colab or discrete GPU. Hugging Face gated-access approval and token may be required.",
+    ),
+    ModelSpec(
         key="smollm2_17b",
         model_name="HuggingFaceTB/SmolLM2-1.7B-Instruct",
         notes="Cross-family compact baseline for checking whether the geometry story generalizes beyond Qwen.",
@@ -157,6 +166,8 @@ class ConversationStateExtractor:
         self.model_name = model_name
 
     def _choose_device(self) -> str:
+        if self.torch.cuda.is_available():
+            return "cuda"
         if self.torch.backends.mps.is_available():
             return "mps"
         return "cpu"

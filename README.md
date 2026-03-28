@@ -268,10 +268,16 @@ Use these entry points:
 - [`scripts/run_paper3_pairwise_report.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_pairwise_report.sh)
 - [`scripts/run_paper3_span_ablation.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_span_ablation.sh)
 - [`scripts/run_paper3_next_batch.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_next_batch.sh)
+- [`scripts/prepare_public_benchmark_jsonl.py`](/Users/pranav/Documents/RT/scripts/prepare_public_benchmark_jsonl.py)
+- [`scripts/run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)
+- [`scripts/run_paper3_nonqwen_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_nonqwen_3b_probe.sh)
+- [`scripts/run_paper3_crossover_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_crossover_sweep.sh)
+- [`scripts/run_paper3_public_solidification.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_solidification.sh)
 - [`scripts/publish_artifact.sh`](/Users/pranav/Documents/RT/scripts/publish_artifact.sh)
 - [`scripts/run_next_phase_suite.sh`](/Users/pranav/Documents/RT/scripts/run_next_phase_suite.sh)
 - [`notebooks/rt_next_phase_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_next_phase_runner.ipynb)
 - [`notebooks/rt_paper3_next_batch_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_next_batch_runner.ipynb)
+- [`notebooks/rt_paper3_public_solidification_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_public_solidification_runner.ipynb)
 
 ## Colab Pro
 

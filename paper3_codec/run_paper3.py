@@ -13,7 +13,12 @@ from paper1_geometry.analysis import analyze_trajectory
 from paper1_geometry.boundary_features import lexical_shift_scores
 from paper1_geometry.conversations import ConversationRecord, load_conversations_from_paths
 from paper1_geometry.modeling import ConversationStateExtractor, resolve_model_spec
-from paper2_memory.policies import select_segment_actions, select_turns, turn_geometry_risk
+from paper2_memory.policies import (
+    select_segment_actions,
+    select_turns,
+    turn_geometry_risk,
+    turn_semantic_risk,
+)
 
 from .policies import CodecSelection, SparseSegmentMemory, select_sparse_segment_memory
 
@@ -24,6 +29,7 @@ DEFAULT_INPUT = (
 )
 DEFAULT_POLICIES = (
     "uniform",
+    "semantic",
     "geometry",
     "geometry_segment_actions",
     "geometry_keep_compress_drop",
@@ -38,6 +44,12 @@ def _parse_families(raw: str | None) -> list[str] | None:
     if raw is None or not raw.strip():
         return None
     return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def _parse_policies(raw: str | None) -> tuple[str, ...]:
+    if raw is None or not raw.strip():
+        return DEFAULT_POLICIES
+    return tuple(item.strip() for item in raw.split(",") if item.strip())
 
 
 def _prefix_turn_costs(prefix_token_counts: np.ndarray) -> np.ndarray:
@@ -185,6 +197,7 @@ def run_codec_pilot(
     limit_conversations: int | None,
     output_dir: Path | None,
     segment_span: int = 2,
+    policies: tuple[str, ...] = DEFAULT_POLICIES,
 ) -> dict[str, Any]:
     spec = resolve_model_spec(model_key)
     if spec is None:
@@ -228,6 +241,7 @@ def run_codec_pilot(
             full_tokens = int(full_batch.token_counts[target_turn])
             prefix_turn_count = target_turn
             prefix_turn_costs = turn_costs[:prefix_turn_count]
+            semantic_risk = turn_semantic_risk(full_batch.states, target_turn)[:prefix_turn_count]
             is_behavior_turn = (
                 conversation.turns[target_turn].role == "user"
                 and target_turn + 1 < len(conversation.turns)
@@ -246,12 +260,21 @@ def run_codec_pilot(
                     max_input_tokens=max_input_tokens,
                 )
             for budget in budgets:
-                for policy_name in DEFAULT_POLICIES:
+                for policy_name in policies:
                     memory_objects: list[SparseSegmentMemory] = []
                     if policy_name == "uniform":
                         selection = select_turns(
                             policy_name=policy_name,
                             risk_scores=np.zeros(prefix_turn_count, dtype=np.float32),
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                        )
+                    elif policy_name == "semantic":
+                        selection = select_turns(
+                            policy_name=policy_name,
+                            risk_scores=semantic_risk,
                             turn_costs=prefix_turn_costs,
                             prefix_turn_count=prefix_turn_count,
                             budget_fraction=budget,
@@ -350,6 +373,7 @@ def run_codec_pilot(
         "recent_window": recent_window,
         "min_history": min_history,
         "segment_span": segment_span,
+        "policies": list(policies),
         "num_conversations": len(conversations),
         "num_evaluations": len(evaluation_rows),
         "num_behavior_evaluations": len(behavior_rows),
@@ -382,6 +406,7 @@ def _format_report(summary: dict[str, Any]) -> str:
         "",
         f"- Model: `{summary['model_name']}`",
         f"- Budgets: {', '.join(f'{float(item):.2f}' for item in summary['budgets'])}",
+        f"- Policies: {', '.join(summary.get('policies', []))}",
         f"- Segment span: {summary['segment_span']}",
         f"- Conversations: {summary['num_conversations']}",
         f"- Evaluations: {summary['num_evaluations']}",
@@ -455,6 +480,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
     parser.add_argument("--segment-span", type=int, default=2)
+    parser.add_argument(
+        "--policies",
+        default=",".join(DEFAULT_POLICIES),
+        help="Comma-separated Paper 3 policies to evaluate.",
+    )
     return parser
 
 
@@ -477,6 +507,7 @@ def main() -> None:
         limit_conversations=args.limit_conversations,
         output_dir=args.output_root / args.run_name,
         segment_span=args.segment_span,
+        policies=_parse_policies(args.policies),
     )
     print(f"Wrote Paper 3 outputs to {args.output_root / args.run_name}")
     print(
