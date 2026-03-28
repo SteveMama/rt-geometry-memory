@@ -26,6 +26,16 @@ Included:
   - run the Paper 2 study against any compatible benchmark JSONL without changing code
 - [`run_paper3_head_to_head.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_head_to_head.sh)
   - rerun the Paper 3 cross-model head-to-head and emit memory-critical reports
+- [`run_paper3_pairwise_report.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_pairwise_report.sh)
+  - compute direct pairwise significance between `geometry`, `geometry_segment_actions`, and `geometry_keep_compress_drop`
+- [`run_paper3_fairness_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_fairness_sweep.sh)
+  - run the Paper 3 fairness sweep and emit pairwise and mechanism reports
+- [`run_paper3_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_3b_probe.sh)
+  - run the first 3B Paper 3 probe and emit pairwise and mechanism reports
+- [`run_paper3_span_ablation.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_span_ablation.sh)
+  - run a segment-span ablation for the current Paper 3 families
+- [`run_paper3_next_batch.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_next_batch.sh)
+  - run the next surgical Paper 3 batch: fairness sweep plus 3B probe
 - [`publish_artifact.sh`](/Users/pranav/Documents/RT/scripts/publish_artifact.sh)
   - copy an ignored `results/` run into tracked `artifacts/` and optionally commit/push it
 - [`run_next_phase_suite.sh`](/Users/pranav/Documents/RT/scripts/run_next_phase_suite.sh)

@@ -259,9 +259,15 @@ Use these entry points:
 - [`scripts/run_paper2_fairness_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_fairness_sweep.sh)
 - [`scripts/run_paper2_custom_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_custom_benchmark.sh)
 - [`scripts/run_paper3_head_to_head.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_head_to_head.sh)
+- [`scripts/run_paper3_fairness_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_fairness_sweep.sh)
+- [`scripts/run_paper3_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_3b_probe.sh)
+- [`scripts/run_paper3_pairwise_report.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_pairwise_report.sh)
+- [`scripts/run_paper3_span_ablation.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_span_ablation.sh)
+- [`scripts/run_paper3_next_batch.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_next_batch.sh)
 - [`scripts/publish_artifact.sh`](/Users/pranav/Documents/RT/scripts/publish_artifact.sh)
 - [`scripts/run_next_phase_suite.sh`](/Users/pranav/Documents/RT/scripts/run_next_phase_suite.sh)
 - [`notebooks/rt_next_phase_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_next_phase_runner.ipynb)
+- [`notebooks/rt_paper3_next_batch_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_next_batch_runner.ipynb)
 
 ## Colab Pro
 
