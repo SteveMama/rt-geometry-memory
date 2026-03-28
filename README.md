@@ -78,6 +78,8 @@ python -m paper1_geometry.run_paper1 --list-models --detailed-models
 - [`paper2_memory/cross_model_memory_summary.py`](/Users/pranav/Documents/RT/paper2_memory/cross_model_memory_summary.py)
 - [`paper3_codec/run_paper3.py`](/Users/pranav/Documents/RT/paper3_codec/run_paper3.py)
 - [`paper3_codec/policies.py`](/Users/pranav/Documents/RT/paper3_codec/policies.py)
+- [`paper3_codec/study.py`](/Users/pranav/Documents/RT/paper3_codec/study.py)
+- [`paper3_codec/memory_critical_analysis.py`](/Users/pranav/Documents/RT/paper3_codec/memory_critical_analysis.py)
 - [`scripts`](/Users/pranav/Documents/RT/scripts)
 - [`notebooks`](/Users/pranav/Documents/RT/notebooks)
 - [`results/paper2`](/Users/pranav/Documents/RT/results/paper2)
@@ -226,6 +228,18 @@ The intended Colab flow is:
 3. run the Paper 2 hard-set study
 4. run the logged mechanism reruns
 5. run the Paper 3 pilot
+
+The Paper 3 study now writes:
+
+- `evaluation_rows.csv`
+- `behavior_rows.csv`
+- `study_summary.json`
+- `study_report.md`
+- `confidence_summary.json`
+- `significance_summary.json`
+- `behavior_confidence_summary.json`
+- `behavior_significance_summary.json`
+- per-model memory-critical reports for `geometry_keep_compress_drop` and `geometry_segment_actions`
 
 Summarize a run directory into JSON and Markdown:
 

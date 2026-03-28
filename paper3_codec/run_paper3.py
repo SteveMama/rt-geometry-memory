@@ -110,6 +110,24 @@ def _aggregate_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return summary
 
 
+def _aggregate_behavior_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    summary: dict[str, Any] = {}
+    for policy_name in sorted({str(row["policy_name"]) for row in rows}):
+        policy_rows = [row for row in rows if str(row["policy_name"]) == policy_name]
+        budget_summary: dict[str, Any] = {}
+        for budget in sorted({float(row["budget_fraction"]) for row in policy_rows}):
+            budget_rows = [row for row in policy_rows if float(row["budget_fraction"]) == budget]
+            budget_summary[f"{budget:.2f}"] = {
+                "num_evaluations": len(budget_rows),
+                "mean_answer_avg_neg_logprob": float(np.mean([float(row["answer_avg_neg_logprob"]) for row in budget_rows])) if budget_rows else 0.0,
+                "mean_answer_total_neg_logprob": float(np.mean([float(row["answer_total_neg_logprob"]) for row in budget_rows])) if budget_rows else 0.0,
+                "mean_answer_avg_neg_logprob_delta": float(np.mean([float(row["answer_avg_neg_logprob_delta"]) for row in budget_rows])) if budget_rows else 0.0,
+                "mean_answer_total_neg_logprob_delta": float(np.mean([float(row["answer_total_neg_logprob_delta"]) for row in budget_rows])) if budget_rows else 0.0,
+            }
+        summary[policy_name] = budget_summary
+    return summary
+
+
 def _improvement_vs_uniform(rows: list[dict[str, Any]]) -> dict[str, Any]:
     payload: dict[str, Any] = {}
     for budget in sorted({float(row["budget_fraction"]) for row in rows}):
@@ -125,6 +143,28 @@ def _improvement_vs_uniform(rows: list[dict[str, Any]]) -> dict[str, Any]:
             budget_payload[policy_name] = {
                 "delta_logit_l2": mean_logit - uniform_logit,
                 "relative_logit_l2": (mean_logit / uniform_logit) if uniform_logit > 0 else 0.0,
+            }
+        payload[f"{budget:.2f}"] = budget_payload
+    return payload
+
+
+def _behavior_improvement_vs_uniform(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    payload: dict[str, Any] = {}
+    for budget in sorted({float(row["budget_fraction"]) for row in rows}):
+        budget_rows = [row for row in rows if float(row["budget_fraction"]) == budget]
+        uniform_rows = [row for row in budget_rows if str(row["policy_name"]) == "uniform"]
+        if not uniform_rows:
+            continue
+        uniform_answer_avg = float(np.mean([float(row["answer_avg_neg_logprob"]) for row in uniform_rows]))
+        uniform_answer_delta = float(np.mean([float(row["answer_avg_neg_logprob_delta"]) for row in uniform_rows]))
+        budget_payload: dict[str, Any] = {}
+        for policy_name in sorted({str(row["policy_name"]) for row in budget_rows if str(row["policy_name"]) != "uniform"}):
+            policy_rows = [row for row in budget_rows if str(row["policy_name"]) == policy_name]
+            mean_answer_avg = float(np.mean([float(row["answer_avg_neg_logprob"]) for row in policy_rows])) if policy_rows else 0.0
+            mean_answer_delta = float(np.mean([float(row["answer_avg_neg_logprob_delta"]) for row in policy_rows])) if policy_rows else 0.0
+            budget_payload[policy_name] = {
+                "delta_answer_avg_neg_logprob": mean_answer_avg - uniform_answer_avg,
+                "delta_answer_avg_neg_logprob_delta": mean_answer_delta - uniform_answer_delta,
             }
         payload[f"{budget:.2f}"] = budget_payload
     return payload
@@ -166,6 +206,7 @@ def run_codec_pilot(
     )
 
     evaluation_rows: list[dict[str, Any]] = []
+    behavior_rows: list[dict[str, Any]] = []
     for conversation in conversations:
         full_batch = extractor.extract_conversation(
             conversation,
@@ -187,6 +228,23 @@ def run_codec_pilot(
             full_tokens = int(full_batch.token_counts[target_turn])
             prefix_turn_count = target_turn
             prefix_turn_costs = turn_costs[:prefix_turn_count]
+            is_behavior_turn = (
+                conversation.turns[target_turn].role == "user"
+                and target_turn + 1 < len(conversation.turns)
+                and conversation.turns[target_turn + 1].role == "assistant"
+            )
+            full_behavior_score = None
+            if is_behavior_turn:
+                full_messages = _policy_messages(
+                    conversation=conversation,
+                    target_turn=target_turn,
+                    retained_prior_indices=list(range(prefix_turn_count)),
+                )
+                full_behavior_score = extractor.score_assistant_response(
+                    full_messages,
+                    conversation.turns[target_turn + 1].content,
+                    max_input_tokens=max_input_tokens,
+                )
             for budget in budgets:
                 for policy_name in DEFAULT_POLICIES:
                     memory_objects: list[SparseSegmentMemory] = []
@@ -259,6 +317,29 @@ def run_codec_pilot(
                             "memory_objects": _memory_objects_payload(memory_objects),
                         }
                     )
+                    if is_behavior_turn and full_behavior_score is not None:
+                        behavior_score = extractor.score_assistant_response(
+                            messages,
+                            conversation.turns[target_turn + 1].content,
+                            max_input_tokens=max_input_tokens,
+                        )
+                        behavior_rows.append(
+                            {
+                                "model_key": model_key,
+                                "conversation_id": conversation.conversation_id,
+                                "family": conversation.family,
+                                "target_turn": target_turn,
+                                "policy_name": policy_name,
+                                "budget_fraction": float(budget),
+                                "answer_token_count": behavior_score.token_count,
+                                "answer_avg_neg_logprob": behavior_score.avg_neg_logprob,
+                                "answer_total_neg_logprob": behavior_score.total_neg_logprob,
+                                "full_answer_avg_neg_logprob": full_behavior_score.avg_neg_logprob,
+                                "full_answer_total_neg_logprob": full_behavior_score.total_neg_logprob,
+                                "answer_avg_neg_logprob_delta": behavior_score.avg_neg_logprob - full_behavior_score.avg_neg_logprob,
+                                "answer_total_neg_logprob_delta": behavior_score.total_neg_logprob - full_behavior_score.total_neg_logprob,
+                            }
+                        )
 
     summary = {
         "created_at": datetime.now().isoformat(timespec="seconds"),
@@ -271,8 +352,11 @@ def run_codec_pilot(
         "segment_span": segment_span,
         "num_conversations": len(conversations),
         "num_evaluations": len(evaluation_rows),
+        "num_behavior_evaluations": len(behavior_rows),
         "aggregate": _aggregate_rows(evaluation_rows),
+        "behavior_aggregate": _aggregate_behavior_rows(behavior_rows),
         "improvement_vs_uniform": _improvement_vs_uniform(evaluation_rows),
+        "behavior_improvement_vs_uniform": _behavior_improvement_vs_uniform(behavior_rows),
     }
 
     if output_dir is not None:
@@ -281,10 +365,15 @@ def run_codec_pilot(
             writer = csv.DictWriter(handle, fieldnames=list(evaluation_rows[0].keys()))
             writer.writeheader()
             writer.writerows(evaluation_rows)
+        if behavior_rows:
+            with (output_dir / "behavior_rows.csv").open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=list(behavior_rows[0].keys()))
+                writer.writeheader()
+                writer.writerows(behavior_rows)
         (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
         (output_dir / "report.md").write_text(_format_report(summary), encoding="utf-8")
 
-    return {"summary": summary, "rows": evaluation_rows}
+    return {"summary": summary, "rows": evaluation_rows, "behavior_rows": behavior_rows}
 
 
 def _format_report(summary: dict[str, Any]) -> str:
@@ -296,6 +385,7 @@ def _format_report(summary: dict[str, Any]) -> str:
         f"- Segment span: {summary['segment_span']}",
         f"- Conversations: {summary['num_conversations']}",
         f"- Evaluations: {summary['num_evaluations']}",
+        f"- Behavior evaluations: {summary['num_behavior_evaluations']}",
         "",
         "## Aggregate",
         "",
@@ -311,6 +401,18 @@ def _format_report(summary: dict[str, Any]) -> str:
                 f"{metrics['mean_kept_segments']:.2f}/{metrics['mean_compressed_segments']:.2f}/{metrics['mean_evicted_segments']:.2f}"
             )
         lines.append("")
+    if summary["behavior_aggregate"]:
+        lines.append("## Behavior Aggregate")
+        lines.append("")
+        for policy_name, payload in summary["behavior_aggregate"].items():
+            lines.append(f"### {policy_name}")
+            lines.append("")
+            for budget_key, metrics in payload.items():
+                lines.append(
+                    f"- budget {budget_key}: answer avg NLL {metrics['mean_answer_avg_neg_logprob']:.4f}, "
+                    f"answer delta {metrics['mean_answer_avg_neg_logprob_delta']:.4f}"
+                )
+            lines.append("")
     lines.append("## Improvement Vs Uniform")
     lines.append("")
     for budget_key, payload in summary["improvement_vs_uniform"].items():
@@ -321,6 +423,18 @@ def _format_report(summary: dict[str, Any]) -> str:
                 f"- {policy_name}: delta logit L2 {metrics['delta_logit_l2']:.3f}, relative logit L2 {metrics['relative_logit_l2']:.3f}"
             )
         lines.append("")
+    if summary["behavior_improvement_vs_uniform"]:
+        lines.append("## Behavior Improvement Vs Uniform")
+        lines.append("")
+        for budget_key, payload in summary["behavior_improvement_vs_uniform"].items():
+            lines.append(f"### budget {budget_key}")
+            lines.append("")
+            for policy_name, metrics in payload.items():
+                lines.append(
+                    f"- {policy_name}: delta answer avg NLL {metrics['delta_answer_avg_neg_logprob']:.4f}, "
+                    f"delta answer-loss increase {metrics['delta_answer_avg_neg_logprob_delta']:.4f}"
+                )
+            lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 
 
