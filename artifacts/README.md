@@ -16,5 +16,11 @@ Included:
   - minimal Paper 3 sparse-memory smoke run
 - `paper3/paper3_pilot_v3_full`
   - current full Paper 3 checkpoint with significance, behavior, and memory-critical reports
+- `paper3/paper3_batch_v1_fairness`
+  - fairness-controlled Paper 3 sweep with pairwise comparisons and mechanism reports
+- `paper3/paper3_batch_v1_3b`
+  - first 3B Paper 3 probe with pairwise comparisons and mechanism reports
+- `shareable`
+  - checkpoint summary figures ready to share externally
 
 The full scratch `results/` tree is intentionally not tracked. Reproduce fresh outputs with the scripts in `/Users/pranav/Documents/RT/scripts`.

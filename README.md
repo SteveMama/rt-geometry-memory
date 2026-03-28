@@ -53,16 +53,20 @@ Current Paper 3 framing:
 Current Paper 3 checkpoint:
 
 - `geometry_keep_compress_drop` is now a real compression policy, not a degenerate prototype
-- `geometry_segment_actions` and `geometry_keep_compress_drop` are both viable, with complementary strengths
+- under fairness control, `geometry_keep_compress_drop` is the strongest low-to-mid budget Paper 3 family on `qwen25_15b`
+- the 3B probe shows a clean regime split: `geometry_keep_compress_drop` wins at `0.35`, while plain `geometry` retakes the lead at `0.50`
 - status: latest tracked checkpoint in [`artifacts/paper3/paper3_pilot_v3_full`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_pilot_v3_full)
-- next experiment focus: harden the cross-model head-to-head and publish new Colab artifacts back into `artifacts/paper3`
+- new tracked extensions: [`artifacts/paper3/paper3_batch_v1_fairness`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_batch_v1_fairness) and [`artifacts/paper3/paper3_batch_v1_3b`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_batch_v1_3b)
+- next experiment focus: support-aware compression and semantic codec baselines after the fairness and 3B checkpoints
 
 ## Start Here
 
 - Read [`artifacts/README.md`](/Users/pranav/Documents/RT/artifacts/README.md) for the frozen checkpoint bundle
 - Read [`papers/README.md`](/Users/pranav/Documents/RT/papers/README.md) for the research-program logic
+- Read [`CHECKPOINT_LOG.md`](/Users/pranav/Documents/RT/CHECKPOINT_LOG.md) for the cumulative execution log and result history
 - Use [`notebooks/rt_colab_pro_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_colab_pro_runner.ipynb) for Colab runs
 - Use [`notebooks/rt_next_phase_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_next_phase_runner.ipynb) for the next competitor-aware Colab suite
+- Use [`notebooks/rt_paper3_next_batch_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_next_batch_runner.ipynb) for the fairness-plus-3B Paper 3 batch
 - Use [`scripts/README.md`](/Users/pranav/Documents/RT/scripts/README.md) for command-line reruns
 
 ## Recommended Local Models

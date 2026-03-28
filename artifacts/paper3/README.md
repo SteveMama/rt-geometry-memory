@@ -13,9 +13,18 @@ Included:
   - behavior summaries
   - per-model summaries
   - memory-critical reports for both compressed-memory policy families
+- `paper3_batch_v1_fairness`
+  - fairness-controlled Paper 3 sweep on `qwen25_15b`
+  - direct pairwise policy significance
+  - memory-critical reports for both policy families
+- `paper3_batch_v1_3b`
+  - first 3B Paper 3 probe on `qwen25_3b`
+  - direct pairwise policy significance
+  - 3B memory-critical reports for both policy families
 
 Current reading:
 
-- `geometry_keep_compress_drop` is a real compression policy
-- `geometry_segment_actions` and `geometry_keep_compress_drop` are both viable
+- `geometry_keep_compress_drop` is now the strongest low-to-mid budget Paper 3 family under fairness control
+- plain `geometry` becomes the strongest high-budget logit policy on the 3B probe
+- `geometry_segment_actions` remains viable but is no longer the lead low/mid-budget family on the Qwen fairness-controlled runs
 - the project is still in-flight; this is a checkpoint, not a terminal result

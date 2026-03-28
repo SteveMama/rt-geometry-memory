@@ -19,4 +19,4 @@ This folder contains the three-paper research program for RT.
 
 - Paper 1: frozen characterization result
 - Paper 2: strong control result with a mechanism story
-- Paper 3: active pilot stage with two viable compressed-memory policy families
+- Paper 3: active codec stage with a fairness-controlled low/mid-budget winner and a positive 3B validation run

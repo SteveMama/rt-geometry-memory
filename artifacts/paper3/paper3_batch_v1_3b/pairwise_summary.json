@@ -1,0 +1,216 @@
+{
+  "policy_pairs": [
+    [
+      "geometry_keep_compress_drop",
+      "geometry"
+    ],
+    [
+      "geometry_keep_compress_drop",
+      "geometry_segment_actions"
+    ],
+    [
+      "geometry_segment_actions",
+      "geometry"
+    ]
+  ],
+  "logit_pairwise": {
+    "qwen25_3b": {
+      "0.20": {
+        "geometry_keep_compress_drop__vs__geometry": {
+          "num_pairs": 36,
+          "delta_logit_l2": {
+            "mean": -8.080009460449219,
+            "std": 56.36772455366591,
+            "ci_low": -28.96282958984375,
+            "ci_high": 3.2244665569729105,
+            "p_value": 0.8645
+          }
+        },
+        "geometry_keep_compress_drop__vs__geometry_segment_actions": {
+          "num_pairs": 36,
+          "delta_logit_l2": {
+            "mean": -0.8153165181477865,
+            "std": 71.2457073907033,
+            "ci_low": -25.226812691158717,
+            "ci_high": 21.38947541978624,
+            "p_value": 0.9345
+          }
+        },
+        "geometry_segment_actions__vs__geometry": {
+          "num_pairs": 36,
+          "delta_logit_l2": {
+            "mean": -7.264692942301433,
+            "std": 42.20465465848115,
+            "ci_low": -24.192505730523003,
+            "ci_high": 3.0218717787000866,
+            "p_value": 0.513
+          }
+        }
+      },
+      "0.35": {
+        "geometry_keep_compress_drop__vs__geometry": {
+          "num_pairs": 36,
+          "delta_logit_l2": {
+            "mean": -53.674969567192925,
+            "std": 162.24503413061487,
+            "ci_low": -111.23858854505751,
+            "ci_high": -9.048179170820452,
+            "p_value": 0.02725
+          }
+        },
+        "geometry_keep_compress_drop__vs__geometry_segment_actions": {
+          "num_pairs": 36,
+          "delta_logit_l2": {
+            "mean": -16.21594280666775,
+            "std": 60.12609678830194,
+            "ci_low": -37.63867815865411,
+            "ci_high": 1.7692415767245748,
+            "p_value": 0.1345
+          }
+        },
+        "geometry_segment_actions__vs__geometry": {
+          "num_pairs": 36,
+          "delta_logit_l2": {
+            "mean": -37.45902676052518,
+            "std": 155.98966405329787,
+            "ci_low": -93.54336668650309,
+            "ci_high": 2.969928254021529,
+            "p_value": 0.20525
+          }
+        }
+      },
+      "0.50": {
+        "geometry_keep_compress_drop__vs__geometry": {
+          "num_pairs": 36,
+          "delta_logit_l2": {
+            "mean": 24.357019636366104,
+            "std": 56.171623024961086,
+            "ci_low": 7.65980552037557,
+            "ci_high": 44.805917761060904,
+            "p_value": 0.00625
+          }
+        },
+        "geometry_keep_compress_drop__vs__geometry_segment_actions": {
+          "num_pairs": 36,
+          "delta_logit_l2": {
+            "mean": 7.435239368014866,
+            "std": 73.59001924256509,
+            "ci_low": -20.438586468166775,
+            "ci_high": 28.17235499487981,
+            "p_value": 0.62475
+          }
+        },
+        "geometry_segment_actions__vs__geometry": {
+          "num_pairs": 36,
+          "delta_logit_l2": {
+            "mean": 16.921780268351238,
+            "std": 84.62070333984704,
+            "ci_low": -8.803832070032756,
+            "ci_high": 44.292537138197126,
+            "p_value": 0.254
+          }
+        }
+      }
+    }
+  },
+  "behavior_pairwise": {
+    "qwen25_3b": {
+      "0.20": {
+        "geometry_keep_compress_drop__vs__geometry": {
+          "num_pairs": 18,
+          "delta_answer_avg_neg_logprob": {
+            "mean": 0.06871793642545272,
+            "std": 0.31106736634653004,
+            "ci_low": -0.04697131295489449,
+            "ci_high": 0.22746509212779012,
+            "p_value": 0.5005
+          }
+        },
+        "geometry_keep_compress_drop__vs__geometry_segment_actions": {
+          "num_pairs": 18,
+          "delta_answer_avg_neg_logprob": {
+            "mean": -0.016680297619069077,
+            "std": 0.46533269144321593,
+            "ci_low": -0.23017019373839273,
+            "ci_high": 0.1941148349736923,
+            "p_value": 0.87075
+          }
+        },
+        "geometry_segment_actions__vs__geometry": {
+          "num_pairs": 18,
+          "delta_answer_avg_neg_logprob": {
+            "mean": 0.08539823404452179,
+            "std": 0.3286865170404562,
+            "ci_low": 0.0,
+            "ci_high": 0.2506484074434574,
+            "p_value": 0.5035
+          }
+        }
+      },
+      "0.35": {
+        "geometry_keep_compress_drop__vs__geometry": {
+          "num_pairs": 18,
+          "delta_answer_avg_neg_logprob": {
+            "mean": -0.361645169300303,
+            "std": 0.8313763544286726,
+            "ci_low": -0.7592638302428519,
+            "ci_high": -0.017103996032324705,
+            "p_value": 0.1905
+          }
+        },
+        "geometry_keep_compress_drop__vs__geometry_segment_actions": {
+          "num_pairs": 18,
+          "delta_answer_avg_neg_logprob": {
+            "mean": -0.21756772647563302,
+            "std": 0.613374348793873,
+            "ci_low": -0.5266529383945229,
+            "ci_high": 0.00964609781901042,
+            "p_value": 0.25425
+          }
+        },
+        "geometry_segment_actions__vs__geometry": {
+          "num_pairs": 18,
+          "delta_answer_avg_neg_logprob": {
+            "mean": -0.14407744282467,
+            "std": 0.6152009031942761,
+            "ci_low": -0.44655361510159686,
+            "ci_high": 0.014321286627586841,
+            "p_value": 1.0
+          }
+        }
+      },
+      "0.50": {
+        "geometry_keep_compress_drop__vs__geometry": {
+          "num_pairs": 18,
+          "delta_answer_avg_neg_logprob": {
+            "mean": -0.14747024082637336,
+            "std": 0.5325893893877999,
+            "ci_low": -0.4179673428302045,
+            "ci_high": 0.06265252268212472,
+            "p_value": 0.505
+          }
+        },
+        "geometry_keep_compress_drop__vs__geometry_segment_actions": {
+          "num_pairs": 18,
+          "delta_answer_avg_neg_logprob": {
+            "mean": -0.2901465942709481,
+            "std": 0.6494342433809817,
+            "ci_low": -0.6118355708567931,
+            "ci_high": -0.028556002504757472,
+            "p_value": 0.0745
+          }
+        },
+        "geometry_segment_actions__vs__geometry": {
+          "num_pairs": 18,
+          "delta_answer_avg_neg_logprob": {
+            "mean": 0.1426763534445747,
+            "std": 0.5913148183980077,
+            "ci_low": -0.08499593421021144,
+            "ci_high": 0.437370210947224,
+            "p_value": 0.3645
+          }
+        }
+      }
+    }
+  }
+}
