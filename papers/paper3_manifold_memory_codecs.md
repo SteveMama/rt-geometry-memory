@@ -41,6 +41,20 @@ In the current Paper 2 scaffold:
 
 Paper 3 should generalize `s_j` from sparse retained turns into a decoder-compatible latent summary or surrogate memory state.
 
+## Current Pilot Status
+
+- current strongest baseline: `geometry_segment_actions`
+- current minimal codec policy: `geometry_keep_compress_drop`
+- first failure mode was degenerate action selection with zero compressed segments
+- current fixed policy now produces nonzero compressed segments and responds to budget
+- on the verified `qwen25_05b` hard-set rerun, `geometry_keep_compress_drop` is competitive with plain `geometry` at `0.20` and `0.35`, but still weaker than `geometry_segment_actions` at `0.50`
+
+So the current Paper 3 claim boundary is:
+
+- segment-level memory actions are promising
+- sparse keep/compress/drop is now a real policy
+- but `geometry_segment_actions` remains the stronger bridge baseline until the compressed representation improves
+
 ## Codec Structure
 
 For each segment `j`:

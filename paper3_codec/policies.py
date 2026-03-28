@@ -40,8 +40,17 @@ def _support_candidates(start: int, end: int, risk_scores: np.ndarray) -> list[i
     if local_scores.size == 0:
         return []
     support_index = start + int(np.argmax(local_scores))
-    candidates = sorted({start, support_index})
-    return candidates
+    segment_length = end - start
+    if segment_length <= 1:
+        return [start]
+    if segment_length == 2:
+        # True compression for two-turn regions: keep only the higher-risk turn.
+        return [support_index]
+
+    anchor_index = start
+    if support_index == anchor_index:
+        support_index = end - 1
+    return sorted({anchor_index, support_index})
 
 
 def select_sparse_segment_memory(
@@ -51,7 +60,7 @@ def select_sparse_segment_memory(
     prefix_turn_count: int,
     budget_fraction: float,
     recent_window: int,
-    segment_span: int = 4,
+    segment_span: int = 2,
 ) -> CodecSelection:
     if prefix_turn_count <= 1:
         retained = list(range(prefix_turn_count))
@@ -91,11 +100,19 @@ def select_sparse_segment_memory(
         full_cost = int(np.sum(turn_costs[full_indices])) if full_indices else 0
         compressed_cost = int(np.sum(turn_costs[compressed_indices])) if compressed_indices else 0
         segment_risk = _segment_score(np.asarray(risk_scores[start:end], dtype=np.float32))
+        if full_cost <= 0:
+            continue
+        compression_ratio = float(compressed_cost / max(full_cost, 1))
+        # Favor compression when it preserves most of a segment's value at materially lower cost.
+        compress_preservation = 0.86 + 0.12 * (1.0 - compression_ratio)
+        keep_preservation = 1.0
         memory_stub = SparseSegmentMemory(
             segment_start=start,
             segment_end=end,
-            anchor_turn_index=start,
-            support_turn_indices=[idx for idx in compressed_indices if idx != start],
+            anchor_turn_index=compressed_indices[0] if compressed_indices else start,
+            support_turn_indices=[
+                idx for idx in compressed_indices if idx != (compressed_indices[0] if compressed_indices else start)
+            ],
             retained_turn_indices=compressed_indices,
             risk=segment_risk,
             action="compress",
@@ -105,13 +122,13 @@ def select_sparse_segment_memory(
             (
                 "compress",
                 compressed_cost,
-                0.78 * segment_risk,
+                compress_preservation * segment_risk,
                 memory_stub,
             ),
             (
                 "keep",
                 full_cost,
-                1.00 * segment_risk,
+                keep_preservation * segment_risk,
                 SparseSegmentMemory(
                     segment_start=start,
                     segment_end=end,

@@ -144,6 +144,7 @@ def run_codec_pilot(
     device: str | None,
     limit_conversations: int | None,
     output_dir: Path | None,
+    segment_span: int = 2,
 ) -> dict[str, Any]:
     spec = resolve_model_spec(model_key)
     if spec is None:
@@ -223,6 +224,7 @@ def run_codec_pilot(
                             prefix_turn_count=prefix_turn_count,
                             budget_fraction=budget,
                             recent_window=recent_window,
+                            segment_span=segment_span,
                         )
                         memory_objects = selection.memory_objects
                     else:
@@ -236,6 +238,7 @@ def run_codec_pilot(
                     compressed = extractor.score_messages(messages, max_input_tokens=max_input_tokens)
                     evaluation_rows.append(
                         {
+                            "model_key": model_key,
                             "conversation_id": conversation.conversation_id,
                             "family": conversation.family,
                             "target_turn": target_turn,
@@ -265,6 +268,7 @@ def run_codec_pilot(
         "budgets": budgets,
         "recent_window": recent_window,
         "min_history": min_history,
+        "segment_span": segment_span,
         "num_conversations": len(conversations),
         "num_evaluations": len(evaluation_rows),
         "aggregate": _aggregate_rows(evaluation_rows),
@@ -289,6 +293,7 @@ def _format_report(summary: dict[str, Any]) -> str:
         "",
         f"- Model: `{summary['model_name']}`",
         f"- Budgets: {', '.join(f'{float(item):.2f}' for item in summary['budgets'])}",
+        f"- Segment span: {summary['segment_span']}",
         f"- Conversations: {summary['num_conversations']}",
         f"- Evaluations: {summary['num_evaluations']}",
         "",
@@ -335,6 +340,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--state-layer", type=int, default=-1)
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
+    parser.add_argument("--segment-span", type=int, default=2)
     return parser
 
 
@@ -356,6 +362,7 @@ def main() -> None:
         device=args.device,
         limit_conversations=args.limit_conversations,
         output_dir=args.output_root / args.run_name,
+        segment_span=args.segment_span,
     )
     print(f"Wrote Paper 3 outputs to {args.output_root / args.run_name}")
     print(
