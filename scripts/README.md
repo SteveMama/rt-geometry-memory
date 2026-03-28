@@ -6,6 +6,8 @@ Included:
 
 - [`colab_setup.sh`](/Users/pranav/Documents/RT/scripts/colab_setup.sh)
   - install the project and verify the runtime
+- [`colab_commit_push.sh`](/Users/pranav/Documents/RT/scripts/colab_commit_push.sh)
+  - configure repo-local git identity on Colab and push tracked artifacts with a GitHub token
 - [`run_paper1_final.sh`](/Users/pranav/Documents/RT/scripts/run_paper1_final.sh)
   - rerun the frozen Paper 1 study
 - [`run_paper2_hardset.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_hardset.sh)
