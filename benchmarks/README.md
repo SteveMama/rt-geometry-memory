@@ -26,6 +26,30 @@ Key requirement:
 - earlier turns should preserve the benchmark's original conversational memory
   structure
 
+Recommended first public benchmark:
+
+- `LongMemEval-S cleaned`
+  - source dataset: `xiaowu0162/longmemeval-cleaned`
+  - file: `longmemeval_s_cleaned.json`
+  - normalization mode: `longmemeval`
+
+Download it in Colab with:
+
+```bash
+python scripts/download_public_benchmark.py \
+  --benchmark longmemeval_s_cleaned \
+  --output /content/longmemeval_s_cleaned.json
+```
+
+Then normalize it:
+
+```bash
+python scripts/prepare_public_benchmark_jsonl.py \
+  --format longmemeval \
+  --input /content/longmemeval_s_cleaned.json \
+  --output benchmarks/public_benchmark_normalized.jsonl
+```
+
 Use the helper below when the source benchmark is in JSON or JSONL:
 
 ```bash

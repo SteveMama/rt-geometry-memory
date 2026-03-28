@@ -38,6 +38,8 @@ Included:
   - run the next surgical Paper 3 batch: fairness sweep plus 3B probe
 - [`prepare_public_benchmark_jsonl.py`](/Users/pranav/Documents/RT/scripts/prepare_public_benchmark_jsonl.py)
   - normalize LoCoMo-, LongMemEval-, or already-normalized benchmark files into the project's JSONL conversation format
+- [`download_public_benchmark.py`](/Users/pranav/Documents/RT/scripts/download_public_benchmark.py)
+  - download the recommended first public benchmark, `LongMemEval-S cleaned`, from Hugging Face
 - [`run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)
   - run the Paper 3 policy family on one normalized public benchmark with a Qwen model
 - [`run_paper3_nonqwen_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_nonqwen_3b_probe.sh)

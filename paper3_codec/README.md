@@ -26,6 +26,7 @@ Current checkpoint:
 
 Current solidification track:
 
+- recommended first public benchmark: `LongMemEval-S cleaned`
 - one normalized public benchmark on Qwen using `uniform`, `semantic`, `geometry`, `geometry_segment_actions`, and `geometry_keep_compress_drop`
 - one non-Qwen 3B hard-set probe using `uniform`, `geometry`, and `geometry_keep_compress_drop`
 - one dense crossover sweep over the hard set plus the public benchmark using `uniform`, `semantic`, `geometry`, and `geometry_keep_compress_drop`
@@ -33,6 +34,7 @@ Current solidification track:
 Use:
 
 - [`benchmarks/README.md`](/Users/pranav/Documents/RT/benchmarks/README.md)
+- [`scripts/download_public_benchmark.py`](/Users/pranav/Documents/RT/scripts/download_public_benchmark.py)
 - [`scripts/prepare_public_benchmark_jsonl.py`](/Users/pranav/Documents/RT/scripts/prepare_public_benchmark_jsonl.py)
 - [`scripts/run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)
 - [`scripts/run_paper3_nonqwen_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_nonqwen_3b_probe.sh)
