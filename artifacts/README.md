@@ -14,5 +14,7 @@ Included:
   - qualitative and memory-critical explanation reports
 - `paper3/smoke_paper3_qwen25`
   - minimal Paper 3 sparse-memory smoke run
+- `paper3/paper3_pilot_v3_full`
+  - current full Paper 3 checkpoint with significance, behavior, and memory-critical reports
 
 The full scratch `results/` tree is intentionally not tracked. Reproduce fresh outputs with the scripts in `/Users/pranav/Documents/RT/scripts`.

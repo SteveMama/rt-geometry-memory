@@ -6,6 +6,12 @@ RT is the standalone research project for the three-paper program:
 - Paper 2: systems
 - Paper 3: codec
 
+This repository is a checkpoint, not the end of the project. The current state is:
+
+- Paper 1 is frozen as a characterization result
+- Paper 2 has a real geometry-aware control result plus a mechanism story
+- Paper 3 is alive with two viable compressed-memory policy families, but no final winner yet
+
 This project is separate from the CARP/KV-compression repo. The current codebase implements the Paper 1 bootstrap:
 
 - extract one hidden-state summary per conversation turn
@@ -19,6 +25,11 @@ Current Paper 1 framing:
 - main claim: conversation-state geometry is low-rank and decoder-relevant
 - secondary claim: geometry carries partial regime-boundary information, but boundary recovery is formulation-sensitive on short conversations
 
+Current Paper 1 checkpoint:
+
+- strongest result: geometric distortion strongly predicts decoder drift
+- status: frozen evidence bundle in [`artifacts/paper1/expanded_v8_final`](/Users/pranav/Documents/RT/artifacts/paper1/expanded_v8_final)
+
 Current Paper 2 framing:
 
 - main systems question: can geometry-derived risk reduce output drift under a fixed memory budget
@@ -26,11 +37,30 @@ Current Paper 2 framing:
 - current controller family: `uniform`, `lexical`, `geometry`, plus segment-action bridge policies
 - current evaluation target: budgeted logit drift, KL drift, top-1 stability, and answer-level negative log-likelihood on long-dependency, retrieval-heavy, and code-conversation families
 
+Current Paper 2 checkpoint:
+
+- strongest result: geometry-aware control beats uniform on the hard stress set
+- mechanism result: geometry preserves memory-critical support turns more often than uniform
+- status: best tracked artifacts in [`artifacts/paper2`](/Users/pranav/Documents/RT/artifacts/paper2)
+
 Current Paper 3 framing:
 
 - current goal: a minimal sparse segment memory pilot driven by the Paper 2 geometry mechanism
 - current memory object: segment anchor plus sparse support turns
 - current comparison: `uniform`, `geometry`, `geometry_segment_actions`, and `geometry_keep_compress_drop`
+
+Current Paper 3 checkpoint:
+
+- `geometry_keep_compress_drop` is now a real compression policy, not a degenerate prototype
+- `geometry_segment_actions` and `geometry_keep_compress_drop` are both viable, with complementary strengths
+- status: latest tracked checkpoint in [`artifacts/paper3/paper3_pilot_v3_full`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_pilot_v3_full)
+
+## Start Here
+
+- Read [`artifacts/README.md`](/Users/pranav/Documents/RT/artifacts/README.md) for the frozen checkpoint bundle
+- Read [`papers/README.md`](/Users/pranav/Documents/RT/papers/README.md) for the research-program logic
+- Use [`notebooks/rt_colab_pro_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_colab_pro_runner.ipynb) for Colab runs
+- Use [`scripts/README.md`](/Users/pranav/Documents/RT/scripts/README.md) for command-line reruns
 
 ## Recommended Local Models
 

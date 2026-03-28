@@ -14,3 +14,9 @@ This folder contains the three-paper research program for RT.
 - Paper 1 validates whether the geometry is real and decoder-relevant.
 - Paper 2 uses that geometry as a control signal for practical compression.
 - Paper 3 attempts a true manifold-memory codec only if the first two stages justify it.
+
+## Current Checkpoint
+
+- Paper 1: frozen characterization result
+- Paper 2: strong control result with a mechanism story
+- Paper 3: active pilot stage with two viable compressed-memory policy families

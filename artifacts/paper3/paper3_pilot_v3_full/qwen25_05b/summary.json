@@ -1,0 +1,345 @@
+{
+  "created_at": "2026-03-28T04:17:30",
+  "model_key": "qwen25_05b",
+  "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+  "families": [
+    "long_dependency",
+    "retrieval_heavy",
+    "code_conversation"
+  ],
+  "budgets": [
+    0.2,
+    0.35,
+    0.5
+  ],
+  "recent_window": 2,
+  "min_history": 4,
+  "segment_span": 2,
+  "num_conversations": 9,
+  "num_evaluations": 432,
+  "num_behavior_evaluations": 216,
+  "aggregate": {
+    "geometry": {
+      "0.20": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 335.60956361558704,
+        "mean_kl": 9.35652477044672e-06,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.5407903123478023,
+        "mean_budget_token_fraction": 0.34964483082854414,
+        "mean_kept_segments": 0.0,
+        "mean_compressed_segments": 0.0,
+        "mean_evicted_segments": 0.0
+      },
+      "0.35": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 274.46677504645453,
+        "mean_kl": 1.0469845691596832e-05,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.6399794651928841,
+        "mean_budget_token_fraction": 0.46102410150690887,
+        "mean_kept_segments": 0.0,
+        "mean_compressed_segments": 0.0,
+        "mean_evicted_segments": 0.0
+      },
+      "0.50": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 260.3942682478163,
+        "mean_kl": 7.181639867126499e-06,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.7297372758031151,
+        "mean_budget_token_fraction": 0.5618183426656305,
+        "mean_kept_segments": 0.0,
+        "mean_compressed_segments": 0.0,
+        "mean_evicted_segments": 0.0
+      }
+    },
+    "geometry_keep_compress_drop": {
+      "0.20": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 335.06906043158637,
+        "mean_kl": 9.697563239417937e-06,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.541523755042976,
+        "mean_budget_token_fraction": 0.3508210487087963,
+        "mean_kept_segments": 0.19444444444444445,
+        "mean_compressed_segments": 0.5277777777777778,
+        "mean_evicted_segments": 1.2777777777777777
+      },
+      "0.35": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 270.7015035417345,
+        "mean_kl": 1.0876108065462383e-05,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.6437456014493433,
+        "mean_budget_token_fraction": 0.4652588236166936,
+        "mean_kept_segments": 0.4444444444444444,
+        "mean_compressed_segments": 0.8333333333333334,
+        "mean_evicted_segments": 0.7222222222222222
+      },
+      "0.50": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 273.3420694139269,
+        "mean_kl": 9.778780880511898e-06,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.7304064259970332,
+        "mean_budget_token_fraction": 0.5626449866867407,
+        "mean_kept_segments": 0.5,
+        "mean_compressed_segments": 1.4166666666666667,
+        "mean_evicted_segments": 0.08333333333333333
+      }
+    },
+    "geometry_segment_actions": {
+      "0.20": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 333.49123721652563,
+        "mean_kl": 8.98385484471298e-06,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.5422557518977001,
+        "mean_budget_token_fraction": 0.3512768393610168,
+        "mean_kept_segments": 0.25,
+        "mean_compressed_segments": 0.5,
+        "mean_evicted_segments": 1.25
+      },
+      "0.35": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 275.3755980597602,
+        "mean_kl": 1.0224554581901272e-05,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.6471246377825134,
+        "mean_budget_token_fraction": 0.4687318113919445,
+        "mean_kept_segments": 0.4444444444444444,
+        "mean_compressed_segments": 1.0,
+        "mean_evicted_segments": 0.5555555555555556
+      },
+      "0.50": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 203.96510781182184,
+        "mean_kl": 6.59504005504383e-06,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.7270710936570288,
+        "mean_budget_token_fraction": 0.5590255438335631,
+        "mean_kept_segments": 0.8055555555555556,
+        "mean_compressed_segments": 0.8055555555555556,
+        "mean_evicted_segments": 0.3888888888888889
+      }
+    },
+    "uniform": {
+      "0.20": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 402.37464311387805,
+        "mean_kl": 1.0025257853010475e-05,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.5472185118758299,
+        "mean_budget_token_fraction": 0.35736947587020307,
+        "mean_kept_segments": 0.0,
+        "mean_compressed_segments": 0.0,
+        "mean_evicted_segments": 0.0
+      },
+      "0.35": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 376.348185857137,
+        "mean_kl": 1.1118713052161845e-05,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.6320212559640761,
+        "mean_budget_token_fraction": 0.4637102246405824,
+        "mean_kept_segments": 0.0,
+        "mean_compressed_segments": 0.0,
+        "mean_evicted_segments": 0.0
+      },
+      "0.50": {
+        "num_evaluations": 36,
+        "mean_logit_l2": 301.3075368669298,
+        "mean_kl": 8.215123266455374e-06,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.6795395882075211,
+        "mean_budget_token_fraction": 0.5798055090215349,
+        "mean_kept_segments": 0.0,
+        "mean_compressed_segments": 0.0,
+        "mean_evicted_segments": 0.0
+      }
+    }
+  },
+  "behavior_aggregate": {
+    "geometry": {
+      "0.20": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 1.5019192935175747,
+        "mean_answer_total_neg_logprob": 23.432653003268772,
+        "mean_answer_avg_neg_logprob_delta": 0.6934356864450263,
+        "mean_answer_total_neg_logprob_delta": 10.524804406695896
+      },
+      "0.35": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 1.123168143572935,
+        "mean_answer_total_neg_logprob": 18.11431137720744,
+        "mean_answer_avg_neg_logprob_delta": 0.31468453650038614,
+        "mean_answer_total_neg_logprob_delta": 5.2064627806345625
+      },
+      "0.50": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 0.8896333138025034,
+        "mean_answer_total_neg_logprob": 14.84126513534122,
+        "mean_answer_avg_neg_logprob_delta": 0.08114970672995497,
+        "mean_answer_total_neg_logprob_delta": 1.9334165387683444
+      }
+    },
+    "geometry_keep_compress_drop": {
+      "0.20": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 1.5015031767675449,
+        "mean_answer_total_neg_logprob": 23.930146111382378,
+        "mean_answer_avg_neg_logprob_delta": 0.6930195696949961,
+        "mean_answer_total_neg_logprob_delta": 11.022297514809502
+      },
+      "0.35": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 0.9972357667996197,
+        "mean_answer_total_neg_logprob": 17.09680003590054,
+        "mean_answer_avg_neg_logprob_delta": 0.18875215972707085,
+        "mean_answer_total_neg_logprob_delta": 4.1889514393276635
+      },
+      "0.50": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 0.8059529198819005,
+        "mean_answer_total_neg_logprob": 13.504006107648214,
+        "mean_answer_avg_neg_logprob_delta": -0.0025306871906480596,
+        "mean_answer_total_neg_logprob_delta": 0.5961575110753378
+      }
+    },
+    "geometry_segment_actions": {
+      "0.20": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 1.5367020522035544,
+        "mean_answer_total_neg_logprob": 23.89419386121962,
+        "mean_answer_avg_neg_logprob_delta": 0.728218445131006,
+        "mean_answer_total_neg_logprob_delta": 10.986345264646742
+      },
+      "0.35": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 1.2190009568482454,
+        "mean_answer_total_neg_logprob": 19.258319430881077,
+        "mean_answer_avg_neg_logprob_delta": 0.4105173497756967,
+        "mean_answer_total_neg_logprob_delta": 6.350470834308201
+      },
+      "0.50": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 0.938140765460673,
+        "mean_answer_total_neg_logprob": 15.589800887637669,
+        "mean_answer_avg_neg_logprob_delta": 0.12965715838812447,
+        "mean_answer_total_neg_logprob_delta": 2.681952291064792
+      }
+    },
+    "uniform": {
+      "0.20": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 1.585399771406398,
+        "mean_answer_total_neg_logprob": 24.1134196917216,
+        "mean_answer_avg_neg_logprob_delta": 0.7769161643338494,
+        "mean_answer_total_neg_logprob_delta": 11.205571095148722
+      },
+      "0.35": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 1.21428260944524,
+        "mean_answer_total_neg_logprob": 19.38303099738227,
+        "mean_answer_avg_neg_logprob_delta": 0.4057990023726913,
+        "mean_answer_total_neg_logprob_delta": 6.475182400809394
+      },
+      "0.50": {
+        "num_evaluations": 18,
+        "mean_answer_avg_neg_logprob": 1.3171976382087398,
+        "mean_answer_total_neg_logprob": 20.492483721839058,
+        "mean_answer_avg_neg_logprob_delta": 0.5087140311361911,
+        "mean_answer_total_neg_logprob_delta": 7.584635125266181
+      }
+    }
+  },
+  "improvement_vs_uniform": {
+    "0.20": {
+      "geometry": {
+        "delta_logit_l2": -66.76507949829102,
+        "relative_logit_l2": 0.8340723486410263
+      },
+      "geometry_keep_compress_drop": {
+        "delta_logit_l2": -67.30558268229169,
+        "relative_logit_l2": 0.8327290652277927
+      },
+      "geometry_segment_actions": {
+        "delta_logit_l2": -68.88340589735242,
+        "relative_logit_l2": 0.8288077862852372
+      }
+    },
+    "0.35": {
+      "geometry": {
+        "delta_logit_l2": -101.8814108106825,
+        "relative_logit_l2": 0.7292894860682098
+      },
+      "geometry_keep_compress_drop": {
+        "delta_logit_l2": -105.64668231540253,
+        "relative_logit_l2": 0.7192847307745325
+      },
+      "geometry_segment_actions": {
+        "delta_logit_l2": -100.97258779737683,
+        "relative_logit_l2": 0.7317043323394513
+      }
+    },
+    "0.50": {
+      "geometry": {
+        "delta_logit_l2": -40.91326861911352,
+        "relative_logit_l2": 0.86421425416523
+      },
+      "geometry_keep_compress_drop": {
+        "delta_logit_l2": -27.96546745300293,
+        "relative_logit_l2": 0.9071862996067248
+      },
+      "geometry_segment_actions": {
+        "delta_logit_l2": -97.34242905510797,
+        "relative_logit_l2": 0.6769333085149526
+      }
+    }
+  },
+  "behavior_improvement_vs_uniform": {
+    "0.20": {
+      "geometry": {
+        "delta_answer_avg_neg_logprob": -0.0834804778888234,
+        "delta_answer_avg_neg_logprob_delta": -0.08348047788882307
+      },
+      "geometry_keep_compress_drop": {
+        "delta_answer_avg_neg_logprob": -0.08389659463885324,
+        "delta_answer_avg_neg_logprob_delta": -0.08389659463885324
+      },
+      "geometry_segment_actions": {
+        "delta_answer_avg_neg_logprob": -0.048697719202843714,
+        "delta_answer_avg_neg_logprob_delta": -0.04869771920284338
+      }
+    },
+    "0.35": {
+      "geometry": {
+        "delta_answer_avg_neg_logprob": -0.09111446587230487,
+        "delta_answer_avg_neg_logprob_delta": -0.09111446587230515
+      },
+      "geometry_keep_compress_drop": {
+        "delta_answer_avg_neg_logprob": -0.21704684264562024,
+        "delta_answer_avg_neg_logprob_delta": -0.21704684264562044
+      },
+      "geometry_segment_actions": {
+        "delta_answer_avg_neg_logprob": 0.004718347403005474,
+        "delta_answer_avg_neg_logprob_delta": 0.0047183474030054184
+      }
+    },
+    "0.50": {
+      "geometry": {
+        "delta_answer_avg_neg_logprob": -0.4275643244062364,
+        "delta_answer_avg_neg_logprob_delta": -0.4275643244062361
+      },
+      "geometry_keep_compress_drop": {
+        "delta_answer_avg_neg_logprob": -0.5112447183268393,
+        "delta_answer_avg_neg_logprob_delta": -0.5112447183268392
+      },
+      "geometry_segment_actions": {
+        "delta_answer_avg_neg_logprob": -0.37905687274806676,
+        "delta_answer_avg_neg_logprob_delta": -0.3790568727480666
+      }
+    }
+  }
+}
