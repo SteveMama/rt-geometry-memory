@@ -68,6 +68,23 @@ def _coerce_turns(raw_turns: list[Any]) -> list[dict[str, str]]:
     return turns
 
 
+def _coerce_session_history(raw_sessions: list[Any]) -> list[dict[str, str]]:
+    turns: list[dict[str, str]] = []
+    for session in raw_sessions:
+        if isinstance(session, list):
+            turns.extend(_coerce_turns(session))
+            continue
+        if isinstance(session, dict):
+            for key in ["messages", "dialogue", "conversation", "turns", "history", "session"]:
+                value = session.get(key)
+                if isinstance(value, list):
+                    turns.extend(_coerce_turns(value))
+                    break
+            else:
+                turns.extend(_coerce_turns([session]))
+    return turns
+
+
 def _normalized_record(
     record: dict[str, Any],
     *,
@@ -112,11 +129,25 @@ def _adapt_locomo(record: dict[str, Any], index: int, family: str) -> dict[str, 
 
 
 def _adapt_longmemeval(record: dict[str, Any], index: int, family: str) -> dict[str, Any]:
-    record_id = str(record.get("conversation_id") or record.get("id") or f"longmemeval-{index:05d}")
-    history = record.get("history") or record.get("dialogue") or record.get("messages") or record.get("turns")
+    record_id = str(
+        record.get("question_id")
+        or record.get("conversation_id")
+        or record.get("id")
+        or f"longmemeval-{index:05d}"
+    )
+    history = (
+        record.get("history")
+        or record.get("dialogue")
+        or record.get("messages")
+        or record.get("turns")
+        or record.get("haystack_sessions")
+    )
     if not isinstance(history, list):
         raise ValueError(f"LongMemEval record {record_id} has no history list")
-    turns = _coerce_turns(history)
+    if history and isinstance(history[0], list):
+        turns = _coerce_session_history(history)
+    else:
+        turns = _coerce_session_history(history)
     question = str(record.get("question") or record.get("query") or record.get("prompt") or "").strip()
     answer = str(record.get("answer") or record.get("response") or record.get("gold_answer") or "").strip()
     if question:
