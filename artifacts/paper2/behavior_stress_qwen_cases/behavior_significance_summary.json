@@ -1,0 +1,160 @@
+{
+  "qwen25_05b": {
+    "0.20": {
+      "geometry": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.08347864158411032,
+          "std": 0.44215946650084686,
+          "ci_low": -0.3100855307886558,
+          "ci_high": 0.052571614583333336,
+          "p_value": 1.0
+        }
+      },
+      "lexical": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": 0.021062867254273508,
+          "std": 0.07286525767719987,
+          "ci_low": 0.0,
+          "ci_high": 0.05964960603632479,
+          "p_value": 0.49175
+        }
+      },
+      "geometry_lexical": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": 0.021062867254273508,
+          "std": 0.07286525767719987,
+          "ci_low": 0.0,
+          "ci_high": 0.05964960603632479,
+          "p_value": 0.50975
+        }
+      },
+      "uniform_segment_actions": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.07010629553803893,
+          "std": 0.44914319561960103,
+          "ci_low": -0.31208639298688634,
+          "ci_high": 0.07129418765931932,
+          "p_value": 1.0
+        }
+      },
+      "geometry_segment_actions": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.04904342828376542,
+          "std": 0.45824909726148405,
+          "ci_low": -0.29256165926087796,
+          "ci_high": 0.09702007129535914,
+          "p_value": 1.0
+        }
+      }
+    },
+    "0.35": {
+      "geometry": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.09121849531852681,
+          "std": 0.4648573532099877,
+          "ci_low": -0.33484426145662843,
+          "ci_high": 0.06253094864063202,
+          "p_value": 0.72225
+        }
+      },
+      "lexical": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.008758457977207966,
+          "std": 0.08376569922361023,
+          "ci_low": -0.05419921874999997,
+          "ci_high": 0.020966880341880347,
+          "p_value": 0.87725
+        }
+      },
+      "geometry_lexical": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.012239204476571484,
+          "std": 0.07448669699122006,
+          "ci_low": -0.0516526205522216,
+          "ci_high": 0.017899259382387636,
+          "p_value": 0.62075
+        }
+      },
+      "uniform_segment_actions": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": 0.0018998233430799329,
+          "std": 0.16149064948970437,
+          "ci_low": -0.07785087719298245,
+          "ci_high": 0.08355034722222225,
+          "p_value": 1.0
+        }
+      },
+      "geometry_segment_actions": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": 0.005438819069575662,
+          "std": 0.1621070611725741,
+          "ci_low": -0.07241205812340679,
+          "ci_high": 0.08549114987488736,
+          "p_value": 0.75625
+        }
+      }
+    },
+    "0.50": {
+      "geometry": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.4281027007089014,
+          "std": 0.7637707064481721,
+          "ci_low": -0.8127639821845852,
+          "ci_high": -0.10283559343045179,
+          "p_value": 0.0335
+        }
+      },
+      "lexical": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.4859266090104833,
+          "std": 0.7318083017016511,
+          "ci_low": -0.8344178879121654,
+          "ci_high": -0.1782509505566009,
+          "p_value": 0.00525
+        }
+      },
+      "geometry_lexical": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.41668365654384665,
+          "std": 0.7540467018187177,
+          "ci_low": -0.7863555030870095,
+          "ci_high": -0.09192272328708394,
+          "p_value": 0.0395
+        }
+      },
+      "uniform_segment_actions": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.26939375968244894,
+          "std": 0.4875470124118613,
+          "ci_low": -0.5041169492200753,
+          "ci_high": -0.06702278898508363,
+          "p_value": 0.02425
+        }
+      },
+      "geometry_segment_actions": {
+        "num_pairs": 18,
+        "delta_answer_avg_neg_logprob": {
+          "mean": -0.37944258279322374,
+          "std": 0.7011262452159502,
+          "ci_low": -0.7291235825485136,
+          "ci_high": -0.08413374813184604,
+          "p_value": 0.047
+        }
+      }
+    }
+  }
+}

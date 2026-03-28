@@ -1,0 +1,87 @@
+{
+  "created_at": "2026-03-27T22:33:00",
+  "model_key": "qwen25_05b",
+  "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+  "families": [
+    "long_dependency",
+    "retrieval_heavy",
+    "code_conversation"
+  ],
+  "budgets": [
+    0.35
+  ],
+  "recent_window": 2,
+  "min_history": 4,
+  "num_conversations": 2,
+  "num_evaluations": 32,
+  "aggregate": {
+    "geometry": {
+      "0.35": {
+        "num_evaluations": 8,
+        "mean_logit_l2": 311.9867973327637,
+        "mean_kl": 7.978333457225872e-06,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.6280460899016852,
+        "mean_budget_token_fraction": 0.46677014125858884,
+        "mean_kept_segments": 0.0,
+        "mean_compressed_segments": 0.0,
+        "mean_evicted_segments": 0.0
+      }
+    },
+    "geometry_keep_compress_drop": {
+      "0.35": {
+        "num_evaluations": 8,
+        "mean_logit_l2": 376.33756828308105,
+        "mean_kl": 1.0621306604008396e-05,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.474734131249253,
+        "mean_budget_token_fraction": 0.29806908195845516,
+        "mean_kept_segments": 0.25,
+        "mean_compressed_segments": 0.0,
+        "mean_evicted_segments": 1.0
+      }
+    },
+    "geometry_segment_actions": {
+      "0.35": {
+        "num_evaluations": 8,
+        "mean_logit_l2": 314.167028427124,
+        "mean_kl": 7.893499251787617e-06,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.6214427465800179,
+        "mean_budget_token_fraction": 0.4593560806012975,
+        "mean_kept_segments": 0.375,
+        "mean_compressed_segments": 0.875,
+        "mean_evicted_segments": 0.75
+      }
+    },
+    "uniform": {
+      "0.35": {
+        "num_evaluations": 8,
+        "mean_logit_l2": 465.00860595703125,
+        "mean_kl": 9.316042770990407e-06,
+        "mean_top1_agreement": 1.0,
+        "mean_token_fraction": 0.6111223081817023,
+        "mean_budget_token_fraction": 0.4743718249135488,
+        "mean_kept_segments": 0.0,
+        "mean_compressed_segments": 0.0,
+        "mean_evicted_segments": 0.0
+      }
+    }
+  },
+  "improvement_vs_uniform": {
+    "0.35": {
+      "geometry": {
+        "delta_logit_l2": -153.02180862426758,
+        "relative_logit_l2": 0.6709269319664861
+      },
+      "geometry_keep_compress_drop": {
+        "delta_logit_l2": -88.6710376739502,
+        "relative_logit_l2": 0.8093131255249418
+      },
+      "geometry_segment_actions": {
+        "delta_logit_l2": -150.84157752990723,
+        "relative_logit_l2": 0.6756155142129873
+      }
+    }
+  }
+}

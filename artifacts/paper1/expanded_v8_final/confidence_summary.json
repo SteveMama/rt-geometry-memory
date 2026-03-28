@@ -1,0 +1,98 @@
+{
+  "qwen25_05b": {
+    "mean_rank95": {
+      "estimate": 1.048611111111111,
+      "bootstrap_std": 0.027045803144574165,
+      "ci_low": 1.0,
+      "ci_high": 1.1111111640930176
+    },
+    "mean_corr_geodesic_vs_logit_l2": {
+      "estimate": 0.9890162821806759,
+      "bootstrap_std": 0.0024230778217315674,
+      "ci_low": 0.9840513601899147,
+      "ci_high": 0.9934015780687332
+    },
+    "micro_boundary_f1_exact": {
+      "estimate": 0.4528301886792453,
+      "bootstrap_std": 0.09426683187484741,
+      "ci_low": 0.2665217526257038,
+      "ci_high": 0.6207461595535277
+    },
+    "micro_boundary_f1_tol2": {
+      "estimate": 0.6792452830188679,
+      "bootstrap_std": 0.06762761622667313,
+      "ci_low": 0.5333333611488342,
+      "ci_high": 0.7931034564971924
+    },
+    "mean_boundary_auprc": {
+      "estimate": 0.7322916666666667,
+      "bootstrap_std": 0.05934855714440346,
+      "ci_low": 0.6207638934254647,
+      "ci_high": 0.8438194438815116
+    }
+  },
+  "qwen25_15b": {
+    "mean_rank95": {
+      "estimate": 1.1666666666666667,
+      "bootstrap_std": 0.04860498756170273,
+      "ci_low": 1.0833333730697632,
+      "ci_high": 1.2708333730697632
+    },
+    "mean_corr_geodesic_vs_logit_l2": {
+      "estimate": 0.9942150225342461,
+      "bootstrap_std": 0.0007465024827979505,
+      "ci_low": 0.99258241802454,
+      "ci_high": 0.9955274179577828
+    },
+    "micro_boundary_f1_exact": {
+      "estimate": 0.36734693877551017,
+      "bootstrap_std": 0.08480478078126907,
+      "ci_low": 0.1818181872367859,
+      "ci_high": 0.5185185074806213
+    },
+    "micro_boundary_f1_tol2": {
+      "estimate": 0.6530612244897959,
+      "bootstrap_std": 0.06324540823698044,
+      "ci_low": 0.523809552192688,
+      "ci_high": 0.7636363506317139
+    },
+    "mean_boundary_auprc": {
+      "estimate": 0.7583333333333333,
+      "bootstrap_std": 0.060590099543333054,
+      "ci_low": 0.6444097429513931,
+      "ci_high": 0.8784722089767456
+    }
+  },
+  "smollm2_17b": {
+    "mean_rank95": {
+      "estimate": 1.527777777777778,
+      "bootstrap_std": 0.02166806347668171,
+      "ci_low": 1.5,
+      "ci_high": 1.5763888359069824
+    },
+    "mean_corr_geodesic_vs_logit_l2": {
+      "estimate": 0.989264787815516,
+      "bootstrap_std": 0.0006475259433500469,
+      "ci_low": 0.9879709228873252,
+      "ci_high": 0.9905044853687286
+    },
+    "micro_boundary_f1_exact": {
+      "estimate": 0.2916666666666667,
+      "bootstrap_std": 0.07617917656898499,
+      "ci_low": 0.13636364042758942,
+      "ci_high": 0.4333333373069763
+    },
+    "micro_boundary_f1_tol2": {
+      "estimate": 0.6666666666666666,
+      "bootstrap_std": 0.06202046573162079,
+      "ci_low": 0.5333333611488342,
+      "ci_high": 0.7777777910232544
+    },
+    "mean_boundary_auprc": {
+      "estimate": 0.8208333333333333,
+      "bootstrap_std": 0.05154125392436981,
+      "ci_low": 0.718020823597908,
+      "ci_high": 0.9202257007360457
+    }
+  }
+}

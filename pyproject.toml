@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rt"
+version = "0.1.0"
+description = "RT research project for geometry-guided conversational memory studies."
+requires-python = ">=3.10"
+dependencies = [
+  "matplotlib>=3.8",
+  "numpy>=2.0",
+  "torch>=2.1",
+  "transformers>=4.37",
+]
+
+[tool.setuptools.packages.find]
+include = ["paper1_geometry*", "paper2_memory*", "paper3_codec*"]

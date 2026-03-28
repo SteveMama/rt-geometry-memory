@@ -1,0 +1,89 @@
+{
+  "qwen25_05b": {
+    "geometry_lexical": {
+      "num_conversations": 24,
+      "macro_boundary_f1_exact": 0.2916666666666667,
+      "micro_boundary_f1_exact": 0.4528301886792453,
+      "macro_boundary_f1_tol2": 0.5277777777777778,
+      "micro_boundary_f1_tol2": 0.6792452830188679,
+      "mean_boundary_auprc": 0.7322916666666667,
+      "mean_boundary_nearest_distance": 0.6944444444444443
+    },
+    "geometry_only": {
+      "num_conversations": 24,
+      "macro_boundary_f1_exact": 0.19444444444444442,
+      "micro_boundary_f1_exact": 0.2978723404255319,
+      "macro_boundary_f1_tol2": 0.5138888888888888,
+      "micro_boundary_f1_tol2": 0.6382978723404256,
+      "mean_boundary_auprc": 0.6975694444444445,
+      "mean_boundary_nearest_distance": 0.8888888888888888
+    },
+    "lexical_only": {
+      "num_conversations": 24,
+      "macro_boundary_f1_exact": 0.19444444444444442,
+      "micro_boundary_f1_exact": 0.2978723404255319,
+      "macro_boundary_f1_tol2": 0.5138888888888888,
+      "micro_boundary_f1_tol2": 0.6382978723404256,
+      "mean_boundary_auprc": 0.8784722222222222,
+      "mean_boundary_nearest_distance": 0.8888888888888888
+    }
+  },
+  "qwen25_15b": {
+    "geometry_lexical": {
+      "num_conversations": 24,
+      "macro_boundary_f1_exact": 0.23611111111111108,
+      "micro_boundary_f1_exact": 0.36734693877551017,
+      "macro_boundary_f1_tol2": 0.5138888888888888,
+      "micro_boundary_f1_tol2": 0.6530612244897959,
+      "mean_boundary_auprc": 0.7583333333333333,
+      "mean_boundary_nearest_distance": 0.8055555555555555
+    },
+    "geometry_only": {
+      "num_conversations": 24,
+      "macro_boundary_f1_exact": 0.19444444444444442,
+      "micro_boundary_f1_exact": 0.2978723404255319,
+      "macro_boundary_f1_tol2": 0.5138888888888888,
+      "micro_boundary_f1_tol2": 0.6382978723404256,
+      "mean_boundary_auprc": 0.6871527777777778,
+      "mean_boundary_nearest_distance": 0.8888888888888888
+    },
+    "lexical_only": {
+      "num_conversations": 24,
+      "macro_boundary_f1_exact": 0.19444444444444442,
+      "micro_boundary_f1_exact": 0.2978723404255319,
+      "macro_boundary_f1_tol2": 0.5138888888888888,
+      "micro_boundary_f1_tol2": 0.6382978723404256,
+      "mean_boundary_auprc": 0.8784722222222222,
+      "mean_boundary_nearest_distance": 0.8888888888888888
+    }
+  },
+  "smollm2_17b": {
+    "geometry_lexical": {
+      "num_conversations": 24,
+      "macro_boundary_f1_exact": 0.19444444444444442,
+      "micro_boundary_f1_exact": 0.2916666666666667,
+      "macro_boundary_f1_tol2": 0.5277777777777778,
+      "micro_boundary_f1_tol2": 0.6666666666666666,
+      "mean_boundary_auprc": 0.8208333333333333,
+      "mean_boundary_nearest_distance": 0.829861111111111
+    },
+    "geometry_only": {
+      "num_conversations": 24,
+      "macro_boundary_f1_exact": 0.19444444444444442,
+      "micro_boundary_f1_exact": 0.2978723404255319,
+      "macro_boundary_f1_tol2": 0.5138888888888888,
+      "micro_boundary_f1_tol2": 0.6382978723404256,
+      "mean_boundary_auprc": 0.8472222222222222,
+      "mean_boundary_nearest_distance": 0.8888888888888888
+    },
+    "lexical_only": {
+      "num_conversations": 24,
+      "macro_boundary_f1_exact": 0.19444444444444442,
+      "micro_boundary_f1_exact": 0.2978723404255319,
+      "macro_boundary_f1_tol2": 0.5138888888888888,
+      "micro_boundary_f1_tol2": 0.6382978723404256,
+      "mean_boundary_auprc": 0.8784722222222222,
+      "mean_boundary_nearest_distance": 0.8888888888888888
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "num_conversations": 24,
+  "mean_num_turns": 6.083333333333333,
+  "median_num_turns": 6.0,
+  "mean_num_candidate_boundaries": 4.083333333333333,
+  "median_num_candidate_boundaries": 4.0,
+  "mean_num_gold_boundaries": 0.9583333333333334,
+  "median_num_gold_boundaries": 1.0,
+  "mean_gold_boundary_density": 0.23263888888888887,
+  "median_gold_boundary_density": 0.25,
+  "zero_gold_boundary_fraction": 0.375,
+  "oracle_random_expected_macro_f1_exact": 0.6076388888888888,
+  "oracle_random_expected_macro_f1_exact_nonempty": 0.3722222222222222,
+  "oracle_random_empirical_macro_f1_exact": 0.6106770833333334,
+  "oracle_random_empirical_micro_f1_exact": 0.4144021739130435,
+  "family_summary": {
+    "casual_chat": {
+      "num_conversations": 4,
+      "mean_num_turns": 6.0,
+      "mean_num_candidate_boundaries": 4.0,
+      "mean_num_gold_boundaries": 1.0,
+      "mean_gold_boundary_density": 0.25
+    },
+    "code_conversation": {
+      "num_conversations": 4,
+      "mean_num_turns": 6.0,
+      "mean_num_candidate_boundaries": 4.0,
+      "mean_num_gold_boundaries": 0.5,
+      "mean_gold_boundary_density": 0.125
+    },
+    "long_dependency": {
+      "num_conversations": 4,
+      "mean_num_turns": 6.5,
+      "mean_num_candidate_boundaries": 4.5,
+      "mean_num_gold_boundaries": 2.0,
+      "mean_gold_boundary_density": 0.4583333333333333
+    },
+    "multi_topic_chat": {
+      "num_conversations": 4,
+      "mean_num_turns": 6.0,
+      "mean_num_candidate_boundaries": 4.0,
+      "mean_num_gold_boundaries": 1.25,
+      "mean_gold_boundary_density": 0.3125
+    },
+    "reasoning_chat": {
+      "num_conversations": 4,
+      "mean_num_turns": 6.0,
+      "mean_num_candidate_boundaries": 4.0,
+      "mean_num_gold_boundaries": 0.5,
+      "mean_gold_boundary_density": 0.125
+    },
+    "retrieval_heavy": {
+      "num_conversations": 4,
+      "mean_num_turns": 6.0,
+      "mean_num_candidate_boundaries": 4.0,
+      "mean_num_gold_boundaries": 0.5,
+      "mean_gold_boundary_density": 0.125
+    }
+  }
+}

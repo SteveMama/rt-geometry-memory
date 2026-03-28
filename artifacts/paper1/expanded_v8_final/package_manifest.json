@@ -1,0 +1,53 @@
+{
+  "study_name": "expanded_v8_final",
+  "frozen_at": "2026-03-27T18:42:00",
+  "primary_claims": {
+    "main": [
+      "conversation-state trajectories are extremely low-rank",
+      "geometric distortion is strongly predictive of decoder drift"
+    ],
+    "secondary": [
+      "geometry adds modest marginal value for approximate localization",
+      "geometry does not beat lexical ranking for standalone boundary scoring"
+    ]
+  },
+  "dataset_hashes": {
+    "paper1_study_conversations.jsonl": "e0e5da6166ca49d2fc784a5f62c105869e6bd6d0fb595a9c4926e64ba56c5e39",
+    "paper1_h2_stress_conversations.jsonl": "af9d07ddf0cd5d0f2fbf80af5013f034f579893923227265effa00e95a07e8c3"
+  },
+  "study_config": {
+    "model_keys": [
+      "qwen25_05b",
+      "qwen25_15b",
+      "smollm2_17b"
+    ],
+    "input_path": "paper1_geometry/assets/paper1_study_conversations.jsonl",
+    "extra_input_paths": [
+      "paper1_geometry/assets/paper1_h2_stress_conversations.jsonl"
+    ],
+    "max_turns": 7,
+    "max_input_tokens": 768
+  },
+  "environment": {
+    "transformers_version": "4.49.0",
+    "models": {
+      "qwen25_05b": "Qwen/Qwen2.5-0.5B-Instruct",
+      "qwen25_15b": "Qwen/Qwen2.5-1.5B-Instruct",
+      "smollm2_17b": "HuggingFaceTB/SmolLM2-1.7B-Instruct"
+    }
+  },
+  "bundle_files": [
+    "study_summary.json",
+    "study_report.md",
+    "conversation_summary.csv",
+    "baseline_conversation_summary.csv",
+    "baseline_summary.json",
+    "benchmark_audit.json",
+    "confidence_summary.json",
+    "null_controls.json",
+    "significance_summary.json",
+    "variant_summary.json"
+  ],
+  "figure_dir": "plots",
+  "rerun_command": "python -m paper1_geometry.study --study-name expanded_v8_final --model-keys qwen25_05b,qwen25_15b,smollm2_17b --input-path paper1_geometry/assets/paper1_study_conversations.jsonl --extra-input-paths paper1_geometry/assets/paper1_h2_stress_conversations.jsonl --max-turns 7 --max-input-tokens 768"
+}

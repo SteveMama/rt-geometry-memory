@@ -1,0 +1,747 @@
+{
+  "study_name": "blazing_study_v3_confidence",
+  "created_at": "2026-03-27T18:53:15",
+  "model_keys": [
+    "qwen25_05b",
+    "qwen25_15b",
+    "smollm2_17b"
+  ],
+  "families": [
+    "long_dependency",
+    "retrieval_heavy",
+    "code_conversation"
+  ],
+  "budgets": [
+    0.2,
+    0.35,
+    0.5,
+    0.65
+  ],
+  "recent_window": 2,
+  "min_history": 4,
+  "models": {
+    "qwen25_05b": {
+      "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+      "num_conversations": 9,
+      "num_evaluations": 288,
+      "aggregate": {
+        "geometry": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 431.8645256890191,
+            "mean_kl": 8.724060476497345e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.5803389652984151,
+            "mean_budget_token_fraction": 0.40030522983754013,
+            "mean_retained_turn_fraction": 0.4833333333333333
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 234.38281631469727,
+            "mean_kl": 7.900812073962587e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.6688902473767359,
+            "mean_budget_token_fraction": 0.5021080158677347,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 245.93182457817926,
+            "mean_kl": 5.570525746160608e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.7574341659869074,
+            "mean_budget_token_fraction": 0.6012247817995611,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 281.3668399386936,
+            "mean_kl": 5.561722023471481e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.8210913689093666,
+            "mean_budget_token_fraction": 0.6743742039479296,
+            "mean_retained_turn_fraction": 0.775
+          }
+        },
+        "geometry_lexical": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 431.8645256890191,
+            "mean_kl": 8.724060476497345e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.5803389652984151,
+            "mean_budget_token_fraction": 0.40030522983754013,
+            "mean_retained_turn_fraction": 0.4833333333333333
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 354.8487781948513,
+            "mean_kl": 7.917392131437692e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.6526671853298753,
+            "mean_budget_token_fraction": 0.4837924816435165,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 343.95699734157984,
+            "mean_kl": 5.5822338357201945e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.7542689120682773,
+            "mean_budget_token_fraction": 0.5973974013460387,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 281.3668399386936,
+            "mean_kl": 5.561722023471481e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.8210913689093666,
+            "mean_budget_token_fraction": 0.6743742039479296,
+            "mean_retained_turn_fraction": 0.775
+          }
+        },
+        "lexical": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 431.8645256890191,
+            "mean_kl": 8.724060476497345e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.5803389652984151,
+            "mean_budget_token_fraction": 0.40030522983754013,
+            "mean_retained_turn_fraction": 0.4833333333333333
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 353.14416122436523,
+            "mean_kl": 7.912238906134425e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.6547768899712254,
+            "mean_budget_token_fraction": 0.4862255716678474,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 326.5933380126953,
+            "mean_kl": 5.56613187003347e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.7514318891601603,
+            "mean_budget_token_fraction": 0.5941437022190136,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 278.98673163519965,
+            "mean_kl": 5.559003447292494e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.8181673923011795,
+            "mean_budget_token_fraction": 0.6789690243322236,
+            "mean_retained_turn_fraction": 0.775
+          }
+        },
+        "uniform": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 431.8645256890191,
+            "mean_kl": 8.724060476497345e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.5803389652984151,
+            "mean_budget_token_fraction": 0.40030522983754013,
+            "mean_retained_turn_fraction": 0.4833333333333333
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 353.14416122436523,
+            "mean_kl": 7.912238906134425e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.6547768899712254,
+            "mean_budget_token_fraction": 0.4862255716678474,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 267.3327869839138,
+            "mean_kl": 5.483423852117555e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.7459139077832818,
+            "mean_budget_token_fraction": 0.6330244261698703,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 277.28818384806317,
+            "mean_kl": 5.159611868322935e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.7595163293764899,
+            "mean_budget_token_fraction": 0.6963391347019084,
+            "mean_retained_turn_fraction": 0.7194444444444446
+          }
+        }
+      },
+      "improvement_vs_uniform": {
+        "0.20": {
+          "geometry": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          },
+          "lexical": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          }
+        },
+        "0.35": {
+          "geometry": {
+            "delta_logit_l2": -118.76134490966797,
+            "delta_kl": -1.1426832171837931e-08,
+            "relative_logit_l2": 0.6637029350905377,
+            "relative_kl": 0.9985558029392947
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": 1.7046169704860858,
+            "delta_kl": 5.153225303267033e-09,
+            "relative_logit_l2": 1.0048269719781748,
+            "relative_kl": 1.0006512979909228
+          },
+          "lexical": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          }
+        },
+        "0.50": {
+          "geometry": {
+            "delta_logit_l2": -21.40096240573456,
+            "delta_kl": 8.710189404305285e-08,
+            "relative_logit_l2": 0.9199463610611207,
+            "relative_kl": 1.0158845816759936
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": 76.62421035766602,
+            "delta_kl": 9.88099836026395e-08,
+            "relative_logit_l2": 1.2866248140460104,
+            "relative_kl": 1.0180197603299408
+          },
+          "lexical": {
+            "delta_logit_l2": 59.26055102878149,
+            "delta_kl": 8.270801791591519e-08,
+            "relative_logit_l2": 1.2216733371815982,
+            "relative_kl": 1.0150832801086451
+          }
+        },
+        "0.65": {
+          "geometry": {
+            "delta_logit_l2": 4.078656090630432,
+            "delta_kl": 4.021101551485463e-07,
+            "relative_logit_l2": 1.0147090872536613,
+            "relative_kl": 1.0779341867975134
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": 4.078656090630432,
+            "delta_kl": 4.021101551485463e-07,
+            "relative_logit_l2": 1.0147090872536613,
+            "relative_kl": 1.0779341867975134
+          },
+          "lexical": {
+            "delta_logit_l2": 1.6985477871364765,
+            "delta_kl": 3.993915789695593e-07,
+            "relative_logit_l2": 1.006125568581989,
+            "relative_kl": 1.077407291316154
+          }
+        }
+      }
+    },
+    "qwen25_15b": {
+      "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
+      "num_conversations": 9,
+      "num_evaluations": 288,
+      "aggregate": {
+        "geometry": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 314.43805525037976,
+            "mean_kl": 6.778334834262662e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.5803389652984151,
+            "mean_budget_token_fraction": 0.40030522983754013,
+            "mean_retained_turn_fraction": 0.4833333333333333
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 232.45999908447266,
+            "mean_kl": 6.319124882593465e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.6688902473767359,
+            "mean_budget_token_fraction": 0.5021080158677347,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 240.86480543348523,
+            "mean_kl": 6.734394233154362e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.75248743843744,
+            "mean_budget_token_fraction": 0.5955379926482051,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 253.39007059733072,
+            "mean_kl": 6.7299599711350625e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.8210913689093666,
+            "mean_budget_token_fraction": 0.6743742039479296,
+            "mean_retained_turn_fraction": 0.775
+          }
+        },
+        "geometry_lexical": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 314.43805525037976,
+            "mean_kl": 6.778334834262662e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.5803389652984151,
+            "mean_budget_token_fraction": 0.40030522983754013,
+            "mean_retained_turn_fraction": 0.4833333333333333
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 253.25640614827475,
+            "mean_kl": 6.320336922494008e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.6547807118999235,
+            "mean_budget_token_fraction": 0.48626948093580236,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 252.72146775987414,
+            "mean_kl": 6.734892098162841e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.7471321117148365,
+            "mean_budget_token_fraction": 0.5894133059314131,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 253.39007059733072,
+            "mean_kl": 6.7299599711350625e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.8210913689093666,
+            "mean_budget_token_fraction": 0.6743742039479296,
+            "mean_retained_turn_fraction": 0.775
+          }
+        },
+        "lexical": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 314.43805525037976,
+            "mean_kl": 6.778334834262662e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.5803389652984151,
+            "mean_budget_token_fraction": 0.40030522983754013,
+            "mean_retained_turn_fraction": 0.4833333333333333
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 267.01322258843317,
+            "mean_kl": 6.321666493441174e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.6547768899712254,
+            "mean_budget_token_fraction": 0.4862255716678474,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 276.5822914971246,
+            "mean_kl": 6.7363411090740994e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.7514318891601603,
+            "mean_budget_token_fraction": 0.5941437022190136,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 257.243884616428,
+            "mean_kl": 6.7336343731522816e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.8181673923011795,
+            "mean_budget_token_fraction": 0.6789690243322236,
+            "mean_retained_turn_fraction": 0.775
+          }
+        },
+        "uniform": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 314.43805525037976,
+            "mean_kl": 6.778334834262662e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.5803389652984151,
+            "mean_budget_token_fraction": 0.40030522983754013,
+            "mean_retained_turn_fraction": 0.4833333333333333
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 267.01322258843317,
+            "mean_kl": 6.321666493441174e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.6547768899712254,
+            "mean_budget_token_fraction": 0.4862255716678474,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 219.9812020195855,
+            "mean_kl": 6.502814799956723e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.7459139077832818,
+            "mean_budget_token_fraction": 0.6330244261698703,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 212.11310619778104,
+            "mean_kl": 5.128139984100777e-06,
+            "mean_top1_agreement": 1.0,
+            "mean_token_fraction": 0.7595163293764899,
+            "mean_budget_token_fraction": 0.6963391347019084,
+            "mean_retained_turn_fraction": 0.7194444444444446
+          }
+        }
+      },
+      "improvement_vs_uniform": {
+        "0.20": {
+          "geometry": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          },
+          "lexical": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          }
+        },
+        "0.35": {
+          "geometry": {
+            "delta_logit_l2": -34.55322350396051,
+            "delta_kl": -2.5416108477092355e-09,
+            "relative_logit_l2": 0.8705935864561288,
+            "relative_kl": 0.9995979523990476
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": -13.756816440158417,
+            "delta_kl": -1.3295709471664307e-09,
+            "relative_logit_l2": 0.9484788943903246,
+            "relative_kl": 0.9997896803084209
+          },
+          "lexical": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          }
+        },
+        "0.50": {
+          "geometry": {
+            "delta_logit_l2": 20.88360341389972,
+            "delta_kl": 2.315794331976389e-07,
+            "relative_logit_l2": 1.0949335816977688,
+            "relative_kl": 1.0356121833885197
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": 32.740265740288635,
+            "delta_kl": 2.3207729820611815e-07,
+            "relative_logit_l2": 1.1488321067423464,
+            "relative_kl": 1.0356887448505627
+          },
+          "lexical": {
+            "delta_logit_l2": 56.60108947753906,
+            "delta_kl": 2.3352630911737675e-07,
+            "relative_logit_l2": 1.2572996645072414,
+            "relative_kl": 1.0359115731112212
+          }
+        },
+        "0.65": {
+          "geometry": {
+            "delta_logit_l2": 41.27696439954968,
+            "delta_kl": 1.6018199870342856e-06,
+            "relative_logit_l2": 1.194598839927702,
+            "relative_kl": 1.3123588653976976
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": 41.27696439954968,
+            "delta_kl": 1.6018199870342856e-06,
+            "relative_logit_l2": 1.194598839927702,
+            "relative_kl": 1.3123588653976976
+          },
+          "lexical": {
+            "delta_logit_l2": 45.13077841864694,
+            "delta_kl": 1.6054943890515047e-06,
+            "relative_logit_l2": 1.2127675145946217,
+            "relative_kl": 1.313075382893049
+          }
+        }
+      }
+    },
+    "smollm2_17b": {
+      "model_name": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "num_conversations": 9,
+      "num_evaluations": 288,
+      "aggregate": {
+        "geometry": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 232.51271057128906,
+            "mean_kl": 0.12333239149731728,
+            "mean_top1_agreement": 0.8333333333333334,
+            "mean_token_fraction": 0.5741290225025787,
+            "mean_budget_token_fraction": 0.39774669142631897,
+            "mean_retained_turn_fraction": 0.4722222222222222
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 176.934573703342,
+            "mean_kl": 0.07770825126120447,
+            "mean_top1_agreement": 0.7222222222222222,
+            "mean_token_fraction": 0.6676802115000404,
+            "mean_budget_token_fraction": 0.5054933487158475,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 166.9780158996582,
+            "mean_kl": 0.05209316449794264,
+            "mean_top1_agreement": 0.8333333333333334,
+            "mean_token_fraction": 0.7528557378151834,
+            "mean_budget_token_fraction": 0.600637747633923,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 161.05453194512262,
+            "mean_kl": 0.023649305729953655,
+            "mean_top1_agreement": 0.9444444444444444,
+            "mean_token_fraction": 0.8222989494836157,
+            "mean_budget_token_fraction": 0.6807990122432712,
+            "mean_retained_turn_fraction": 0.775
+          }
+        },
+        "geometry_lexical": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 232.51271057128906,
+            "mean_kl": 0.12333239149731728,
+            "mean_top1_agreement": 0.8333333333333334,
+            "mean_token_fraction": 0.5741290225025787,
+            "mean_budget_token_fraction": 0.39774669142631897,
+            "mean_retained_turn_fraction": 0.4722222222222222
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 200.2893329196506,
+            "mean_kl": 0.07303014153901838,
+            "mean_top1_agreement": 0.7777777777777778,
+            "mean_token_fraction": 0.655118623431426,
+            "mean_budget_token_fraction": 0.4912218806158525,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 180.15966669718424,
+            "mean_kl": 0.05702092194307045,
+            "mean_top1_agreement": 0.8333333333333334,
+            "mean_token_fraction": 0.7474033604329816,
+            "mean_budget_token_fraction": 0.5943683048057987,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 161.05453194512262,
+            "mean_kl": 0.023649305729953655,
+            "mean_top1_agreement": 0.9444444444444444,
+            "mean_token_fraction": 0.8222989494836157,
+            "mean_budget_token_fraction": 0.6807990122432712,
+            "mean_retained_turn_fraction": 0.775
+          }
+        },
+        "lexical": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 232.51271057128906,
+            "mean_kl": 0.12333239149731728,
+            "mean_top1_agreement": 0.8333333333333334,
+            "mean_token_fraction": 0.5741290225025787,
+            "mean_budget_token_fraction": 0.39774669142631897,
+            "mean_retained_turn_fraction": 0.4722222222222222
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 210.64711252848306,
+            "mean_kl": 0.06808692552643454,
+            "mean_top1_agreement": 0.8333333333333334,
+            "mean_token_fraction": 0.6614035032102816,
+            "mean_budget_token_fraction": 0.4984069211102382,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 190.51744630601672,
+            "mean_kl": 0.05207770593048661,
+            "mean_top1_agreement": 0.8888888888888888,
+            "mean_token_fraction": 0.7536882402118372,
+            "mean_budget_token_fraction": 0.6015533453001843,
+            "mean_retained_turn_fraction": 0.6972222222222223
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 161.05453194512262,
+            "mean_kl": 0.023649305729953655,
+            "mean_top1_agreement": 0.9444444444444444,
+            "mean_token_fraction": 0.8222989494836157,
+            "mean_budget_token_fraction": 0.6807990122432712,
+            "mean_retained_turn_fraction": 0.775
+          }
+        },
+        "uniform": {
+          "0.20": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 232.51271057128906,
+            "mean_kl": 0.12333239149731728,
+            "mean_top1_agreement": 0.8333333333333334,
+            "mean_token_fraction": 0.5741290225025787,
+            "mean_budget_token_fraction": 0.39774669142631897,
+            "mean_retained_turn_fraction": 0.4722222222222222
+          },
+          "0.35": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 210.64711252848306,
+            "mean_kl": 0.06808692552643454,
+            "mean_top1_agreement": 0.8333333333333334,
+            "mean_token_fraction": 0.6614035032102816,
+            "mean_budget_token_fraction": 0.4984069211102382,
+            "mean_retained_turn_fraction": 0.5916666666666667
+          },
+          "0.50": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 169.69946246676975,
+            "mean_kl": 0.05083773103414894,
+            "mean_top1_agreement": 0.8888888888888888,
+            "mean_token_fraction": 0.7404944408099622,
+            "mean_budget_token_fraction": 0.6373496005275437,
+            "mean_retained_turn_fraction": 0.6861111111111112
+          },
+          "0.65": {
+            "num_evaluations": 18,
+            "mean_logit_l2": 161.96231375800238,
+            "mean_kl": 0.05380510934680337,
+            "mean_top1_agreement": 0.8333333333333334,
+            "mean_token_fraction": 0.7521060662108168,
+            "mean_budget_token_fraction": 0.68867538526178,
+            "mean_retained_turn_fraction": 0.7083333333333333
+          }
+        }
+      },
+      "improvement_vs_uniform": {
+        "0.20": {
+          "geometry": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          },
+          "lexical": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          }
+        },
+        "0.35": {
+          "geometry": {
+            "delta_logit_l2": -33.71253882514105,
+            "delta_kl": 0.009621325734769925,
+            "relative_logit_l2": 0.8399572706196837,
+            "relative_kl": 1.1413094461290438
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": -10.357779608832459,
+            "delta_kl": 0.004943216012583837,
+            "relative_logit_l2": 0.9508287605535921,
+            "relative_kl": 1.0726015453681288
+          },
+          "lexical": {
+            "delta_logit_l2": 0.0,
+            "delta_kl": 0.0,
+            "relative_logit_l2": 1.0,
+            "relative_kl": 1.0
+          }
+        },
+        "0.50": {
+          "geometry": {
+            "delta_logit_l2": -2.721446567111542,
+            "delta_kl": 0.001255433463793705,
+            "relative_logit_l2": 0.9839631397321341,
+            "relative_kl": 1.024694915336611
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": 10.46020423041449,
+            "delta_kl": 0.006183190908921513,
+            "relative_logit_l2": 1.0616395837580381,
+            "relative_kl": 1.1216260203424129
+          },
+          "lexical": {
+            "delta_logit_l2": 20.817983839246978,
+            "delta_kl": 0.0012399748963376755,
+            "relative_logit_l2": 1.1226756027192692,
+            "relative_kl": 1.0243908386765876
+          }
+        },
+        "0.65": {
+          "geometry": {
+            "delta_logit_l2": -0.9077818128797617,
+            "delta_kl": -0.030155803616849712,
+            "relative_logit_l2": 0.9943951046893778,
+            "relative_kl": 0.4395364309645937
+          },
+          "geometry_lexical": {
+            "delta_logit_l2": -0.9077818128797617,
+            "delta_kl": -0.030155803616849712,
+            "relative_logit_l2": 0.9943951046893778,
+            "relative_kl": 0.4395364309645937
+          },
+          "lexical": {
+            "delta_logit_l2": -0.9077818128797617,
+            "delta_kl": -0.030155803616849712,
+            "relative_logit_l2": 0.9943951046893778,
+            "relative_kl": 0.4395364309645937
+          }
+        }
+      }
+    }
+  }
+}

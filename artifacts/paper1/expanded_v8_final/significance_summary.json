@@ -1,0 +1,128 @@
+{
+  "qwen25_05b": {
+    "geometry_lexical_vs_lexical_only": {
+      "exact_f1": {
+        "mean_difference": 0.0972222164273262,
+        "ci_low": 0.0277777761220932,
+        "ci_high": 0.1805555671453476,
+        "p_value": 0.0662
+      },
+      "tol2_f1": {
+        "mean_difference": 0.0138888880610466,
+        "ci_low": -0.0416666641831398,
+        "ci_high": 0.069444440305233,
+        "p_value": 1.0
+      },
+      "auprc": {
+        "mean_difference": -0.14618055522441864,
+        "ci_low": -0.2951475463807583,
+        "ci_high": 7.812989254800229e-05,
+        "p_value": 0.0665
+      }
+    },
+    "geometry_lexical_vs_geometry_only": {
+      "exact_f1": {
+        "mean_difference": 0.0972222164273262,
+        "ci_low": 0.0277777761220932,
+        "ci_high": 0.1805555671453476,
+        "p_value": 0.0615
+      },
+      "tol2_f1": {
+        "mean_difference": 0.0138888880610466,
+        "ci_low": -0.0416666641831398,
+        "ci_high": 0.069444440305233,
+        "p_value": 1.0
+      },
+      "auprc": {
+        "mean_difference": 0.0347222238779068,
+        "ci_low": 0.006944445427507162,
+        "ci_high": 0.0729166641831398,
+        "p_value": 0.1213
+      }
+    }
+  },
+  "qwen25_15b": {
+    "geometry_lexical_vs_lexical_only": {
+      "exact_f1": {
+        "mean_difference": 0.0416666679084301,
+        "ci_low": 0.0,
+        "ci_high": 0.1111111119389534,
+        "p_value": 0.4917
+      },
+      "tol2_f1": {
+        "mean_difference": 0.0,
+        "ci_low": -0.0416666641831398,
+        "ci_high": 0.0416666641831398,
+        "p_value": 1.0
+      },
+      "auprc": {
+        "mean_difference": -0.12013888359069824,
+        "ci_low": -0.20696181133389474,
+        "ci_high": -0.04374999925494194,
+        "p_value": 0.0058
+      }
+    },
+    "geometry_lexical_vs_geometry_only": {
+      "exact_f1": {
+        "mean_difference": 0.0416666679084301,
+        "ci_low": 0.0,
+        "ci_high": 0.1111111119389534,
+        "p_value": 0.495
+      },
+      "tol2_f1": {
+        "mean_difference": 0.0,
+        "ci_low": -0.0416666641831398,
+        "ci_high": 0.0416666641831398,
+        "p_value": 1.0
+      },
+      "auprc": {
+        "mean_difference": 0.0711805522441864,
+        "ci_low": 0.013888890808448195,
+        "ci_high": 0.1493055373430252,
+        "p_value": 0.0299
+      }
+    }
+  },
+  "smollm2_17b": {
+    "geometry_lexical_vs_lexical_only": {
+      "exact_f1": {
+        "mean_difference": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0,
+        "p_value": 1.0
+      },
+      "tol2_f1": {
+        "mean_difference": 0.0138888880610466,
+        "ci_low": 0.0,
+        "ci_high": 0.0416666641831398,
+        "p_value": 1.0
+      },
+      "auprc": {
+        "mean_difference": -0.05763888359069824,
+        "ci_low": -0.13958333432674408,
+        "ci_high": 0.01180555671453476,
+        "p_value": 0.202
+      }
+    },
+    "geometry_lexical_vs_geometry_only": {
+      "exact_f1": {
+        "mean_difference": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0,
+        "p_value": 1.0
+      },
+      "tol2_f1": {
+        "mean_difference": 0.0138888880610466,
+        "ci_low": 0.0,
+        "ci_high": 0.0416666641831398,
+        "p_value": 1.0
+      },
+      "auprc": {
+        "mean_difference": -0.02638888545334339,
+        "ci_low": -0.07847221959382296,
+        "ci_high": 0.008333336631767451,
+        "p_value": 0.373
+      }
+    }
+  }
+}
