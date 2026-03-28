@@ -42,6 +42,7 @@ Current Paper 2 checkpoint:
 - strongest result: geometry-aware control beats uniform on the hard stress set
 - mechanism result: geometry preserves memory-critical support turns more often than uniform
 - status: best tracked artifacts in [`artifacts/paper2`](/Users/pranav/Documents/RT/artifacts/paper2)
+- next experiment focus: semantic competitor baseline, one 3B probe, token-matched fairness sweep, and tighter Paper 3 head-to-head runs
 
 Current Paper 3 framing:
 
@@ -54,12 +55,14 @@ Current Paper 3 checkpoint:
 - `geometry_keep_compress_drop` is now a real compression policy, not a degenerate prototype
 - `geometry_segment_actions` and `geometry_keep_compress_drop` are both viable, with complementary strengths
 - status: latest tracked checkpoint in [`artifacts/paper3/paper3_pilot_v3_full`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_pilot_v3_full)
+- next experiment focus: harden the cross-model head-to-head and publish new Colab artifacts back into `artifacts/paper3`
 
 ## Start Here
 
 - Read [`artifacts/README.md`](/Users/pranav/Documents/RT/artifacts/README.md) for the frozen checkpoint bundle
 - Read [`papers/README.md`](/Users/pranav/Documents/RT/papers/README.md) for the research-program logic
 - Use [`notebooks/rt_colab_pro_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_colab_pro_runner.ipynb) for Colab runs
+- Use [`notebooks/rt_next_phase_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_next_phase_runner.ipynb) for the next competitor-aware Colab suite
 - Use [`scripts/README.md`](/Users/pranav/Documents/RT/scripts/README.md) for command-line reruns
 
 ## Recommended Local Models
@@ -68,6 +71,7 @@ Start with these Mac-friendly presets:
 
 - `qwen25_05b` = `Qwen/Qwen2.5-0.5B-Instruct`
 - `qwen25_15b` = `Qwen/Qwen2.5-1.5B-Instruct`
+- `qwen25_3b` = `Qwen/Qwen2.5-3B-Instruct`
 - `qwen3_06b` = `Qwen/Qwen3-0.6B`
 - `smollm2_17b` = `HuggingFaceTB/SmolLM2-1.7B-Instruct`
 
@@ -75,6 +79,7 @@ Why these:
 
 - `Qwen2.5-0.5B-Instruct` is the safest first baseline for Apple Silicon.
 - `Qwen2.5-1.5B-Instruct` gives a stronger same-family comparison without leaving the local-first regime.
+- `Qwen2.5-3B-Instruct` is the first larger-model checkpoint and is intended for Colab or a discrete GPU.
 - `Qwen3-0.6B` is attractive for Paper 1, but it requires `transformers>=4.51.0`.
 - `SmolLM2-1.7B-Instruct` gives one compact non-Qwen control model.
 
@@ -236,6 +241,27 @@ python -m paper2_memory.memory_critical_analysis \
   --budget-fraction 0.35 \
   --output-path results/paper2/studies/behavior_stress_qwen_cases/memory_critical_qwen25_05b_b035.md
 ```
+
+## Next Phase On Colab
+
+The next checkpoint is experiment-driven, not architecture-sprawl-driven. The recommended Colab path is:
+
+1. run the Paper 2 competitor matrix with the semantic baseline
+2. run the Paper 2 `qwen25_3b` probe
+3. run the Paper 2 fairness sweep
+4. run the Paper 3 cross-model head-to-head
+5. publish the resulting run directories back into tracked `artifacts/`
+
+Use these entry points:
+
+- [`scripts/run_paper2_competitor_matrix.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_competitor_matrix.sh)
+- [`scripts/run_paper2_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_3b_probe.sh)
+- [`scripts/run_paper2_fairness_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_fairness_sweep.sh)
+- [`scripts/run_paper2_custom_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_custom_benchmark.sh)
+- [`scripts/run_paper3_head_to_head.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_head_to_head.sh)
+- [`scripts/publish_artifact.sh`](/Users/pranav/Documents/RT/scripts/publish_artifact.sh)
+- [`scripts/run_next_phase_suite.sh`](/Users/pranav/Documents/RT/scripts/run_next_phase_suite.sh)
+- [`notebooks/rt_next_phase_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_next_phase_runner.ipynb)
 
 ## Colab Pro
 

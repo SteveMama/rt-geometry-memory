@@ -49,6 +49,15 @@ DEFAULT_MODELS: tuple[ModelSpec, ...] = (
         mac_notes="Useful second-pass comparison on 16 GB+ Apple Silicon.",
     ),
     ModelSpec(
+        key="qwen25_3b",
+        model_name="Qwen/Qwen2.5-3B-Instruct",
+        notes="First larger-model checkpoint for Colab or stronger local hardware.",
+        min_transformers_version="4.37.0",
+        parameter_size="3.09B",
+        context_length=32768,
+        mac_notes="Prefer Colab or discrete GPU; usually too slow for comfortable Mac iteration.",
+    ),
+    ModelSpec(
         key="smollm2_17b",
         model_name="HuggingFaceTB/SmolLM2-1.7B-Instruct",
         notes="Cross-family compact baseline for checking whether the geometry story generalizes beyond Qwen.",

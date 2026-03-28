@@ -10,7 +10,7 @@ from typing import Any
 import numpy as np
 
 from .plotting import plot_budget_curves, plot_family_heatmap
-from .run_paper2 import DEFAULT_INPUT, DEFAULT_OUTPUT, _parse_families, _parse_float_list, run_controller
+from .run_paper2 import DEFAULT_INPUT, DEFAULT_OUTPUT, _parse_families, _parse_float_list, _parse_policies, run_controller
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -147,12 +147,12 @@ def _paired_delta_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     rng = np.random.default_rng(20260328)
     summary: dict[str, Any] = {}
     model_keys = sorted({str(row["model_key"]) for row in rows})
-    comparison_policies = ["geometry", "lexical", "geometry_lexical"]
     for model_key in model_keys:
         model_rows = [row for row in rows if str(row["model_key"]) == model_key]
         budget_payload: dict[str, Any] = {}
         for budget in sorted({float(row["budget_fraction"]) for row in model_rows}):
             budget_rows = [row for row in model_rows if float(row["budget_fraction"]) == budget]
+            comparison_policies = sorted({str(row["policy_name"]) for row in budget_rows if str(row["policy_name"]) != "uniform"})
             uniform_map = {
                 (str(row["conversation_id"]), int(row["target_turn"])): row
                 for row in budget_rows
@@ -193,12 +193,12 @@ def _paired_behavior_delta_summary(rows: list[dict[str, Any]]) -> dict[str, Any]
     rng = np.random.default_rng(20260330)
     summary: dict[str, Any] = {}
     model_keys = sorted({str(row["model_key"]) for row in rows})
-    comparison_policies = ["geometry", "lexical", "geometry_lexical", "uniform_segment_actions", "geometry_segment_actions"]
     for model_key in model_keys:
         model_rows = [row for row in rows if str(row["model_key"]) == model_key]
         budget_payload: dict[str, Any] = {}
         for budget in sorted({float(row["budget_fraction"]) for row in model_rows}):
             budget_rows = [row for row in model_rows if float(row["budget_fraction"]) == budget]
+            comparison_policies = sorted({str(row["policy_name"]) for row in budget_rows if str(row["policy_name"]) != "uniform"})
             uniform_map = {
                 (str(row["conversation_id"]), int(row["target_turn"])): row
                 for row in budget_rows
@@ -261,6 +261,7 @@ def _format_study_report(
         f"- Models: {', '.join(summary['model_keys'])}",
         f"- Families: {', '.join(summary['families'])}",
         f"- Budgets: {', '.join(f'{budget:.2f}' for budget in summary['budgets'])}",
+        f"- Policies: {', '.join(summary['policies'])}",
         "",
         "## By Model",
         "",
@@ -355,6 +356,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--state-layer", type=int, default=-1)
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
+    parser.add_argument("--policies", default=None)
     return parser
 
 
@@ -366,6 +368,7 @@ def main() -> None:
         input_paths.extend(Path(item.strip()) for item in args.extra_input_paths.split(",") if item.strip())
     families = _parse_families(args.families) or []
     budgets = _parse_float_list(args.budgets)
+    policies = _parse_policies(args.policies)
 
     study_dir = args.output_root / args.study_name
     study_dir.mkdir(parents=True, exist_ok=True)
@@ -391,6 +394,7 @@ def main() -> None:
             state_layer=args.state_layer,
             device=args.device,
             limit_conversations=args.limit_conversations,
+            policies=policies,
             output_dir=study_dir / model_key,
         )
         model_results.append(result)
@@ -407,6 +411,7 @@ def main() -> None:
         "budgets": budgets,
         "recent_window": args.recent_window,
         "min_history": args.min_history,
+        "policies": list(policies),
         "models": _study_summary(model_results),
     }
     confidence_summary = _policy_confidence_summary(all_rows)

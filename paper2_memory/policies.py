@@ -54,6 +54,18 @@ def turn_hybrid_risk(analysis: dict) -> np.ndarray:
     return _normalize(geometry + 0.75 * lexical)
 
 
+def turn_semantic_risk(states: np.ndarray, target_turn: int) -> np.ndarray:
+    if states.size == 0:
+        return np.zeros(0, dtype=np.float32)
+    target_state = np.asarray(states[target_turn], dtype=np.float32)
+    state_array = np.asarray(states, dtype=np.float32)
+    target_norm = float(np.linalg.norm(target_state))
+    state_norms = np.linalg.norm(state_array, axis=1)
+    denom = np.maximum(state_norms * max(target_norm, 1e-8), 1e-8)
+    cosine = np.clip(np.sum(state_array * target_state[None, :], axis=1) / denom, -1.0, 1.0)
+    return _normalize((cosine + 1.0) * 0.5)
+
+
 @dataclass(frozen=True, slots=True)
 class PolicySelection:
     retained_turn_indices: list[int]
@@ -282,7 +294,7 @@ def select_turns(
     older_scores = risk_scores[:older_count]
     if policy_name == "uniform":
         candidate_order = _uniform_indices(older_count, older_count)
-    elif policy_name in {"lexical", "geometry", "geometry_lexical"}:
+    elif policy_name in {"lexical", "geometry", "geometry_lexical", "semantic"}:
         density = older_scores / np.maximum(older_costs.astype(np.float32), 1.0)
         candidate_order = list(np.argsort(-density, kind="stable"))
     else:

@@ -20,6 +20,7 @@ from .policies import (
     turn_geometry_risk,
     turn_hybrid_risk,
     turn_lexical_risk,
+    turn_semantic_risk,
 )
 
 
@@ -27,6 +28,7 @@ DEFAULT_OUTPUT = Path(__file__).resolve().parents[1] / "results" / "paper2"
 DEFAULT_INPUT = Path(__file__).resolve().parents[1] / "paper1_geometry" / "assets" / "paper1_study_conversations.jsonl"
 DEFAULT_POLICIES = (
     "uniform",
+    "semantic",
     "lexical",
     "geometry",
     "geometry_lexical",
@@ -66,6 +68,12 @@ def _parse_families(raw: str | None) -> list[str] | None:
     if raw is None or not raw.strip():
         return None
     return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def _parse_policies(raw: str | None) -> tuple[str, ...]:
+    if raw is None or not raw.strip():
+        return DEFAULT_POLICIES
+    return tuple(item.strip() for item in raw.split(",") if item.strip())
 
 
 def _aggregate_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -240,6 +248,7 @@ def run_controller(
         hybrid_risk = turn_hybrid_risk(analysis)
         risk_map = {
             "uniform": np.zeros(len(conversation.turns), dtype=np.float32),
+            "semantic": np.zeros(len(conversation.turns), dtype=np.float32),
             "lexical": lexical_risk,
             "geometry": geometry_risk,
             "geometry_lexical": hybrid_risk,
@@ -272,10 +281,14 @@ def run_controller(
                 )
             for budget in budgets:
                 for policy_name in policies:
+                    if policy_name == "semantic":
+                        policy_scores = turn_semantic_risk(full_batch.states, target_turn)[:prefix_turn_count]
+                    else:
+                        policy_scores = risk_map[policy_name][:prefix_turn_count]
                     if policy_name.endswith("segment_actions"):
                         selection = select_segment_actions(
                             policy_name=policy_name,
-                            risk_scores=risk_map[policy_name][:prefix_turn_count],
+                            risk_scores=policy_scores,
                             turn_costs=prefix_turn_costs,
                             prefix_turn_count=prefix_turn_count,
                             budget_fraction=budget,
@@ -284,7 +297,7 @@ def run_controller(
                     else:
                         selection = select_turns(
                             policy_name=policy_name,
-                            risk_scores=risk_map[policy_name][:prefix_turn_count],
+                            risk_scores=policy_scores,
                             turn_costs=prefix_turn_costs,
                             prefix_turn_count=prefix_turn_count,
                             budget_fraction=budget,
@@ -472,6 +485,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--state-layer", type=int, default=-1)
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
+    parser.add_argument("--policies", default=None)
     return parser
 
 
@@ -494,6 +508,7 @@ def main() -> None:
         device=args.device,
         limit_conversations=args.limit_conversations,
         output_dir=args.output_root / args.run_name,
+        policies=_parse_policies(args.policies),
     )
     print(f"Wrote Paper 2 outputs to {args.output_root / args.run_name}")
     print(

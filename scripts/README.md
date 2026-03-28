@@ -14,6 +14,20 @@ Included:
   - rerun logged Paper 2 mechanism analyses and cross-model summaries
 - [`run_paper3_pilot.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_pilot.sh)
   - run the full Paper 3 pilot study and emit memory-critical reports
+- [`run_paper2_competitor_matrix.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_competitor_matrix.sh)
+  - run the hard stress-set competitor matrix with `semantic`, `lexical`, `geometry`, and segment-action policies
+- [`run_paper2_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_3b_probe.sh)
+  - run the first larger-model Paper 2 probe on `qwen25_3b`
+- [`run_paper2_fairness_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_fairness_sweep.sh)
+  - run a tighter budget sweep for token-fraction fairness analysis
+- [`run_paper2_custom_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper2_custom_benchmark.sh)
+  - run the Paper 2 study against any compatible benchmark JSONL without changing code
+- [`run_paper3_head_to_head.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_head_to_head.sh)
+  - rerun the Paper 3 cross-model head-to-head and emit memory-critical reports
+- [`publish_artifact.sh`](/Users/pranav/Documents/RT/scripts/publish_artifact.sh)
+  - copy an ignored `results/` run into tracked `artifacts/` and optionally commit/push it
+- [`run_next_phase_suite.sh`](/Users/pranav/Documents/RT/scripts/run_next_phase_suite.sh)
+  - run the full next-phase suite on Colab with one command
 
 Recommended usage:
 

@@ -5,6 +5,7 @@ This package contains the Paper 2 geometry-aware memory-control experiments.
 Core responsibilities:
 
 - budgeted retention and segment-action policies
+- semantic and lexical competitor baselines on the same hard stress set
 - hard stress-set evaluation
 - answer-level behavior scoring
 - mechanism analysis for memory-critical support turns
@@ -21,4 +22,5 @@ Current checkpoint:
 
 - main result: geometry-aware control beats uniform on the hard stress set
 - mechanism result: geometry preserves memory-critical support turns more often than uniform
+- next experiment track: semantic competitor matrix, `qwen25_3b` probe, and fairness sweeps
 - tracked summaries live under [`artifacts/paper2`](/Users/pranav/Documents/RT/artifacts/paper2)
