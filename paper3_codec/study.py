@@ -38,6 +38,8 @@ def _study_summary(model_results: list[dict[str, Any]]) -> dict[str, Any]:
             "num_evaluations": summary["num_evaluations"],
             "num_behavior_evaluations": summary.get("num_behavior_evaluations", 0),
             "segment_span": summary["segment_span"],
+            "target_turn_stride": summary.get("target_turn_stride", 1),
+            "max_target_turns": summary.get("max_target_turns"),
             "aggregate": summary["aggregate"],
             "behavior_aggregate": summary.get("behavior_aggregate", {}),
             "improvement_vs_uniform": summary["improvement_vs_uniform"],
@@ -198,6 +200,8 @@ def _format_report(
                 f"- Evaluations: {payload['num_evaluations']}",
                 f"- Behavior evaluations: {payload['num_behavior_evaluations']}",
                 f"- Segment span: {payload['segment_span']}",
+                f"- Target-turn stride: {payload.get('target_turn_stride', 1)}",
+                f"- Max target turns / conversation: {payload.get('max_target_turns')}",
                 "",
             ]
         )
@@ -257,6 +261,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
     parser.add_argument("--segment-span", type=int, default=2)
+    parser.add_argument("--target-turn-stride", type=int, default=1)
+    parser.add_argument("--max-target-turns", type=int, default=None)
     parser.add_argument(
         "--policies",
         default="uniform,semantic,geometry,geometry_segment_actions,geometry_keep_compress_drop",
@@ -320,6 +326,8 @@ def main() -> None:
         "families": _parse_families(args.families),
         "budgets": _parse_float_list(args.budgets),
         "policies": list(policies),
+        "target_turn_stride": args.target_turn_stride,
+        "max_target_turns": args.max_target_turns,
         "models": _study_summary(model_results),
     }
 

@@ -61,6 +61,27 @@ def _parse_policies(raw: str | None) -> tuple[str, ...]:
     return tuple(item.strip() for item in raw.split(",") if item.strip())
 
 
+def _sample_target_turns(
+    *,
+    num_turns: int,
+    min_history: int,
+    stride: int,
+    max_target_turns: int | None,
+) -> list[int]:
+    if num_turns <= min_history:
+        return []
+    target_turns = list(range(min_history, num_turns, max(stride, 1)))
+    if max_target_turns is None or len(target_turns) <= max_target_turns:
+        return target_turns
+    if max_target_turns <= 1:
+        return [target_turns[-1]]
+    positions = np.linspace(0, len(target_turns) - 1, num=max_target_turns)
+    sampled = sorted({target_turns[int(round(position))] for position in positions})
+    if sampled[-1] != target_turns[-1]:
+        sampled[-1] = target_turns[-1]
+    return sampled
+
+
 def _prefix_turn_costs(prefix_token_counts: np.ndarray) -> np.ndarray:
     if prefix_token_counts.size == 0:
         return np.zeros(0, dtype=np.int32)
@@ -207,6 +228,8 @@ def run_codec_pilot(
     output_dir: Path | None,
     segment_span: int = 2,
     policies: tuple[str, ...] = DEFAULT_POLICIES,
+    target_turn_stride: int = 1,
+    max_target_turns: int | None = None,
 ) -> dict[str, Any]:
     spec = resolve_model_spec(model_key)
     if spec is None:
@@ -226,7 +249,16 @@ def run_codec_pilot(
         dtype=dtype,
         state_layer=state_layer,
     )
-    total_target_turns = sum(max(len(conversation.turns) - min_history, 0) for conversation in conversations)
+    conversation_target_turns = {
+        conversation.conversation_id: _sample_target_turns(
+            num_turns=len(conversation.turns),
+            min_history=min_history,
+            stride=target_turn_stride,
+            max_target_turns=max_target_turns,
+        )
+        for conversation in conversations
+    }
+    total_target_turns = sum(len(target_turns) for target_turns in conversation_target_turns.values())
     total_policy_evals = total_target_turns * len(budgets) * len(policies)
     print(
         f"[{model_key}] Starting Paper 3 run with {len(conversations)} conversations, "
@@ -236,7 +268,8 @@ def run_codec_pilot(
     )
     print(
         f"[{model_key}] Model={spec.model_name} device={extractor.device} "
-        f"max_input_tokens={max_input_tokens} segment_span={segment_span}",
+        f"max_input_tokens={max_input_tokens} segment_span={segment_span} "
+        f"target_turn_stride={target_turn_stride} max_target_turns={max_target_turns}",
         flush=True,
     )
 
@@ -253,14 +286,16 @@ def run_codec_pilot(
             max_turns=None,
             max_input_tokens=max_input_tokens,
         )
+        target_turns = conversation_target_turns[conversation.conversation_id]
         if hasattr(conversation_iterator, "set_postfix_str"):
             conversation_iterator.set_postfix_str(
-                f"{conversation.conversation_id} turns={len(conversation.turns)} rows={len(evaluation_rows)}"
+                f"{conversation.conversation_id} turns={len(conversation.turns)} sampled_targets={len(target_turns)} rows={len(evaluation_rows)}"
             )
         elif conversation_index == 1 or conversation_index % 10 == 0:
             print(
                 f"[{model_key}] Conversation {conversation_index}/{len(conversations)} "
-                f"{conversation.conversation_id} turns={len(conversation.turns)} rows={len(evaluation_rows)}",
+                f"{conversation.conversation_id} turns={len(conversation.turns)} "
+                f"sampled_targets={len(target_turns)} rows={len(evaluation_rows)}",
                 flush=True,
             )
         analysis = analyze_trajectory(
@@ -273,7 +308,7 @@ def run_codec_pilot(
         geometry_risk = turn_geometry_risk(analysis)
         turn_costs = _prefix_turn_costs(full_batch.token_counts)
 
-        for target_turn in range(min_history, len(conversation.turns)):
+        for target_turn in target_turns:
             full_logits = full_batch.logits[target_turn]
             full_tokens = int(full_batch.token_counts[target_turn])
             prefix_turn_count = target_turn
@@ -417,6 +452,8 @@ def run_codec_pilot(
         "min_history": min_history,
         "segment_span": segment_span,
         "policies": list(policies),
+        "target_turn_stride": target_turn_stride,
+        "max_target_turns": max_target_turns,
         "num_conversations": len(conversations),
         "num_evaluations": len(evaluation_rows),
         "num_behavior_evaluations": len(behavior_rows),
@@ -451,6 +488,8 @@ def _format_report(summary: dict[str, Any]) -> str:
         f"- Budgets: {', '.join(f'{float(item):.2f}' for item in summary['budgets'])}",
         f"- Policies: {', '.join(summary.get('policies', []))}",
         f"- Segment span: {summary['segment_span']}",
+        f"- Target-turn stride: {summary.get('target_turn_stride', 1)}",
+        f"- Max target turns / conversation: {summary.get('max_target_turns')}",
         f"- Conversations: {summary['num_conversations']}",
         f"- Evaluations: {summary['num_evaluations']}",
         f"- Behavior evaluations: {summary['num_behavior_evaluations']}",
@@ -523,6 +562,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
     parser.add_argument("--segment-span", type=int, default=2)
+    parser.add_argument("--target-turn-stride", type=int, default=1)
+    parser.add_argument("--max-target-turns", type=int, default=None)
     parser.add_argument(
         "--policies",
         default=",".join(DEFAULT_POLICIES),
@@ -551,6 +592,8 @@ def main() -> None:
         output_dir=args.output_root / args.run_name,
         segment_span=args.segment_span,
         policies=_parse_policies(args.policies),
+        target_turn_stride=args.target_turn_stride,
+        max_target_turns=args.max_target_turns,
     )
     print(f"Wrote Paper 3 outputs to {args.output_root / args.run_name}")
     print(
