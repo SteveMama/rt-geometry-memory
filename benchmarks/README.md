@@ -63,7 +63,12 @@ Supported input modes:
 
 - `normalized`: validate and rewrite an already-normalized file
 - `locomo`: heuristic adapter for LoCoMo-style records
+- `msc`: heuristic adapter for multi-session chat records
 - `longmemeval`: heuristic adapter for LongMemEval-style records
+
+Quick-benchmark plan:
+
+- [`quick_benchmark_plan.md`](/Users/pranav/Documents/RT/benchmarks/quick_benchmark_plan.md)
 
 If the upstream benchmark schema differs from the heuristics here, preprocess it
 into the normalized JSONL structure first. The benchmark runners do not depend

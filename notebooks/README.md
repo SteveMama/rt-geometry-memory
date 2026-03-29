@@ -8,6 +8,7 @@ Current notebook:
 - [`rt_next_phase_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_next_phase_runner.ipynb)
 - [`rt_paper3_next_batch_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_next_batch_runner.ipynb)
 - [`rt_paper3_public_solidification_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_public_solidification_runner.ipynb)
+- [`rt_paper3_quick_benchmarks_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_quick_benchmarks_runner.ipynb)
 
 Purpose:
 
@@ -20,4 +21,5 @@ Purpose:
 - run the public-benchmark, non-Qwen 3B, and crossover-sweep Paper 3 solidification batch
   - default public benchmark: `LongMemEval-S cleaned`
   - includes `tiny smoke`, `medium subset`, and `full bounded run` sections
+- run smaller and quicker benchmark loops for `MSC` and `LoCoMo`-style iteration
 - publish tracked artifacts back into the repository after a Colab run

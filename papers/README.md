@@ -13,6 +13,7 @@ For the current manuscript-grade checkpoint paper, see:
 2. [`paper1_outline.md`](/Users/pranav/Documents/RT/papers/paper1_outline.md)
 3. [`paper2_geometry_guided_adaptive_memory_compression.md`](/Users/pranav/Documents/RT/papers/paper2_geometry_guided_adaptive_memory_compression.md)
 4. [`paper3_manifold_memory_codecs.md`](/Users/pranav/Documents/RT/papers/paper3_manifold_memory_codecs.md)
+5. [`paper3_public_benchmark_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_public_benchmark_checkpoint.md)
 
 ## Logic
 

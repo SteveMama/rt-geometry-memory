@@ -37,9 +37,11 @@ Included:
 - [`run_paper3_next_batch.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_next_batch.sh)
   - run the next surgical Paper 3 batch: fairness sweep plus 3B probe
 - [`prepare_public_benchmark_jsonl.py`](/Users/pranav/Documents/RT/scripts/prepare_public_benchmark_jsonl.py)
-  - normalize LoCoMo-, LongMemEval-, or already-normalized benchmark files into the project's JSONL conversation format
+  - normalize MSC-, LoCoMo-, LongMemEval-, or already-normalized benchmark files into the project's JSONL conversation format
 - [`download_public_benchmark.py`](/Users/pranav/Documents/RT/scripts/download_public_benchmark.py)
   - download the recommended first public benchmark, `LongMemEval-S cleaned`, from Hugging Face
+- [`run_paper3_quick_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_quick_benchmark.sh)
+  - run a bounded quick benchmark loop for smaller datasets such as MSC or LoCoMo
 - [`build_manuscript_assets.py`](/Users/pranav/Documents/RT/scripts/build_manuscript_assets.py)
   - generate manuscript tables and packaged figures directly from tracked artifact JSON
 - [`run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)

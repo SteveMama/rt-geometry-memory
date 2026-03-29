@@ -128,6 +128,41 @@ def _adapt_locomo(record: dict[str, Any], index: int, family: str) -> dict[str, 
     )
 
 
+def _adapt_msc(record: dict[str, Any], index: int, family: str) -> dict[str, Any]:
+    record_id = str(record.get("conversation_id") or record.get("id") or f"msc-{index:05d}")
+    raw_sessions = (
+        record.get("sessions")
+        or record.get("session_history")
+        or record.get("dialogues")
+        or record.get("dialogs")
+        or record.get("history")
+    )
+    turns: list[dict[str, str]] = []
+    if isinstance(raw_sessions, list):
+        turns = _coerce_session_history(raw_sessions)
+    else:
+        single = (
+            record.get("dialog")
+            or record.get("dialogue")
+            or record.get("conversation")
+            or record.get("messages")
+            or record.get("turns")
+        )
+        if isinstance(single, list):
+            turns = _coerce_turns(single)
+    question = str(record.get("question") or record.get("query") or record.get("prompt") or "").strip()
+    answer = str(record.get("answer") or record.get("response") or record.get("gold_answer") or "").strip()
+    if question:
+        turns.append({"role": "user", "content": question})
+    if answer:
+        turns.append({"role": "assistant", "content": answer})
+    return _normalized_record(
+        {"turns": turns, "system_prompt": record.get("system_prompt"), "family": family},
+        record_id=record_id,
+        family=family,
+    )
+
+
 def _adapt_longmemeval(record: dict[str, Any], index: int, family: str) -> dict[str, Any]:
     record_id = str(
         record.get("question_id")
@@ -163,7 +198,7 @@ def _adapt_longmemeval(record: dict[str, Any], index: int, family: str) -> dict[
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Normalize a public benchmark into RT conversation JSONL.")
-    parser.add_argument("--format", choices=["normalized", "locomo", "longmemeval"], required=True)
+    parser.add_argument("--format", choices=["normalized", "locomo", "msc", "longmemeval"], required=True)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--family", default="public_benchmark")
@@ -184,6 +219,8 @@ def main() -> None:
             payload = _normalized_record(record, record_id=record_id, family=args.family)
         elif args.format == "locomo":
             payload = _adapt_locomo(record, index, args.family)
+        elif args.format == "msc":
+            payload = _adapt_msc(record, index, args.family)
         else:
             payload = _adapt_longmemeval(record, index, args.family)
         normalized.append(payload)

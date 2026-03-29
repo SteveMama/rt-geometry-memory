@@ -78,6 +78,32 @@ This file is the cumulative log of the RT research program checkpointed in this 
   - [`manuscript/build.sh`](/Users/pranav/Documents/RT/manuscript/build.sh)
 - Added a manuscript README and root README integration so the repo can be handed off as a coherent checkpoint rather than a loose experiment dump.
 
+## Phase 6: First Full Public-Benchmark Result
+
+- Completed the first full bounded public-benchmark Paper 3 run:
+  - [`paper3_public_v1_public_benchmark`](/Users/pranav/Documents/RT/paper3/paper3_public_v1_public_benchmark)
+- Main read:
+  - the public benchmark confirms that geometry-family policies remain useful outside the custom hard stress set
+  - but the policy ranking shifts:
+    - `semantic` is strongest at `0.20`
+    - `semantic` and `geometry_segment_actions` lead at `0.35`
+    - `geometry_keep_compress_drop` becomes strongest at `0.50`
+- Added a dedicated written checkpoint report:
+  - [`paper3_public_benchmark_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_public_benchmark_checkpoint.md)
+
+## Phase 7: Quick-Benchmark Loop
+
+- Added a faster benchmark track centered on:
+  - `MSC`
+  - `LoCoMo`
+  - `GapChat` / `REALTALK` later
+- Added a quick-benchmark plan:
+  - [`benchmarks/quick_benchmark_plan.md`](/Users/pranav/Documents/RT/benchmarks/quick_benchmark_plan.md)
+- Added a quick benchmark runner:
+  - [`scripts/run_paper3_quick_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_quick_benchmark.sh)
+- Added a quick-benchmark Colab notebook:
+  - [`rt_paper3_quick_benchmarks_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_quick_benchmarks_runner.ipynb)
+
 ## Current Scientific Reading
 
 - Paper 1 is frozen and defensible.

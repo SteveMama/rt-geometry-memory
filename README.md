@@ -64,6 +64,7 @@ Current Paper 3 checkpoint:
 - the 3B probe shows a clean regime split: `geometry_keep_compress_drop` wins at `0.35`, while plain `geometry` retakes the lead at `0.50`
 - status: latest tracked checkpoint in [`artifacts/paper3/paper3_pilot_v3_full`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_pilot_v3_full)
 - new tracked extensions: [`artifacts/paper3/paper3_batch_v1_fairness`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_batch_v1_fairness) and [`artifacts/paper3/paper3_batch_v1_3b`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_batch_v1_3b)
+- first full public-benchmark report: [`paper3_public_benchmark_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_public_benchmark_checkpoint.md)
 - next experiment focus: support-aware compression and semantic codec baselines after the fairness and 3B checkpoints
 
 ## Start Here
@@ -72,9 +73,12 @@ Current Paper 3 checkpoint:
 - Read [`papers/README.md`](/Users/pranav/Documents/RT/papers/README.md) for the research-program logic
 - Read [`CHECKPOINT_LOG.md`](/Users/pranav/Documents/RT/CHECKPOINT_LOG.md) for the cumulative execution log and result history
 - Read [`manuscript/README.md`](/Users/pranav/Documents/RT/manuscript/README.md) for the checkpoint paper and PDF build path
+- Read [`benchmarks/quick_benchmark_plan.md`](/Users/pranav/Documents/RT/benchmarks/quick_benchmark_plan.md) for the next small-benchmark loop
 - Use [`notebooks/rt_colab_pro_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_colab_pro_runner.ipynb) for Colab runs
 - Use [`notebooks/rt_next_phase_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_next_phase_runner.ipynb) for the next competitor-aware Colab suite
 - Use [`notebooks/rt_paper3_next_batch_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_next_batch_runner.ipynb) for the fairness-plus-3B Paper 3 batch
+- Use [`notebooks/rt_paper3_public_solidification_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_public_solidification_runner.ipynb) for the public-benchmark solidification path
+- Use [`notebooks/rt_paper3_quick_benchmarks_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_quick_benchmarks_runner.ipynb) for MSC/LoCoMo-style fast iteration
 - Use [`scripts/README.md`](/Users/pranav/Documents/RT/scripts/README.md) for command-line reruns
 
 ## Recommended Local Models
