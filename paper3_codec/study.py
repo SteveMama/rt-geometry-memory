@@ -308,6 +308,8 @@ def main() -> None:
             output_dir=study_dir / model_key,
             segment_span=args.segment_span,
             policies=policies,
+            target_turn_stride=args.target_turn_stride,
+            max_target_turns=args.max_target_turns,
         )
         model_results.append(result)
         combined_rows.extend(result["rows"])
