@@ -9,6 +9,10 @@ Included:
 - [`paper3_checkpoint_overview.png`](/Users/pranav/Documents/RT/artifacts/shareable/paper3_checkpoint_overview.png)
   - Paper 3 head-to-head, active compression, and mechanism summary
 
+These images are also copied into the manuscript bundle under:
+
+- [`manuscript/figures`](/Users/pranav/Documents/RT/manuscript/figures)
+
 Generator:
 
 - [`scripts/build_shareable_checkpoint_figures.py`](/Users/pranav/Documents/RT/scripts/build_shareable_checkpoint_figures.py)

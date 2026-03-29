@@ -1,0 +1,40 @@
+{
+  "paper1": {
+    "qwen25_05b": {
+      "rank95": 1.048611111111111,
+      "corr_geodesic_logit": 0.9890162821806759
+    },
+    "qwen25_15b": {
+      "rank95": 1.1666666666666667,
+      "corr_geodesic_logit": 0.9942150225342461
+    },
+    "smollm2_17b": {
+      "rank95": 1.527777777777778,
+      "corr_geodesic_logit": 0.989264787815516
+    }
+  },
+  "paper2": {
+    "qwen25_05b": {
+      "delta_logit_020": -65.65434010823567,
+      "delta_logit_035": -99.50343767801921
+    },
+    "qwen25_15b": {
+      "delta_logit_020": -33.646628061930336,
+      "delta_logit_035": -21.669131808810764
+    },
+    "smollm2_17b": {
+      "delta_logit_020": -4.105458153618707,
+      "delta_logit_035": -11.328977796766493
+    }
+  },
+  "paper3": {
+    "qwen25_15b_fairness": {
+      "kcd_delta_logit_024": -38.27244228786893,
+      "kcd_delta_logit_032": -56.16531626383463
+    },
+    "qwen25_3b_probe": {
+      "kcd_delta_logit_035": -70.99738269382053,
+      "geometry_delta_logit_050": -46.52565468682183
+    }
+  }
+}

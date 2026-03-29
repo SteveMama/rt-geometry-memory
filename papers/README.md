@@ -2,6 +2,11 @@
 
 This folder contains the three-paper research program for RT.
 
+For the current manuscript-grade checkpoint paper, see:
+
+- [`manuscript/paper_checkpoint.tex`](/Users/pranav/Documents/RT/manuscript/paper_checkpoint.tex)
+- [`manuscript/README.md`](/Users/pranav/Documents/RT/manuscript/README.md)
+
 ## Sequence
 
 1. [`paper1_geometry_of_conversation_state_trajectories.md`](/Users/pranav/Documents/RT/papers/paper1_geometry_of_conversation_state_trajectories.md)

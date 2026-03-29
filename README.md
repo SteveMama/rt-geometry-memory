@@ -12,6 +12,13 @@ This repository is a checkpoint, not the end of the project. The current state i
 - Paper 2 has a real geometry-aware control result plus a mechanism story
 - Paper 3 is alive with two viable compressed-memory policy families, but no final winner yet
 
+This checkpoint now also includes a manuscript-grade paper bundle:
+
+- IEEE-style manuscript source: [`manuscript/paper_checkpoint.tex`](/Users/pranav/Documents/RT/manuscript/paper_checkpoint.tex)
+- manuscript build entry point: [`manuscript/build.sh`](/Users/pranav/Documents/RT/manuscript/build.sh)
+- manuscript asset generator: [`scripts/build_manuscript_assets.py`](/Users/pranav/Documents/RT/scripts/build_manuscript_assets.py)
+- manuscript README: [`manuscript/README.md`](/Users/pranav/Documents/RT/manuscript/README.md)
+
 This project is separate from the CARP/KV-compression repo. The current codebase implements the Paper 1 bootstrap:
 
 - extract one hidden-state summary per conversation turn
@@ -64,6 +71,7 @@ Current Paper 3 checkpoint:
 - Read [`artifacts/README.md`](/Users/pranav/Documents/RT/artifacts/README.md) for the frozen checkpoint bundle
 - Read [`papers/README.md`](/Users/pranav/Documents/RT/papers/README.md) for the research-program logic
 - Read [`CHECKPOINT_LOG.md`](/Users/pranav/Documents/RT/CHECKPOINT_LOG.md) for the cumulative execution log and result history
+- Read [`manuscript/README.md`](/Users/pranav/Documents/RT/manuscript/README.md) for the checkpoint paper and PDF build path
 - Use [`notebooks/rt_colab_pro_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_colab_pro_runner.ipynb) for Colab runs
 - Use [`notebooks/rt_next_phase_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_next_phase_runner.ipynb) for the next competitor-aware Colab suite
 - Use [`notebooks/rt_paper3_next_batch_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_next_batch_runner.ipynb) for the fairness-plus-3B Paper 3 batch
@@ -119,6 +127,7 @@ python -m paper1_geometry.run_paper1 --list-models --detailed-models
 - [`paper3_codec/policies.py`](/Users/pranav/Documents/RT/paper3_codec/policies.py)
 - [`paper3_codec/study.py`](/Users/pranav/Documents/RT/paper3_codec/study.py)
 - [`paper3_codec/memory_critical_analysis.py`](/Users/pranav/Documents/RT/paper3_codec/memory_critical_analysis.py)
+- [`manuscript`](/Users/pranav/Documents/RT/manuscript)
 - [`scripts`](/Users/pranav/Documents/RT/scripts)
 - [`notebooks`](/Users/pranav/Documents/RT/notebooks)
 - [`results/paper2`](/Users/pranav/Documents/RT/results/paper2)
@@ -147,6 +156,28 @@ python -m paper1_geometry.run_paper1 \
 ```
 
 Outputs are written to [`results/paper1`](/Users/pranav/Documents/RT/results/paper1).
+
+## Manuscript Build
+
+Generate manuscript assets directly from tracked artifact JSON:
+
+```bash
+cd /Users/pranav/Documents/RT
+python scripts/build_manuscript_assets.py
+```
+
+Compile the IEEE-style checkpoint PDF:
+
+```bash
+cd /Users/pranav/Documents/RT
+bash manuscript/build.sh
+```
+
+This writes:
+
+- [`manuscript/build/paper_checkpoint.pdf`](/Users/pranav/Documents/RT/manuscript/build/paper_checkpoint.pdf)
+
+The manuscript is intentionally a checkpoint paper built only from stable, completed result bundles. Ongoing public-benchmark runs should be incorporated only after they finish and are reviewed.
 
 ## Paper 2 Quick Start
 

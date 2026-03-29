@@ -47,3 +47,8 @@ Notebook run order:
 1. `tiny smoke`
 2. `medium public-benchmark subset`
 3. `full bounded solidification batch`
+
+Checkpoint manuscript:
+
+- [`manuscript/paper_checkpoint.tex`](/Users/pranav/Documents/RT/manuscript/paper_checkpoint.tex)
+- [`manuscript/build/paper_checkpoint.pdf`](/Users/pranav/Documents/RT/manuscript/build/paper_checkpoint.pdf)
