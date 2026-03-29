@@ -19,4 +19,5 @@ Purpose:
 - run the surgical Paper 3 fairness and 3B validation batch
 - run the public-benchmark, non-Qwen 3B, and crossover-sweep Paper 3 solidification batch
   - default public benchmark: `LongMemEval-S cleaned`
+  - includes `tiny smoke`, `medium subset`, and `full bounded run` sections
 - publish tracked artifacts back into the repository after a Colab run

@@ -41,3 +41,9 @@ Use:
 - [`scripts/run_paper3_crossover_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_crossover_sweep.sh)
 - [`scripts/run_paper3_public_solidification.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_solidification.sh)
 - [`notebooks/rt_paper3_public_solidification_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_public_solidification_runner.ipynb)
+
+Notebook run order:
+
+1. `tiny smoke`
+2. `medium public-benchmark subset`
+3. `full bounded solidification batch`
