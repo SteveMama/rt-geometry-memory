@@ -36,6 +36,15 @@ DEFAULT_POLICIES = (
 )
 
 
+def _progress(iterable: Any, *, total: int | None = None, desc: str = "", leave: bool = True) -> Any:
+    try:
+        from tqdm.auto import tqdm
+
+        return tqdm(iterable, total=total, desc=desc, leave=leave, dynamic_ncols=True)
+    except Exception:
+        return iterable
+
+
 def _parse_float_list(raw: str) -> list[float]:
     return [float(item.strip()) for item in raw.split(",") if item.strip()]
 
@@ -217,15 +226,43 @@ def run_codec_pilot(
         dtype=dtype,
         state_layer=state_layer,
     )
+    total_target_turns = sum(max(len(conversation.turns) - min_history, 0) for conversation in conversations)
+    total_policy_evals = total_target_turns * len(budgets) * len(policies)
+    print(
+        f"[{model_key}] Starting Paper 3 run with {len(conversations)} conversations, "
+        f"{total_target_turns} target turns, {len(policies)} policies, {len(budgets)} budgets "
+        f"(~{total_policy_evals} policy evaluations).",
+        flush=True,
+    )
+    print(
+        f"[{model_key}] Model={spec.model_name} device={extractor.device} "
+        f"max_input_tokens={max_input_tokens} segment_span={segment_span}",
+        flush=True,
+    )
 
     evaluation_rows: list[dict[str, Any]] = []
     behavior_rows: list[dict[str, Any]] = []
-    for conversation in conversations:
+    conversation_iterator = _progress(
+        enumerate(conversations, start=1),
+        total=len(conversations),
+        desc=f"{model_key} conversations",
+    )
+    for conversation_index, conversation in conversation_iterator:
         full_batch = extractor.extract_conversation(
             conversation,
             max_turns=None,
             max_input_tokens=max_input_tokens,
         )
+        if hasattr(conversation_iterator, "set_postfix_str"):
+            conversation_iterator.set_postfix_str(
+                f"{conversation.conversation_id} turns={len(conversation.turns)} rows={len(evaluation_rows)}"
+            )
+        elif conversation_index == 1 or conversation_index % 10 == 0:
+            print(
+                f"[{model_key}] Conversation {conversation_index}/{len(conversations)} "
+                f"{conversation.conversation_id} turns={len(conversation.turns)} rows={len(evaluation_rows)}",
+                flush=True,
+            )
         analysis = analyze_trajectory(
             states=full_batch.states,
             logits=full_batch.logits,
@@ -363,6 +400,12 @@ def run_codec_pilot(
                                 "answer_total_neg_logprob_delta": behavior_score.total_neg_logprob - full_behavior_score.total_neg_logprob,
                             }
                         )
+        if conversation_index == len(conversations) or conversation_index % 10 == 0:
+            print(
+                f"[{model_key}] Completed {conversation_index}/{len(conversations)} conversations; "
+                f"rows={len(evaluation_rows)} behavior_rows={len(behavior_rows)}",
+                flush=True,
+            )
 
     summary = {
         "created_at": datetime.now().isoformat(timespec="seconds"),

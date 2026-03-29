@@ -10,6 +10,9 @@ BUDGETS="${3:-0.20,0.35,0.50}"
 INPUT_PATH="${4:-paper1_geometry/assets/paper2_behavior_stress_conversations.jsonl}"
 POLICIES="${5:-uniform,geometry,geometry_keep_compress_drop}"
 
+echo "[run_paper3_nonqwen_3b_probe] study=${RUN_NAME} models=${MODEL_KEYS} budgets=${BUDGETS}" >&2
+echo "[run_paper3_nonqwen_3b_probe] input=${INPUT_PATH}" >&2
+
 python -m paper3_codec.study \
   --study-name "$RUN_NAME" \
   --model-keys "$MODEL_KEYS" \
@@ -22,10 +25,12 @@ python -m paper3_codec.study \
   --max-input-tokens 1024 \
   --segment-span 2
 
+echo "[run_paper3_nonqwen_3b_probe] Building pairwise report..." >&2
 bash scripts/run_paper3_pairwise_report.sh "results/paper3/studies/${RUN_NAME}"
 
 IFS=',' read -r -a MODEL_ARRAY <<< "$MODEL_KEYS"
 for MODEL_KEY in "${MODEL_ARRAY[@]}"; do
+  echo "[run_paper3_nonqwen_3b_probe] Memory-critical analysis for ${MODEL_KEY}..." >&2
   python -m paper3_codec.memory_critical_analysis \
     --evaluation-csv "results/paper3/studies/${RUN_NAME}/evaluation_rows.csv" \
     --input-path "$INPUT_PATH" \

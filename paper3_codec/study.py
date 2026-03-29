@@ -273,11 +273,20 @@ def main() -> None:
     policies = _parse_policies(args.policies)
     study_dir = args.output_root / args.study_name
     study_dir.mkdir(parents=True, exist_ok=True)
+    print(
+        f"[study] Starting Paper 3 study '{args.study_name}' in {study_dir}",
+        flush=True,
+    )
+    print(
+        f"[study] Models={','.join(model_keys)} budgets={args.budgets} policies={','.join(policies)}",
+        flush=True,
+    )
 
     model_results: list[dict[str, Any]] = []
     combined_rows: list[dict[str, Any]] = []
     combined_behavior_rows: list[dict[str, Any]] = []
     for model_key in model_keys:
+        print(f"[study] Running model {model_key}...", flush=True)
         result = run_codec_pilot(
             model_key=model_key,
             input_paths=input_paths,
@@ -297,6 +306,12 @@ def main() -> None:
         model_results.append(result)
         combined_rows.extend(result["rows"])
         combined_behavior_rows.extend(result["behavior_rows"])
+        print(
+            f"[study] Completed model {model_key}: "
+            f"{result['summary']['num_evaluations']} eval rows, "
+            f"{result['summary']['num_behavior_evaluations']} behavior rows",
+            flush=True,
+        )
 
     summary = {
         "study_name": args.study_name,
@@ -330,7 +345,7 @@ def main() -> None:
         ),
         encoding="utf-8",
     )
-    print(f"Wrote Paper 3 study outputs to {study_dir}")
+    print(f"[study] Wrote Paper 3 study outputs to {study_dir}", flush=True)
 
 
 if __name__ == "__main__":
