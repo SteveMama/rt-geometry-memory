@@ -70,55 +70,75 @@ def _add_header_and_caption(
 
 
 def _compose_existing_plots() -> Path:
-    inputs = [
-        (
-            "A. Competitor Matrix",
-            ARTIFACTS / "paper2" / "next_phase_v1_paper2_competitor_matrix" / "plots" / "logit_budget_curves.png",
-        ),
-        (
-            "B. Family Heatmap",
-            ARTIFACTS / "paper2" / "next_phase_v1_paper2_competitor_matrix" / "plots" / "family_logit_heatmap.png",
-        ),
-        (
-            "C. 3B Probe",
-            ARTIFACTS / "paper2" / "next_phase_v1_paper2_3b_probe" / "plots" / "logit_budget_curves.png",
-        ),
-        (
-            "D. Fairness Sweep",
-            ARTIFACTS / "paper2" / "next_phase_v1_paper2_fairness_sweep" / "plots" / "token_budget_curves.png",
-        ),
-    ]
-    images = []
-    label_font = _load_font(30)
-    for label, path in inputs:
-        image = Image.open(path).convert("RGB")
-        image = image.resize((900, int(image.height * (900 / image.width))))
-        panel = Image.new("RGB", (920, image.height + 64), "white")
-        panel.paste(image, (10, 54))
-        draw = ImageDraw.Draw(panel)
-        draw.text((10, 10), label, fill="black", font=label_font)
-        images.append(panel)
-    panel_w = max(img.width for img in images)
-    panel_h = max(img.height for img in images)
-    canvas = Image.new("RGB", (panel_w * 2 + 30, panel_h * 2 + 30), "white")
-    positions = [(0, 0), (panel_w + 30, 0), (0, panel_h + 30), (panel_w + 30, panel_h + 30)]
-    for image, (x, y) in zip(images, positions):
-        canvas.paste(image, (x, y))
+    tmp_path = OUTPUT_DIR / "_paper2_tmp.png"
+    plot_path = _plot_paper2_summary(tmp_path)
+    image = Image.open(plot_path).convert("RGB")
     framed = _add_header_and_caption(
-        canvas,
-        title="Paper 2 Checkpoint: Geometry vs Competitors",
+        image,
+        title="Paper 2 Checkpoint: Geometry-Aware Control",
         subtitle=(
             "Geometry-guided retention remains the strongest decoder-fidelity policy on the hard stress set. "
-            "The 3B probe is positive, and the fairness sweep shows the clearest gains in the low-to-mid budget regime."
+            "The figure now emphasizes stable plots plus the support-turn mechanism instead of the earlier weak heatmap panel."
         ),
         caption=(
-            "A: cross-model competitor matrix on the hard stress set. B: family-level logit drift at the mid budget. "
-            "C: first 3B generalization check. D: fairness sweep token fractions, showing that the strongest low-budget geometry gains occur when realized token gaps are still small."
+            "A: hard-set logit budget curves. B: geometry rescues memory-critical support turns more often than uniform on the focused qwen25_05b mechanism pass. "
+            "C: cross-model low-to-mid-budget geometry gains with bootstrap confidence on the three-model confidence study. "
+            "D: token-fraction curves showing that the strongest geometry gains occur under real budget pressure."
         ),
     )
     output = OUTPUT_DIR / "paper2_checkpoint_overview.png"
     framed.save(output)
+    try:
+        plot_path.unlink()
+    except FileNotFoundError:
+        pass
     return output
+
+
+def _plot_paper2_summary(tmp_path: Path) -> Path:
+    sig = json.loads((ARTIFACTS / "paper2" / "blazing_study_v3_confidence" / "significance_summary.json").read_text())
+    mechanism = _parse_memory_report(
+        ARTIFACTS / "paper2" / "behavior_stress_qwen_cases" / "memory_critical_qwen25_05b_b035.md"
+    )
+    fig, axes = plt.subplots(2, 2, figsize=(15, 11), constrained_layout=True)
+
+    hard_logit = Image.open(ARTIFACTS / "paper2" / "behavior_stress_v1" / "plots" / "logit_budget_curves.png").convert("RGB")
+    hard_token = Image.open(ARTIFACTS / "paper2" / "behavior_stress_v1" / "plots" / "token_budget_curves.png").convert("RGB")
+    axes[0, 0].imshow(np.asarray(hard_logit))
+    axes[0, 0].axis("off")
+    axes[0, 0].set_title("A. Hard-Set Logit Budget Curves")
+
+    labels = ["Geometry better", "Uniform better", "Latest support rescued"]
+    vals = [mechanism["better"], mechanism["worse"], mechanism["latest"]]
+    colors = ["#2ca02c", "#d62728", "#1f77b4"]
+    axes[0, 1].bar(labels, vals, color=colors)
+    axes[0, 1].set_ylim(0, max(vals) + 4)
+    axes[0, 1].set_ylabel("Cases out of 36")
+    axes[0, 1].set_title("B. Support-Turn Rescue at Budget 0.35")
+    axes[0, 1].tick_params(axis="x", rotation=10)
+
+    models = ["qwen25_05b", "qwen25_15b", "smollm2_17b"]
+    means = [sig[m]["0.35"]["geometry"]["delta_logit_l2"]["mean"] for m in models]
+    lo = [sig[m]["0.35"]["geometry"]["delta_logit_l2"]["ci_low"] for m in models]
+    hi = [sig[m]["0.35"]["geometry"]["delta_logit_l2"]["ci_high"] for m in models]
+    y = np.arange(len(models))
+    err_low = [m - l for m, l in zip(means, lo)]
+    err_high = [h - m for m, h in zip(means, hi)]
+    axes[1, 0].barh(y, means, color="#1f77b4", alpha=0.85)
+    axes[1, 0].errorbar(means, y, xerr=[err_low, err_high], fmt="none", ecolor="black", capsize=4)
+    axes[1, 0].axvline(0.0, color="black", linewidth=1, alpha=0.4)
+    axes[1, 0].set_yticks(y, ["Qwen-0.5B", "Qwen-1.5B", "SmolLM2-1.7B"])
+    axes[1, 0].set_title("C. Geometry vs Uniform at Budget 0.35")
+    axes[1, 0].set_xlabel("Mean Δ logit L2 (negative is better)")
+
+    axes[1, 1].imshow(np.asarray(hard_token))
+    axes[1, 1].axis("off")
+    axes[1, 1].set_title("D. Realized Token Fractions by Policy")
+
+    fig.suptitle("Paper 2 Checkpoint: Stable Geometry-Control Evidence", fontsize=16, y=1.02)
+    fig.savefig(tmp_path, dpi=180, bbox_inches="tight")
+    plt.close(fig)
+    return tmp_path
 
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
@@ -142,11 +162,14 @@ def _parse_memory_report(path: Path) -> dict[str, int]:
 
 
 def _plot_paper3_summary(tmp_path: Path) -> Path:
-    eval_rows = _read_csv(ARTIFACTS / "paper3" / "next_phase_v1_paper3_head_to_head" / "evaluation_rows.csv")
-    beh_rows = _read_csv(ARTIFACTS / "paper3" / "next_phase_v1_paper3_head_to_head" / "behavior_rows.csv")
-    summary = json.loads((ARTIFACTS / "paper3" / "next_phase_v1_paper3_head_to_head" / "study_summary.json").read_text())
-    models = ["qwen25_05b", "qwen25_15b", "smollm2_17b"]
-    budgets = [0.20, 0.35, 0.50]
+    fair_eval = _read_csv(ARTIFACTS / "paper3" / "paper3_batch_v1_fairness" / "evaluation_rows.csv")
+    fair_beh = _read_csv(ARTIFACTS / "paper3" / "paper3_batch_v1_fairness" / "behavior_rows.csv")
+    fair_summary = json.loads((ARTIFACTS / "paper3" / "paper3_batch_v1_fairness" / "study_summary.json").read_text())
+    probe_eval = _read_csv(ARTIFACTS / "paper3" / "paper3_batch_v1_3b" / "evaluation_rows.csv")
+    probe_beh = _read_csv(ARTIFACTS / "paper3" / "paper3_batch_v1_3b" / "behavior_rows.csv")
+    probe_summary = json.loads((ARTIFACTS / "paper3" / "paper3_batch_v1_3b" / "study_summary.json").read_text())
+    fair_budgets = [0.24, 0.28, 0.32, 0.35, 0.38, 0.42, 0.46, 0.50]
+    probe_budgets = [0.20, 0.35, 0.50]
     colors = {
         "geometry": "#1f77b4",
         "geometry_segment_actions": "#d62728",
@@ -160,82 +183,75 @@ def _plot_paper3_summary(tmp_path: Path) -> Path:
 
     fig, axes = plt.subplots(2, 2, figsize=(15, 11), constrained_layout=True)
 
-    for model in models:
-        x = np.asarray(budgets)
-        yvals = []
-        for policy in ["geometry", "geometry_segment_actions", "geometry_keep_compress_drop"]:
-            vals = []
-            for budget in budgets:
-                subset = [
-                    float(row["logit_l2"])
-                    for row in eval_rows
-                    if row["model_key"] == model and row["policy_name"] == policy and math.isclose(float(row["budget_fraction"]), budget)
-                ]
-                uniform = [
-                    float(row["logit_l2"])
-                    for row in eval_rows
-                    if row["model_key"] == model and row["policy_name"] == "uniform" and math.isclose(float(row["budget_fraction"]), budget)
-                ]
-                vals.append(np.mean(subset) - np.mean(uniform))
-            axes[0, 0].plot(x, vals, marker="o", color=colors[policy], alpha=0.55)
-            yvals.append((policy, vals))
-        # annotate only once per model with best 0.35
-        best_policy, best_vals = min(yvals, key=lambda item: item[1][1])
-        axes[0, 0].text(0.355, best_vals[1], model, fontsize=9, color="black")
+    for policy in ["geometry", "geometry_segment_actions", "geometry_keep_compress_drop"]:
+        vals = []
+        for budget in fair_budgets:
+            subset = [
+                float(row["logit_l2"])
+                for row in fair_eval
+                if row["model_key"] == "qwen25_15b" and row["policy_name"] == policy and math.isclose(float(row["budget_fraction"]), budget)
+            ]
+            uniform = [
+                float(row["logit_l2"])
+                for row in fair_eval
+                if row["model_key"] == "qwen25_15b" and row["policy_name"] == "uniform" and math.isclose(float(row["budget_fraction"]), budget)
+            ]
+            vals.append(np.mean(subset) - np.mean(uniform))
+        axes[0, 0].plot(fair_budgets, vals, marker="o", color=colors[policy], alpha=0.9, label=labels[policy])
     axes[0, 0].axhline(0.0, color="black", linewidth=1, alpha=0.4)
-    axes[0, 0].set_title("A. Logit Delta vs Uniform")
+    axes[0, 0].set_title("A. qwen25_15b Fairness Sweep")
     axes[0, 0].set_xlabel("Budget Fraction")
     axes[0, 0].set_ylabel("Mean Δ logit L2")
+    axes[0, 0].legend(frameon=False)
 
     for policy in ["geometry", "geometry_segment_actions", "geometry_keep_compress_drop"]:
         vals = []
-        for budget in budgets:
-            per_model = []
-            for model in models:
-                subset = [
-                    float(row["answer_avg_neg_logprob"])
-                    for row in beh_rows
-                    if row["model_key"] == model and row["policy_name"] == policy and math.isclose(float(row["budget_fraction"]), budget)
-                ]
-                uniform = [
-                    float(row["answer_avg_neg_logprob"])
-                    for row in beh_rows
-                    if row["model_key"] == model and row["policy_name"] == "uniform" and math.isclose(float(row["budget_fraction"]), budget)
-                ]
-                per_model.append(np.mean(subset) - np.mean(uniform))
-            vals.append(np.mean(per_model))
-        axes[0, 1].plot(budgets, vals, marker="o", color=colors[policy], label=labels[policy])
+        for budget in probe_budgets:
+            subset = [
+                float(row["logit_l2"])
+                for row in probe_eval
+                if row["model_key"] == "qwen25_3b" and row["policy_name"] == policy and math.isclose(float(row["budget_fraction"]), budget)
+            ]
+            uniform = [
+                float(row["logit_l2"])
+                for row in probe_eval
+                if row["model_key"] == "qwen25_3b" and row["policy_name"] == "uniform" and math.isclose(float(row["budget_fraction"]), budget)
+            ]
+            vals.append(np.mean(subset) - np.mean(uniform))
+        axes[0, 1].plot(probe_budgets, vals, marker="o", color=colors[policy], label=labels[policy])
     axes[0, 1].axhline(0.0, color="black", linewidth=1, alpha=0.4)
-    axes[0, 1].set_title("B. Mean Behavior Delta vs Uniform")
+    axes[0, 1].set_title("B. qwen25_3b Probe")
     axes[0, 1].set_xlabel("Budget Fraction")
-    axes[0, 1].set_ylabel("Mean Δ answer NLL")
+    axes[0, 1].set_ylabel("Mean Δ logit L2")
     axes[0, 1].legend(frameon=False)
 
-    width = 0.22
-    xs = np.arange(len(models))
-    for idx, budget in enumerate(budgets):
-        vals = []
-        for model in models:
-            payload = summary["models"][model]["aggregate"]["geometry_keep_compress_drop"][f"{budget:.2f}"]
-            vals.append(payload["mean_compressed_segments"])
-        axes[1, 0].bar(xs + (idx - 1) * width, vals, width=width, label=f"{budget:.2f}")
-    axes[1, 0].set_xticks(xs, models)
+    width = 0.25
+    xs = np.arange(2)
+    codec_labels = ["qwen25_15b", "qwen25_3b"]
+    fair_payload = fair_summary["models"]["qwen25_15b"]["aggregate"]["geometry_keep_compress_drop"]
+    probe_payload = probe_summary["models"]["qwen25_3b"]["aggregate"]["geometry_keep_compress_drop"]
+    payloads = [fair_payload, probe_payload]
+    for idx, budget in enumerate([0.35, 0.50]):
+        vals = [payload[f"{budget:.2f}"]["mean_compressed_segments"] for payload in payloads]
+        axes[1, 0].bar(xs + (idx - 0.5) * width, vals, width=width, label=f"{budget:.2f}")
+    axes[1, 0].set_xticks(xs, ["Qwen-1.5B", "Qwen-3B"])
     axes[1, 0].set_title("C. Active Compression in Keep/Compress/Drop")
     axes[1, 0].set_ylabel("Mean compressed segments")
     axes[1, 0].legend(frameon=False, title="Budget")
 
     report_specs = [
-        ("qwen25_05b", "geometry_keep_compress_drop", "Qwen-0.5B K/C/D"),
         ("qwen25_15b", "geometry_keep_compress_drop", "Qwen-1.5B K/C/D"),
-        ("smollm2_17b", "geometry_keep_compress_drop", "SmolLM2 K/C/D"),
+        ("qwen25_3b", "geometry_keep_compress_drop", "Qwen-3B K/C/D"),
         ("qwen25_15b", "geometry_segment_actions", "Qwen-1.5B Seg"),
+        ("qwen25_3b", "geometry_segment_actions", "Qwen-3B Seg"),
     ]
     better = []
     worse = []
     latest = []
     names = []
     for model, suffix, label in report_specs:
-        path = ARTIFACTS / "paper3" / "next_phase_v1_paper3_head_to_head" / f"memory_critical_{model}_{'segment_actions' if suffix == 'geometry_segment_actions' else 'keep_compress_drop'}_b035.md"
+        folder = "paper3_batch_v1_fairness" if model == "qwen25_15b" else "paper3_batch_v1_3b"
+        path = ARTIFACTS / "paper3" / folder / f"memory_critical_{model}_{'segment_actions' if suffix == 'geometry_segment_actions' else 'keep_compress_drop'}_b035.md"
         payload = _parse_memory_report(path)
         names.append(label)
         better.append(payload["better"])

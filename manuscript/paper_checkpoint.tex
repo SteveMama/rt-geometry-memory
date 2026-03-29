@@ -177,11 +177,11 @@ Under monotone marginal harm, the cost-constrained optimization becomes a knapsa
 
 \subsection{Paper~3: Sparse Codec Stability}
 \begin{theorem}
-Assume (i) the decoder is locally Lipschitz in a decoder-aware geometry metric, (ii) compressed segment representations preserve anchors and the latest support turn with bounded reconstruction error, and (iii) omitted residual information is bounded by a segment-wise harm predictor. Then decoder drift under keep/compress/drop is bounded by the sum of per-segment codec distortion terms.
+Assume (i) the decoder is locally Lipschitz in a decoder-aware geometry metric, (ii) compressed segment representations preserve anchors and the latest support turn with bounded reconstruction error, and (iii) omitted residual information is bounded by a fixed exogenous segment-wise harm predictor. Then decoder drift under keep/compress/drop is bounded by the sum of per-segment codec distortion terms.
 \end{theorem}
 
 \begin{proof}[Proof sketch]
-The decoder Lipschitz condition turns state reconstruction error into logit drift. The sparse codec decomposes reconstruction error into an anchor term, a support-memory term, and an evicted-residual term. Bounding each component separately and summing over segments yields a codec-level distortion bound. The theorem is intentionally directional: the current checkpoint validates the assumptions empirically but does not yet close them with a learned distortion model.
+The decoder Lipschitz condition turns state reconstruction error into logit drift. The sparse codec decomposes reconstruction error into an anchor term, a support-memory term, and an evicted-residual term. Bounding each component separately and summing over segments yields a codec-level distortion bound. The theorem is intentionally directional: the current checkpoint validates the assumptions empirically but does not yet close them with a learned distortion model, and the harm predictor in assumption~(iii) is still an explicit assumption rather than a learned component.
 \end{proof}
 
 \section{Experimental Design}
@@ -236,14 +236,14 @@ Paper~2 asks whether the geometry signal can be used as a control law under fixe
     \input{generated/table_paper2_results.tex}
 \end{table}
 
-At budget 0.20, geometry improves mean logit drift by 65.65 on \texttt{qwen25\_05b} and 61.14 on \texttt{qwen25\_15b}; at budget 0.35, the improvements are 99.50 and 61.42, respectively, with statistically credible paired significance. \texttt{smollm2\_17b} is noisier, but still directionally favorable in the same region. The harder behavior probe is no longer flat, although answer-level improvements remain mixed and weaker than logit-level improvements.
+At budget 0.20, geometry improves mean logit drift by 65.65 on \texttt{qwen25\_05b} and 33.65 on \texttt{qwen25\_15b}; at budget 0.35, the improvements are 99.50 and 21.67, respectively. The \texttt{qwen25\_15b} effect weakens faster than the \texttt{qwen25\_05b} effect, but the low-to-mid budget regime still carries the clearest overall Paper~2 signal. \texttt{smollm2\_17b} is noisier, but still directionally favorable in the same region. The harder behavior probe is no longer flat, although answer-level improvements remain mixed and weaker than logit-level improvements.
 
 The mechanism story is now one of the strongest parts of the repo. On the focused \texttt{qwen25\_05b} case analysis at budget 0.35, geometry retains more support user turns than uniform in 14/36 cases, while uniform does so in only 5/36. Geometry keeps the latest support turn while uniform drops it in 13/36 cases. The rescued turn types are exactly the ones that matter for downstream reasoning: exact code constraints, SQL ordering requirements, retrieval logistics, and short base-memory fact bundles.
 
 \begin{figure*}[t]
     \centering
     \includegraphics[width=0.93\textwidth]{figures/paper2_checkpoint_overview.png}
-    \caption{Paper~2 checkpoint overview. The geometry-family policies consistently outperform uniform in the scarcity regime on the hard stress set, and the effect survives the first larger-model probe and fairness analysis.}
+    \caption{Paper~2 checkpoint overview. The geometry-family policies consistently outperform uniform in the scarcity regime on the hard stress set. The figure emphasizes stable logit and token-budget curves plus the support-turn rescue mechanism, rather than the earlier weak family-heatmap panel.}
     \label{fig:paper2_overview}
 \end{figure*}
 
@@ -276,6 +276,7 @@ The 3B probe sharpens the scientific picture further. On \texttt{qwen25\_3b}, KC
     \item KCD vs geometry at 0.50: $\Delta \Logit = +24.357$, $p=0.0063$
 \end{itemize}
 Under scarcity, the sparse codec wins. Once budgets loosen, direct geometry retention retakes the lead.
+The policy reading is explicit: \texttt{geometry\_keep\_compress\_drop} is the current low/mid-budget sparse codec, plain \texttt{geometry} is the higher-budget fallback/control policy, and \texttt{geometry\_segment\_actions} remains viable but is not the lead family on the fairness-controlled Qwen runs. All comparisons here are budgeted rather than perfectly token-matched; the fairness sweeps are included precisely to test whether the low/mid-budget KCD result survives under tighter realized-token control, and it does.
 
 \begin{figure*}[t]
     \centering
