@@ -197,6 +197,7 @@ This file is the cumulative log of the RT research program checkpointed in this 
   - `LoCoMo` spans both sides of the split
   - `MSC` is dominated by fast local exchange regimes rather than the same fact-memory regime as `LongMemEval`
   - the current spike-heavy family is still too coarse and needs a better separation of generic dialogue exchange vs true structural spikes
+  - a follow-up saturation audit showed that many extreme-curvature segments are also near-zero-step segments, so the current fact-memory regime is partly a numerical near-stationary artifact rather than a fully trusted geometric class
 - Added a dedicated checkpoint note:
   - [`geometric_regime_atlas_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/geometric_regime_atlas_smoke_checkpoint.md)
 

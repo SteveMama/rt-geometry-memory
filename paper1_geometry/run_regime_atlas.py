@@ -7,6 +7,13 @@ from pathlib import Path
 
 from .conversations import load_conversations_from_paths
 from .modeling import ConversationStateExtractor, list_default_models, resolve_model_spec
+from .regime_diagnostics import (
+    build_conversation_series_diagnostic,
+    build_saturation_report,
+    plot_representative_series,
+    select_representative_diagnostics,
+    write_conversation_series_summary,
+)
 from .regime_atlas import (
     build_atlas_report,
     cluster_segment_rows,
@@ -88,6 +95,7 @@ def main() -> None:
     )
 
     rows = []
+    series_diagnostics = []
     for index, conversation in enumerate(conversations, start=1):
         print(f"[regime_atlas] ({index}/{len(conversations)}) extracting {conversation.family}:{conversation.conversation_id}")
         batch = extractor.extract_conversation(
@@ -95,6 +103,7 @@ def main() -> None:
             max_turns=args.max_turns,
             max_input_tokens=args.max_input_tokens,
         )
+        series_diagnostics.append(build_conversation_series_diagnostic(conversation, batch))
         segment_rows = extract_segment_rows(
             conversation,
             batch,
@@ -104,7 +113,7 @@ def main() -> None:
         )
         rows.extend(segment_rows)
         print(
-            f"[regime_atlas] ({index}/{len(conversations)}) turns={len(conversation.turns)} "
+            f"[regime_atlas] ({index}/{len(conversations)}) turns_used={batch.states.shape[0]} "
             f"segments={len(segment_rows)} running_total={len(rows)}"
         )
 
@@ -150,6 +159,27 @@ def main() -> None:
         family_rows,
         report_text,
         metadata=metadata,
+    )
+    diagnostics_dir = output_dir / "diagnostics"
+    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    representatives = select_representative_diagnostics(series_diagnostics)
+    plot_representative_series(
+        representatives,
+        diagnostics_dir / "representative_turn_series.png",
+        log_curvature=False,
+    )
+    plot_representative_series(
+        representatives,
+        diagnostics_dir / "representative_turn_series_log.png",
+        log_curvature=True,
+    )
+    write_conversation_series_summary(
+        series_diagnostics,
+        diagnostics_dir / "conversation_series_summary.csv",
+    )
+    (diagnostics_dir / "curvature_saturation_report.md").write_text(
+        build_saturation_report(rows, series_diagnostics),
+        encoding="utf-8",
     )
     print(f"[regime_atlas] wrote atlas outputs to {output_dir}")
     print(json.dumps({"families": dict(sorted(family_counts.items())), "segments": len(rows)}, indent=2))

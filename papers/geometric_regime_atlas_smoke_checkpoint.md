@@ -11,9 +11,15 @@ question:
 
 ## Run
 
-Artifact:
+Artifacts:
 
 - [`regime_atlas_smoke_v2`](/Users/pranav/Documents/RT/results/regime_atlas/regime_atlas_smoke_v2)
+- [`regime_atlas_smoke_v3`](/Users/pranav/Documents/RT/results/regime_atlas/regime_atlas_smoke_v3)
+  - diagnostics:
+    - `diagnostics/representative_turn_series.png`
+    - `diagnostics/representative_turn_series_log.png`
+    - `diagnostics/conversation_series_summary.csv`
+    - `diagnostics/curvature_saturation_report.md`
 
 Configuration:
 
@@ -94,9 +100,40 @@ Two smaller clusters remained:
 These appear to be transition-heavy mixed segments rather than clean new task
 families.
 
+## Diagnostic result
+
+The new diagnostics show that the atlas result must be interpreted cautiously.
+
+The strongest numerical finding is:
+
+- many of the extreme-curvature segments are also near-zero-step segments
+- the saturation audit flagged `67 / 208` segments as suspicious under the rule:
+  - `mean_step_norm < 1e-3`
+  - `mean_curvature > 100`
+
+The concentration is not random:
+
+- `LongMemEval-S cleaned`: `26` suspicious segments
+- `LoCoMo10`: `36`
+- `MSC`: `5`
+- hard stress families: `0`
+
+At the conversation level:
+
+- `LongMemEval` sample conversations had `89-91` interior turns with curvature
+  above `1000`, while also having `90-92` step norms below `1e-3`
+- `LoCoMo` samples had `63` curvature values above `1000` and `64` step norms
+  below `1e-3`
+- the hard stress set had none of these pathologies
+
+This means the extreme-curvature regime is not yet trustworthy as a clean
+semantic-memory regime. It is at least partly a numerical near-stationary
+artifact.
+
 ## What this means scientifically
 
-The atlas result supports the benchmark-reading hypothesis:
+Even after that caution, the atlas still supports a weaker version of the
+benchmark-reading hypothesis:
 
 - `LongMemEval` is mostly a **fact-memory / haystack retrieval** benchmark
 - the hard stress set is a **support-turn-critical structural** benchmark
@@ -106,16 +143,32 @@ The atlas result supports the benchmark-reading hypothesis:
 
 That means the benchmark split is not arbitrary.
 
-The geometry is already revealing at least two broad memory regimes:
+The geometry is already revealing at least two broad memory behaviors:
 
 1. near-stationary fact memory
 2. transition-heavy structural exchange
 
-## Important limitation
+## Important limitations
 
 The current atlas is useful but not yet finished.
 
-The strongest limitation is that the spike-heavy side is still too broad:
+There are now two clear limitations.
+
+### 1. Saturation / near-stationary blow-up
+
+The current curvature proxy can explode when local step norms become extremely
+small. That means some of the fact-memory regime is better understood as:
+
+- low-motion near-stationary conversation regions
+- plus a curvature formula that becomes numerically unstable there
+
+So before treating those segments as a real geometric regime, the atlas needs a
+stabilized curvature-style feature or an explicit near-stationary detector.
+
+### 2. Spike-heavy family still too broad
+
+Even after separating the near-stationary segments, the spike-heavy side is
+still too broad:
 
 - it captures the hard stress set correctly
 - but it also absorbs a large fraction of `MSC` and `LoCoMo`
