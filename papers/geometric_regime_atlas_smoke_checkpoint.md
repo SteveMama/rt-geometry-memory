@@ -1,6 +1,8 @@
 # Geometric Regime Atlas Smoke Checkpoint
 
-This note records the first bounded smoke run of the geometric regime atlas.
+This note records the bounded smoke runs of the geometric regime atlas, the
+numerical curvature bug that appeared on long conversations, and the corrected
+stabilized rerun.
 
 The goal was not to beat a baseline yet. The goal was to answer a prior
 question:
@@ -15,6 +17,13 @@ Artifacts:
 
 - [`regime_atlas_smoke_v2`](/Users/pranav/Documents/RT/results/regime_atlas/regime_atlas_smoke_v2)
 - [`regime_atlas_smoke_v3`](/Users/pranav/Documents/RT/results/regime_atlas/regime_atlas_smoke_v3)
+  - diagnostics:
+    - `diagnostics/representative_turn_series.png`
+    - `diagnostics/representative_turn_series_log.png`
+    - `diagnostics/conversation_series_summary.csv`
+    - `diagnostics/curvature_saturation_report.md`
+- [`regime_atlas_smoke_v4`](/Users/pranav/Documents/RT/results/regime_atlas/regime_atlas_smoke_v4)
+  - stabilized rerun using an arclength floor in the curvature proxy
   - diagnostics:
     - `diagnostics/representative_turn_series.png`
     - `diagnostics/representative_turn_series_log.png`
@@ -49,9 +58,9 @@ increments:
 
 It then clusters segments without using benchmark labels.
 
-## Main result
+## Initial atlas result
 
-The smoke atlas already recovers a meaningful benchmark split.
+The original smoke atlas already recovered a meaningful benchmark split.
 
 ### Regime 0: `near_stationary_fact_memory`
 
@@ -69,7 +78,7 @@ Interpretation:
 - low subspace-shift structure
 - broad personal-memory or fact-memory zones rather than exact instruction turns
 
-This is exactly where we expected LongMemEval to land.
+This is where we expected LongMemEval-style fact memory to land.
 
 ### Regime 1: `curvature_spike_transition`
 
@@ -87,7 +96,7 @@ Interpretation:
 - higher subspace shift
 - rapid turn-to-turn transitions
 
-This is exactly where the hard stress set lands.
+This is where the hard stress set initially landed.
 
 ### Small residual spike regimes
 
@@ -100,11 +109,11 @@ Two smaller clusters remained:
 These appear to be transition-heavy mixed segments rather than clean new task
 families.
 
-## Diagnostic result
+## Diagnostic result: the raw curvature bug was real
 
 The new diagnostics show that the atlas result must be interpreted cautiously.
 
-The strongest numerical finding is:
+The strongest numerical finding from `v3` was:
 
 - many of the extreme-curvature segments are also near-zero-step segments
 - the saturation audit flagged `67 / 208` segments as suspicious under the rule:
@@ -126,14 +135,127 @@ At the conversation level:
   below `1e-3`
 - the hard stress set had none of these pathologies
 
-This means the extreme-curvature regime is not yet trustworthy as a clean
-semantic-memory regime. It is at least partly a numerical near-stationary
-artifact.
+At the conversation level, the pathology was obvious:
+
+- `LongMemEval` sample conversations had raw mean curvature in the
+  `4487-6315` range
+- `LoCoMo` samples had raw mean curvature around `3190`
+- `MSC` conversation `msc-00000` had raw mean curvature `2521`
+- the hard stress set remained in the healthy `2.1-2.9` range
+
+This was not a subtle modeling issue. It was a numerical bug in the raw
+curvature proxy on long near-stationary trajectories. When local step norms
+collapsed toward zero, the curvature ratio exploded.
+
+## The fix
+
+The atlas now uses a stabilized curvature proxy with an arclength floor:
+
+```text
+kappa_stable = turning_angle / max(local_arclength, 0.05)
+```
+
+Important boundary:
+
+- legacy raw curvature is still available for historical reproducibility
+- the stabilized proxy is used by the atlas and its diagnostics
+- this avoids silently changing frozen Paper 1 artifacts while fixing the atlas
+
+## Corrected result: `regime_atlas_smoke_v4`
+
+After the curvature fix, the atlas remains scientifically useful, but the
+interpretation changes.
+
+### What changed numerically
+
+The `v4` diagnostics still preserve the raw-bug evidence on purpose. The
+saturation audit therefore still reports the old pathology under the raw
+formula:
+
+- suspicious segments (`mean_step_norm < 1e-3` and raw `mean_curvature > 100`):
+  `67`
+- suspicious family counts:
+  - `LoCoMo10`: `36`
+  - `LongMemEval-S cleaned`: `26`
+  - `MSC`: `5`
+
+What changed is the atlas feature path itself:
+
+- segment clustering now uses stabilized curvature, not raw curvature
+- the atlas report and segment rows therefore no longer treat those raw
+  thousands-level values as the operative geometry signal
+- the diagnostics keep both raw and stabilized views side by side so the bug
+  remains visible and auditable
+
+And the long-conversation curvature values collapse from nonsense to plausible
+levels:
+
+- `msc-00000`: raw mean curvature `2520.867` -> stabilized `17.503`
+- `conv-26-qa000`: raw `3190.459` -> stabilized `19.201`
+- `e47becba`: raw `6314.673` -> stabilized `26.130`
+- `118b2229`: raw `4487.443` -> stabilized `26.459`
+- hard stress conversations stay unchanged around `2.168-2.898`
+
+So the bug is fixed in the atlas path. The raw pathology is still recorded for
+comparison, but it no longer drives clustering. The long-conversation
+fact-memory regime is therefore no longer just an artifact of raw curvature
+blow-up.
+
+### What the stabilized atlas still shows
+
+The corrected `v4` atlas still recovers a meaningful family split.
+
+#### Regime 0: `near_stationary_fact_memory`
+
+Family mix:
+
+- `LongMemEval-S cleaned`: `25 / 31`, or `80.6%`
+- `LoCoMo10`: `36 / 96`, or `37.5%`
+- `MSC`: `10 / 66`, or `15.2%`
+- hard stress families: `0`
+
+Centroid summary:
+
+- `mean_curvature = 25.302`
+- `std_curvature = 0.000`
+- `mean_subspace_shift = 0.008`
+- `role_switch_rate = 0.989`
+
+Interpretation:
+
+- sustained low-motion conversational continuation
+- fact-memory or haystack-like regions
+- almost no local subspace turnover
+- strongly associated with LongMemEval and some LoCoMo
+
+#### Spike-heavy regimes
+
+The remaining three clusters are all transition-heavy, but they are not yet
+cleanly separated into distinct semantic categories.
+
+- Regime 1:
+  - `34` segments
+  - mixed `MSC`, `LoCoMo`, `retrieval_heavy`, a little `LongMemEval`,
+    `long_dependency`
+  - higher subspace shift and lower mean curvature
+- Regime 2:
+  - only `7` segments
+  - a small high-variance spike family
+- Regime 3:
+  - `96` segments
+  - dominated by `MSC` and `LoCoMo`, but also includes half the
+    `retrieval_heavy` set
+
+That means the corrected atlas now supports a more careful conclusion:
+
+> the fact-memory side of the atlas is real, but the spike-heavy side is still
+> too coarse and still conflates generic dialogue exchange with true
+> support-turn or constraint-heavy structure.
 
 ## What this means scientifically
 
-Even after that caution, the atlas still supports a weaker version of the
-benchmark-reading hypothesis:
+After the fix, the atlas supports a cleaner version of the benchmark-reading
+hypothesis:
 
 - `LongMemEval` is mostly a **fact-memory / haystack retrieval** benchmark
 - the hard stress set is a **support-turn-critical structural** benchmark
@@ -154,20 +276,9 @@ The current atlas is useful but not yet finished.
 
 There are now two clear limitations.
 
-### 1. Saturation / near-stationary blow-up
+### 1. Stabilized curvature still compresses the spike-heavy family too much
 
-The current curvature proxy can explode when local step norms become extremely
-small. That means some of the fact-memory regime is better understood as:
-
-- low-motion near-stationary conversation regions
-- plus a curvature formula that becomes numerically unstable there
-
-So before treating those segments as a real geometric regime, the atlas needs a
-stabilized curvature-style feature or an explicit near-stationary detector.
-
-### 2. Spike-heavy family still too broad
-
-Even after separating the near-stationary segments, the spike-heavy side is
+Even after fixing the blow-up, the spike-heavy side is
 still too broad:
 
 - it captures the hard stress set correctly

@@ -201,6 +201,35 @@ This file is the cumulative log of the RT research program checkpointed in this 
 - Added a dedicated checkpoint note:
   - [`geometric_regime_atlas_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/geometric_regime_atlas_smoke_checkpoint.md)
 
+## Phase 12: Regime Atlas Curvature Fix
+
+- Fixed the atlas curvature bug for long conversations without changing frozen Paper 1 behavior:
+  - raw curvature remains available for historical reproducibility
+  - the atlas now uses a stabilized curvature proxy with an arclength floor
+- Updated the geometry stack with:
+  - `step_norm_series(...)`
+  - `curvature_series(..., min_arclength=...)`
+  - `stabilized_curvature_series(...)`
+- Updated atlas diagnostics to report both raw and stabilized curvature:
+  - raw curvature
+  - stabilized curvature
+  - step-norm pathologies
+- Reran the bounded atlas smoke run:
+  - [`regime_atlas_smoke_v4`](/Users/pranav/Documents/RT/results/regime_atlas/regime_atlas_smoke_v4)
+- Main corrected findings:
+  - the long-conversation curvature blow-up was real and is now fixed
+  - the diagnostics still preserve the raw blow-up for auditability, but clustering now uses the stabilized metric
+  - example raw -> stabilized mean curvature shifts:
+    - `msc-00000`: `2520.867 -> 17.503`
+    - `conv-26-qa000`: `3190.459 -> 19.201`
+    - `e47becba`: `6314.673 -> 26.130`
+    - `118b2229`: `4487.443 -> 26.459`
+  - the hard stress set stays in the healthy `2.168-2.898` range under both metrics
+  - after stabilization, the atlas still recovers a real `near_stationary_fact_memory` regime dominated by `LongMemEval`
+  - the spike-heavy side remains too coarse and still mixes generic dialogue exchange with structural/support-turn-heavy segments
+- Updated checkpoint note:
+  - [`geometric_regime_atlas_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/geometric_regime_atlas_smoke_checkpoint.md)
+
 ## Current Scientific Reading
 
 - Paper 1 is frozen and defensible.

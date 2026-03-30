@@ -4,6 +4,7 @@ import numpy as np
 
 
 EPS = 1e-8
+CURVATURE_ARCLENGTH_FLOOR = 0.05
 
 
 def normalize_rows(x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -75,7 +76,22 @@ def turning_angle_series(unit_states: np.ndarray) -> np.ndarray:
     return np.asarray(values, dtype=np.float32)
 
 
-def curvature_series(unit_states: np.ndarray) -> np.ndarray:
+def step_norm_series(unit_states: np.ndarray) -> np.ndarray:
+    n_states = unit_states.shape[0]
+    if n_states < 2:
+        return np.zeros(0, dtype=np.float32)
+    values: list[float] = []
+    for idx in range(0, n_states - 1):
+        step = sphere_log_map(unit_states[idx], unit_states[idx + 1])
+        values.append(float(np.linalg.norm(step)))
+    return np.asarray(values, dtype=np.float32)
+
+
+def curvature_series(
+    unit_states: np.ndarray,
+    *,
+    min_arclength: float = 0.0,
+) -> np.ndarray:
     n_states = unit_states.shape[0]
     if n_states < 3:
         return np.zeros(0, dtype=np.float32)
@@ -92,9 +108,17 @@ def curvature_series(unit_states: np.ndarray) -> np.ndarray:
         prev_dir = prev_step_at_current / prev_norm
         next_dir = next_step / next_norm
         turning_angle = float(np.arccos(np.clip(np.dot(prev_dir, next_dir), -1.0, 1.0)))
-        local_arclength = max(0.5 * (prev_norm + next_norm), EPS)
+        local_arclength = max(0.5 * (prev_norm + next_norm), min_arclength, EPS)
         values.append(float(turning_angle / local_arclength))
     return np.asarray(values, dtype=np.float32)
+
+
+def stabilized_curvature_series(
+    unit_states: np.ndarray,
+    *,
+    min_arclength: float = CURVATURE_ARCLENGTH_FLOOR,
+) -> np.ndarray:
+    return curvature_series(unit_states, min_arclength=min_arclength)
 
 
 def boundary_score_series(unit_states: np.ndarray) -> np.ndarray:

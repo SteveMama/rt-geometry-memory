@@ -9,6 +9,7 @@ import numpy as np
 
 from .conversations import ConversationRecord
 from .geometry import (
+    CURVATURE_ARCLENGTH_FLOOR,
     EPS,
     boundary_score_series,
     choose_segments,
@@ -19,6 +20,7 @@ from .geometry import (
     rank_jump_series,
     segment_reference,
     sphere_distance,
+    stabilized_curvature_series,
     subspace_shift_series,
     transported_increment_matrix,
     turning_angle_series,
@@ -66,6 +68,9 @@ class AtlasSegmentRow:
     start_role: str
     end_role: str
     segment_turn_count: int
+    raw_mean_curvature: float
+    raw_std_curvature: float
+    raw_max_curvature: float
     mean_curvature: float
     std_curvature: float
     skew_curvature: float
@@ -143,7 +148,11 @@ def extract_segment_rows(
         return []
 
     unit_states, _ = normalize_rows(np.asarray(batch.states, dtype=np.float32))
-    curvatures = curvature_series(unit_states)
+    raw_curvatures = curvature_series(unit_states)
+    curvatures = stabilized_curvature_series(
+        unit_states,
+        min_arclength=CURVATURE_ARCLENGTH_FLOOR,
+    )
     turning_angles = turning_angle_series(unit_states)
     boundary_scores = boundary_score_series(unit_states)
     rank_jumps = rank_jump_series(unit_states, rank_energy=rank_energy)
@@ -169,6 +178,7 @@ def extract_segment_rows(
         )
         rank95 = max(effective_rank(singular_values, rank_energy), 1) if singular_values.size else 0
 
+        raw_curvature_slice = _series_slice(raw_curvatures, start_turn, end_turn)
         curvature_slice = _series_slice(curvatures, start_turn, end_turn)
         turning_slice = _series_slice(turning_angles, start_turn, end_turn)
         rank_jump_slice = _series_slice(rank_jumps, start_turn, end_turn)
@@ -203,6 +213,9 @@ def extract_segment_rows(
                 start_role=batch.turn_roles[start_turn],
                 end_role=batch.turn_roles[end_turn],
                 segment_turn_count=end_turn - start_turn + 1,
+                raw_mean_curvature=_safe_mean(raw_curvature_slice),
+                raw_std_curvature=_safe_std(raw_curvature_slice),
+                raw_max_curvature=_safe_max(raw_curvature_slice),
                 mean_curvature=_safe_mean(curvature_slice),
                 std_curvature=_safe_std(curvature_slice),
                 skew_curvature=_safe_skew(curvature_slice),
@@ -376,6 +389,7 @@ def build_atlas_report(
         f"- Segments: {len(rows)}",
         f"- Requested clusters: {cluster_count}",
         f"- Segment length bounds: {min_segment_len}..{max_segment_len}",
+        f"- Curvature metric: stabilized curvature with arclength floor `{CURVATURE_ARCLENGTH_FLOOR:.3f}`",
         "",
         "## Regimes",
         "",
@@ -444,6 +458,9 @@ def write_atlas_outputs(
                 "start_role",
                 "end_role",
                 "segment_turn_count",
+                "raw_mean_curvature",
+                "raw_std_curvature",
+                "raw_max_curvature",
                 *FEATURE_NAMES,
                 "regime_id",
                 "regime_name",
@@ -461,6 +478,9 @@ def write_atlas_outputs(
                     row.start_role,
                     row.end_role,
                     row.segment_turn_count,
+                    row.raw_mean_curvature,
+                    row.raw_std_curvature,
+                    row.raw_max_curvature,
                     *[getattr(row, name) for name in FEATURE_NAMES],
                     row.regime_id,
                     row.regime_name,
