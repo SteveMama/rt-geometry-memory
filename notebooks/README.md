@@ -22,4 +22,9 @@ Purpose:
   - default public benchmark: `LongMemEval-S cleaned`
   - includes `tiny smoke`, `medium subset`, and `full bounded run` sections
 - run smaller and quicker benchmark loops for `MSC` and `LoCoMo`-style iteration
+- fetch, normalize, and run the auto-supported public benchmarks in one place:
+  - `MSC`
+  - `LoCoMo10`
+  - `LongMemEval`
+  - plus manual-source fallback paths for `GapChat`, `REALTALK`, and `EvolMem`
 - publish tracked artifacts back into the repository after a Colab run

@@ -33,20 +33,29 @@ Recommended first public benchmark:
   - file: `longmemeval_s_cleaned.json`
   - normalization mode: `longmemeval`
 
-Download it in Colab with:
+Fast-iteration public benchmarks with automatic download support:
+
+- `msc_train`, `msc_valid`, `msc_test`
+  - source dataset: `gonced8/multi-session_chat`
+  - normalization mode: `msc`
+- `locomo10`
+  - source file: `https://raw.githubusercontent.com/snap-research/locomo/main/data/locomo10.json`
+  - normalization mode: `locomo`
+
+Download one of the auto-supported benchmarks in Colab with:
 
 ```bash
 python scripts/download_public_benchmark.py \
-  --benchmark longmemeval_s_cleaned \
-  --output /content/longmemeval_s_cleaned.json
+  --benchmark msc_valid \
+  --output /content/msc_valid.jsonl
 ```
 
 Then normalize it:
 
 ```bash
 python scripts/prepare_public_benchmark_jsonl.py \
-  --format longmemeval \
-  --input /content/longmemeval_s_cleaned.json \
+  --format msc \
+  --input /content/msc_valid.jsonl \
   --output benchmarks/public_benchmark_normalized.jsonl
 ```
 
@@ -65,6 +74,21 @@ Supported input modes:
 - `locomo`: heuristic adapter for LoCoMo-style records
 - `msc`: heuristic adapter for multi-session chat records
 - `longmemeval`: heuristic adapter for LongMemEval-style records
+
+Current download support:
+
+- automatic in repo scripts/notebooks:
+  - `longmemeval_s_cleaned`
+  - `longmemeval_m_cleaned`
+  - `msc_train`
+  - `msc_valid`
+  - `msc_test`
+  - `locomo10`
+- manual-source fallback in the unified notebook:
+  - `GapChat`
+  - `REALTALK`
+  - `EvolMem`
+  - any already-normalized JSONL
 
 Quick-benchmark plan:
 

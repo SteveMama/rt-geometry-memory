@@ -39,7 +39,7 @@ Included:
 - [`prepare_public_benchmark_jsonl.py`](/Users/pranav/Documents/RT/scripts/prepare_public_benchmark_jsonl.py)
   - normalize MSC-, LoCoMo-, LongMemEval-, or already-normalized benchmark files into the project's JSONL conversation format
 - [`download_public_benchmark.py`](/Users/pranav/Documents/RT/scripts/download_public_benchmark.py)
-  - download the recommended first public benchmark, `LongMemEval-S cleaned`, from Hugging Face
+  - download the auto-supported public benchmarks: `LongMemEval`, `MSC`, and `LoCoMo10`
 - [`run_paper3_quick_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_quick_benchmark.sh)
   - run a bounded quick benchmark loop for smaller datasets such as MSC or LoCoMo
 - [`build_manuscript_assets.py`](/Users/pranav/Documents/RT/scripts/build_manuscript_assets.py)

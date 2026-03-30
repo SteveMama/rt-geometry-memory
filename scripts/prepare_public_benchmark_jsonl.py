@@ -27,31 +27,38 @@ def _load_records(path: Path) -> list[dict[str, Any]]:
     raise ValueError(f"Unsupported benchmark payload shape in {path}")
 
 
-def _normalize_role(raw_role: str) -> str:
+def _normalize_role(raw_role: str) -> str | None:
     lowered = raw_role.strip().lower()
     if lowered in {"assistant", "model", "bot", "agent"}:
         return "assistant"
     if lowered in {"system", "developer"}:
         return "system"
-    return "user"
+    if lowered in {"user", "human"}:
+        return "user"
+    return None
 
 
 def _coerce_turns(raw_turns: list[Any]) -> list[dict[str, str]]:
     turns: list[dict[str, str]] = []
+    speaker_roles: dict[str, str] = {}
     for item in raw_turns:
         if isinstance(item, str):
             role = "user" if len(turns) % 2 == 0 else "assistant"
             text = item.strip()
         elif isinstance(item, dict):
-            role = _normalize_role(
-                str(
-                    item.get("role")
-                    or item.get("speaker")
-                    or item.get("from")
-                    or item.get("author")
-                    or "user"
-                )
+            raw_speaker = str(
+                item.get("role")
+                or item.get("speaker")
+                or item.get("from")
+                or item.get("author")
+                or "user"
             )
+            role = _normalize_role(raw_speaker)
+            if role is None:
+                speaker_key = raw_speaker.strip()
+                if speaker_key not in speaker_roles:
+                    speaker_roles[speaker_key] = "user" if not speaker_roles else "assistant"
+                role = speaker_roles[speaker_key]
             text = str(
                 item.get("content")
                 or item.get("text")
@@ -109,12 +116,53 @@ def _normalized_record(
     return payload
 
 
-def _adapt_locomo(record: dict[str, Any], index: int, family: str) -> dict[str, Any]:
-    record_id = str(record.get("conversation_id") or record.get("id") or f"locomo-{index:05d}")
-    dialogue = record.get("dialogue") or record.get("conversation") or record.get("messages") or record.get("turns")
-    if not isinstance(dialogue, list):
+def _adapt_locomo(record: dict[str, Any], index: int, family: str) -> dict[str, Any] | list[dict[str, Any]]:
+    record_id = str(record.get("sample_id") or record.get("conversation_id") or record.get("id") or f"locomo-{index:05d}")
+    dialogue = record.get("dialogue") or record.get("messages") or record.get("turns")
+    conversation = record.get("conversation")
+
+    turns: list[dict[str, str]] = []
+    if isinstance(dialogue, list):
+        turns = _coerce_turns(dialogue)
+    elif isinstance(conversation, dict):
+        session_pairs: list[tuple[int, list[Any]]] = []
+        for key, value in conversation.items():
+            if not key.startswith("session_") or not isinstance(value, list):
+                continue
+            suffix = key.removeprefix("session_")
+            if not suffix.isdigit():
+                continue
+            session_pairs.append((int(suffix), value))
+        session_pairs.sort(key=lambda item: item[0])
+        turns = _coerce_session_history([value for _, value in session_pairs])
+    elif isinstance(conversation, list):
+        turns = _coerce_turns(conversation)
+    if not turns:
         raise ValueError(f"LoCoMo record {record_id} has no dialogue list")
-    turns = _coerce_turns(dialogue)
+
+    qa_rows = record.get("qa")
+    if isinstance(qa_rows, list) and qa_rows:
+        normalized_rows: list[dict[str, Any]] = []
+        for qa_index, qa_item in enumerate(qa_rows):
+            if not isinstance(qa_item, dict):
+                continue
+            question = str(qa_item.get("question") or qa_item.get("query") or qa_item.get("prompt") or "").strip()
+            answer = str(qa_item.get("answer") or qa_item.get("response") or qa_item.get("gold_answer") or "").strip()
+            if not question or not answer:
+                continue
+            qa_turns = list(turns)
+            qa_turns.append({"role": "user", "content": question})
+            qa_turns.append({"role": "assistant", "content": answer})
+            normalized_rows.append(
+                _normalized_record(
+                    {"turns": qa_turns, "system_prompt": record.get("system_prompt"), "family": family},
+                    record_id=f"{record_id}-qa{qa_index:03d}",
+                    family=family,
+                )
+            )
+        if normalized_rows:
+            return normalized_rows
+
     question = str(record.get("question") or record.get("query") or record.get("prompt") or "").strip()
     answer = str(record.get("answer") or record.get("response") or record.get("gold_answer") or "").strip()
     if question:
@@ -223,7 +271,10 @@ def main() -> None:
             payload = _adapt_msc(record, index, args.family)
         else:
             payload = _adapt_longmemeval(record, index, args.family)
-        normalized.append(payload)
+        if isinstance(payload, list):
+            normalized.extend(payload)
+        else:
+            normalized.append(payload)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as handle:
