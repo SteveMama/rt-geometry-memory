@@ -21,8 +21,9 @@ MAX_TARGET_TURNS="${8:-16}"
 echo "[run_paper3_quick_benchmark] study=${RUN_NAME} models=${MODEL_KEYS} budgets=${BUDGETS}" >&2
 echo "[run_paper3_quick_benchmark] input=${INPUT_PATH}" >&2
 echo "[run_paper3_quick_benchmark] limit_conversations=${LIMIT_CONVERSATIONS} target_turn_stride=${TARGET_TURN_STRIDE} max_target_turns=${MAX_TARGET_TURNS}" >&2
+echo "[run_paper3_quick_benchmark] Streaming study progress..." >&2
 
-python -m paper3_codec.study \
+PYTHONUNBUFFERED=1 python -u -m paper3_codec.study \
   --study-name "$RUN_NAME" \
   --model-keys "$MODEL_KEYS" \
   --input-path "$INPUT_PATH" \
@@ -39,3 +40,4 @@ python -m paper3_codec.study \
 
 echo "[run_paper3_quick_benchmark] Building pairwise report..." >&2
 bash scripts/run_paper3_pairwise_report.sh "results/paper3/studies/${RUN_NAME}"
+echo "[run_paper3_quick_benchmark] Done." >&2

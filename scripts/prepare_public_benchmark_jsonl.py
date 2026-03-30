@@ -267,11 +267,21 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_arg_parser().parse_args()
+    print(
+        f"[prepare_public_benchmark_jsonl] Loading {args.input} as format={args.format}",
+        flush=True,
+    )
     records = _load_records(args.input)
     if args.limit is not None:
         records = records[: args.limit]
+    print(
+        f"[prepare_public_benchmark_jsonl] Loaded {len(records)} source records"
+        + (f" (limit={args.limit})" if args.limit is not None else ""),
+        flush=True,
+    )
 
     normalized: list[dict[str, Any]] = []
+    progress_every = 1 if len(records) <= 10 else min(50, max(10, len(records) // 10))
     for index, record in enumerate(records):
         if args.format == "normalized":
             record_id = str(record.get("conversation_id") or record.get("id") or f"record-{index:05d}")
@@ -286,12 +296,25 @@ def main() -> None:
             normalized.extend(payload)
         else:
             normalized.append(payload)
+        if (index + 1) % progress_every == 0 or (index + 1) == len(records):
+            print(
+                f"[prepare_public_benchmark_jsonl] Processed {index + 1}/{len(records)} source records; "
+                f"normalized_rows={len(normalized)}",
+                flush=True,
+            )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    print(
+        f"[prepare_public_benchmark_jsonl] Writing normalized output to {args.output}",
+        flush=True,
+    )
     with args.output.open("w", encoding="utf-8") as handle:
         for item in normalized:
             handle.write(json.dumps(item, ensure_ascii=True) + "\n")
-    print(f"Wrote {len(normalized)} normalized benchmark conversations to {args.output}")
+    print(
+        f"[prepare_public_benchmark_jsonl] Wrote {len(normalized)} normalized benchmark conversations to {args.output}",
+        flush=True,
+    )
 
 
 if __name__ == "__main__":
