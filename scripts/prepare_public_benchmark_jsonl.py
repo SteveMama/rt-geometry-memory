@@ -116,6 +116,15 @@ def _normalized_record(
     return payload
 
 
+def _trim_to_final_exchange(turns: list[dict[str, str]]) -> list[dict[str, str]]:
+    trimmed = list(turns)
+    while len(trimmed) >= 2:
+        if trimmed[-2]["role"] == "user" and trimmed[-1]["role"] == "assistant":
+            return trimmed
+        trimmed.pop()
+    return trimmed
+
+
 def _adapt_locomo(record: dict[str, Any], index: int, family: str) -> dict[str, Any] | list[dict[str, Any]]:
     record_id = str(record.get("sample_id") or record.get("conversation_id") or record.get("id") or f"locomo-{index:05d}")
     dialogue = record.get("dialogue") or record.get("messages") or record.get("turns")
@@ -169,6 +178,7 @@ def _adapt_locomo(record: dict[str, Any], index: int, family: str) -> dict[str, 
         turns.append({"role": "user", "content": question})
     if answer:
         turns.append({"role": "assistant", "content": answer})
+    turns = _trim_to_final_exchange(turns)
     return _normalized_record(
         {"turns": turns, "system_prompt": record.get("system_prompt"), "family": family},
         record_id=record_id,
@@ -204,6 +214,7 @@ def _adapt_msc(record: dict[str, Any], index: int, family: str) -> dict[str, Any
         turns.append({"role": "user", "content": question})
     if answer:
         turns.append({"role": "assistant", "content": answer})
+    turns = _trim_to_final_exchange(turns)
     return _normalized_record(
         {"turns": turns, "system_prompt": record.get("system_prompt"), "family": family},
         record_id=record_id,
