@@ -341,11 +341,13 @@ def select_semantic_filtered_sparse_segment_memory(
     recent_window: int,
     segment_span: int = 3,
     latest_user_index: int | None = None,
+    expansion_factor: float = 2.0,
 ) -> CodecSelection:
     candidate_mask = semantic_shortlist_mask(
         semantic_scores=semantic_scores,
         turn_costs=turn_costs,
         budget_fraction=budget_fraction,
+        expansion_factor=expansion_factor,
         latest_user_index=latest_user_index,
     )
     return _select_sparse_segment_memory_core(

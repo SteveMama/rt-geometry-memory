@@ -32,6 +32,9 @@ Current solidification track:
 - one low-budget upgrade comparison using:
   - `support_aware_geometry_keep_compress_drop`
   - `semantic_filtered_geometry_keep_compress_drop`
+- one semantic-led optimization comparison using:
+  - `support_aware_semantic_keep_compress_drop`
+  - `budget_aware_semantic_keep_compress_drop`
 - one non-Qwen 3B hard-set probe using `uniform`, `geometry`, and `geometry_keep_compress_drop`
 - one dense crossover sweep over the hard set plus the public benchmark using `uniform`, `semantic`, `geometry`, and `geometry_keep_compress_drop`
 
@@ -43,6 +46,7 @@ Use:
 - [`scripts/prepare_public_benchmark_jsonl.py`](/Users/pranav/Documents/RT/scripts/prepare_public_benchmark_jsonl.py)
 - [`scripts/run_paper3_quick_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_quick_benchmark.sh)
 - [`scripts/run_paper3_low_budget_kcd_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_low_budget_kcd_probe.sh)
+- [`scripts/run_paper3_semantic_kcd_optimization.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_semantic_kcd_optimization.sh)
 - [`scripts/run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)
 - [`scripts/run_paper3_nonqwen_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_nonqwen_3b_probe.sh)
 - [`scripts/run_paper3_crossover_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_crossover_sweep.sh)
@@ -50,6 +54,7 @@ Use:
 - [`notebooks/rt_paper3_public_solidification_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_public_solidification_runner.ipynb)
 - [`notebooks/rt_paper3_quick_benchmarks_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_quick_benchmarks_runner.ipynb)
 - [`notebooks/rt_paper3_low_budget_kcd_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_low_budget_kcd_runner.ipynb)
+- [`notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb)
 
 Notebook run order:
 

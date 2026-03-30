@@ -195,6 +195,28 @@ def _harm_proxy_scores(
     )
 
 
+def _semantic_support_proxy_scores(
+    *,
+    geometry_risk: np.ndarray,
+    semantic_risk: np.ndarray,
+    support_scores: np.ndarray,
+    prefix_turn_count: int,
+) -> np.ndarray:
+    return _normalize(
+        0.72 * _normalize(semantic_risk[:prefix_turn_count])
+        + 0.20 * _normalize(support_scores[:prefix_turn_count])
+        + 0.08 * _normalize(geometry_risk[:prefix_turn_count])
+    )
+
+
+def _budget_aware_semantic_params(budget_fraction: float) -> dict[str, float | int]:
+    if budget_fraction <= 0.20 + 1e-8:
+        return {"expansion_factor": 1.25, "segment_span": 2}
+    if budget_fraction <= 0.35 + 1e-8:
+        return {"expansion_factor": 1.60, "segment_span": 3}
+    return {"expansion_factor": 2.10, "segment_span": 4}
+
+
 def _prefix_turn_costs(prefix_token_counts: np.ndarray) -> np.ndarray:
     if prefix_token_counts.size == 0:
         return np.zeros(0, dtype=np.int32)
@@ -439,6 +461,12 @@ def run_codec_pilot(
                 support_scores=support_scores,
                 prefix_turn_count=prefix_turn_count,
             )
+            semantic_support_proxy = _semantic_support_proxy_scores(
+                geometry_risk=geometry_risk,
+                semantic_risk=semantic_risk,
+                support_scores=support_scores,
+                prefix_turn_count=prefix_turn_count,
+            )
             latest_user_index = _latest_user_index(conversation, prefix_turn_count)
             is_behavior_turn = (
                 conversation.turns[target_turn].role == "user"
@@ -514,6 +542,32 @@ def run_codec_pilot(
                             budget_fraction=budget,
                             recent_window=recent_window,
                             segment_span=segment_span,
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "support_aware_semantic_keep_compress_drop":
+                        selection = select_support_aware_sparse_segment_memory(
+                            risk_scores=semantic_support_proxy,
+                            support_scores=support_scores,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=max(segment_span, 3),
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "budget_aware_semantic_keep_compress_drop":
+                        semantic_budget_params = _budget_aware_semantic_params(budget)
+                        selection = select_semantic_filtered_sparse_segment_memory(
+                            geometry_like_scores=semantic_support_proxy,
+                            support_scores=support_scores,
+                            semantic_scores=semantic_risk,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=int(semantic_budget_params["segment_span"]),
+                            latest_user_index=latest_user_index,
+                            expansion_factor=float(semantic_budget_params["expansion_factor"]),
                         )
                         memory_objects = selection.memory_objects
                     elif policy_name == "support_aware_geometry_keep_compress_drop":

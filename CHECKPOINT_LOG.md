@@ -142,6 +142,25 @@ This file is the cumulative log of the RT research program checkpointed in this 
 - Added a dedicated smoke-checkpoint write-up:
   - [`paper3_low_budget_kcd_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_low_budget_kcd_smoke_checkpoint.md)
 
+## Phase 10: Semantic KCD Optimization Checkpoint
+
+- Added two new semantic-led Paper 3 policies:
+  - `support_aware_semantic_keep_compress_drop`
+  - `budget_aware_semantic_keep_compress_drop`
+- Added a dedicated semantic-KCD optimization runner:
+  - [`scripts/run_paper3_semantic_kcd_optimization.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_semantic_kcd_optimization.sh)
+- Added a dedicated Colab notebook:
+  - [`notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb)
+- Ran bounded semantic-KCD optimization smoke checks on:
+  - [`paper3_semantic_kcd_opt_smoke_msc`](/Users/pranav/Documents/RT/results/paper3/studies/paper3_semantic_kcd_opt_smoke_msc)
+  - [`paper3_semantic_kcd_opt_smoke_locomo`](/Users/pranav/Documents/RT/results/paper3/studies/paper3_semantic_kcd_opt_smoke_locomo)
+- Main directional findings:
+  - semantic-led KCD remains the right family on semantic-memory benchmarks
+  - the new semantic-specific variants are viable but do not yet reliably beat the strongest existing semantic baselines
+  - the remaining likely improvement path is a learned harm predictor plus a denser compressed memory object rather than more heuristic score mixing
+- Added a dedicated checkpoint report:
+  - [`paper3_semantic_kcd_optimization_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_semantic_kcd_optimization_checkpoint.md)
+
 ## Current Scientific Reading
 
 - Paper 1 is frozen and defensible.

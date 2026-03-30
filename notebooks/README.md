@@ -10,6 +10,7 @@ Current notebook:
 - [`rt_paper3_public_solidification_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_public_solidification_runner.ipynb)
 - [`rt_paper3_quick_benchmarks_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_quick_benchmarks_runner.ipynb)
 - [`rt_paper3_low_budget_kcd_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_low_budget_kcd_runner.ipynb)
+- [`rt_paper3_semantic_kcd_optimization_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb)
 
 Purpose:
 
@@ -29,4 +30,5 @@ Purpose:
   - `LongMemEval`
   - plus manual-source fallback paths for `GapChat`, `REALTALK`, and `EvolMem`
 - run the new support-aware and semantic-filtered low-budget KCD variants on `MSC` and `LoCoMo`
+- run the semantic-led codec optimization pass with support-aware and budget-aware semantic-KCD variants on `MSC`, `LoCoMo`, and `LongMemEval`
 - publish tracked artifacts back into the repository after a Colab run

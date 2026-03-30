@@ -68,8 +68,9 @@ Current Paper 3 checkpoint:
 - first full public-benchmark report: [`paper3_public_benchmark_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_public_benchmark_checkpoint.md)
 - MSC semantic-codec report: [`paper3_msc_semantic_codec_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_msc_semantic_codec_checkpoint.md)
 - low-budget KCD smoke report: [`paper3_low_budget_kcd_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_low_budget_kcd_smoke_checkpoint.md)
+- semantic-KCD optimization report: [`paper3_semantic_kcd_optimization_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_semantic_kcd_optimization_checkpoint.md)
 - research synthesis white paper: [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
-- next experiment focus: larger MSC/LoCoMo reruns for the new support-aware and semantic-filtered low-budget KCD variants
+- next experiment focus: publication-scale semantic-KCD reruns and then a learned harm predictor if the new hand-designed semantic variants still fail to separate clearly
 
 ## Start Here
 
@@ -84,6 +85,7 @@ Current Paper 3 checkpoint:
 - Use [`notebooks/rt_paper3_public_solidification_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_public_solidification_runner.ipynb) for the public-benchmark solidification path
 - Use [`notebooks/rt_paper3_quick_benchmarks_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_quick_benchmarks_runner.ipynb) for one-notebook benchmark fetch/normalize/run loops across `MSC`, `LoCoMo10`, `LongMemEval`, and manual-source fallbacks
 - Use [`notebooks/rt_paper3_low_budget_kcd_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_low_budget_kcd_runner.ipynb) for the new low-budget KCD variants on `MSC` and `LoCoMo`
+- Use [`notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb) for the next semantic-led codec optimization pass on `MSC`, `LoCoMo`, and `LongMemEval`
 - Use [`scripts/README.md`](/Users/pranav/Documents/RT/scripts/README.md) for command-line reruns
 
 ## Recommended Local Models
