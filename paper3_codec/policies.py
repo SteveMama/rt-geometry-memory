@@ -27,6 +27,16 @@ class CodecSelection:
     memory_objects: list[SparseSegmentMemory]
 
 
+def _normalize(values: np.ndarray) -> np.ndarray:
+    if values.size == 0:
+        return np.zeros(0, dtype=np.float32)
+    minimum = float(np.min(values))
+    maximum = float(np.max(values))
+    if maximum - minimum < 1e-8:
+        return np.zeros_like(values, dtype=np.float32)
+    return ((values - minimum) / (maximum - minimum)).astype(np.float32)
+
+
 def _segment_score(values: np.ndarray) -> float:
     if values.size == 0:
         return 0.0
@@ -53,7 +63,79 @@ def _support_candidates(start: int, end: int, risk_scores: np.ndarray) -> list[i
     return sorted({anchor_index, support_index})
 
 
-def select_sparse_segment_memory(
+def _support_aware_candidates(
+    start: int,
+    end: int,
+    risk_scores: np.ndarray,
+    support_scores: np.ndarray | None = None,
+    candidate_mask: np.ndarray | None = None,
+) -> list[int]:
+    if end <= start:
+        return []
+    candidate_indices = list(range(start, end))
+    if candidate_mask is not None:
+        candidate_indices = [idx for idx in candidate_indices if bool(candidate_mask[idx])]
+    if not candidate_indices:
+        return []
+
+    if support_scores is None:
+        return _support_candidates(start, end, risk_scores)
+
+    local_risk = np.asarray([risk_scores[idx] for idx in candidate_indices], dtype=np.float32)
+    local_support = np.asarray([support_scores[idx] for idx in candidate_indices], dtype=np.float32)
+    priority = local_risk + 0.85 * local_support
+    best_index = candidate_indices[int(np.argmax(priority))]
+    support_candidates = [idx for idx in candidate_indices if support_scores[idx] > 0.0]
+    latest_support = support_candidates[-1] if support_candidates else None
+
+    segment_length = end - start
+    if segment_length <= 1:
+        return [best_index]
+    if segment_length == 2:
+        return [latest_support if latest_support is not None else best_index]
+
+    anchor_index = start if start in candidate_indices else candidate_indices[0]
+    retained = [best_index]
+    if latest_support is not None:
+        retained.append(latest_support)
+    retained.append(anchor_index)
+    return sorted(set(retained))
+
+
+def semantic_shortlist_mask(
+    *,
+    semantic_scores: np.ndarray,
+    turn_costs: np.ndarray,
+    budget_fraction: float,
+    expansion_factor: float = 2.0,
+    latest_user_index: int | None = None,
+) -> np.ndarray:
+    if semantic_scores.size == 0:
+        return np.zeros(0, dtype=bool)
+    costs = np.maximum(turn_costs.astype(np.int32), 1)
+    budget_cost = int(np.ceil(budget_fraction * float(np.sum(costs))))
+    shortlist_budget = max(int(np.ceil(expansion_factor * budget_cost)), int(np.min(costs)))
+    density = semantic_scores / np.maximum(costs.astype(np.float32), 1.0)
+    order = list(np.argsort(-density, kind="stable"))
+    spent = 0
+    selected: list[int] = []
+    for idx in order:
+        item_cost = int(costs[idx])
+        if spent + item_cost > shortlist_budget and selected:
+            continue
+        selected.append(int(idx))
+        spent += item_cost
+        if spent >= shortlist_budget:
+            break
+    if latest_user_index is not None and 0 <= latest_user_index < semantic_scores.size:
+        selected.append(int(latest_user_index))
+    mask = np.zeros(semantic_scores.size, dtype=bool)
+    if selected:
+        mask[sorted(set(selected))] = True
+    return mask
+
+
+def _select_sparse_segment_memory_core(
     *,
     risk_scores: np.ndarray,
     turn_costs: np.ndarray,
@@ -61,6 +143,8 @@ def select_sparse_segment_memory(
     budget_fraction: float,
     recent_window: int,
     segment_span: int = 2,
+    support_scores: np.ndarray | None = None,
+    candidate_mask: np.ndarray | None = None,
 ) -> CodecSelection:
     if prefix_turn_count <= 1:
         retained = list(range(prefix_turn_count))
@@ -96,14 +180,26 @@ def select_sparse_segment_memory(
     for start in range(0, older_count, max(segment_span, 1)):
         end = min(start + max(segment_span, 1), older_count)
         full_indices = list(range(start, end))
-        compressed_indices = _support_candidates(start, end, risk_scores)
+        eligible_mask = candidate_mask[:older_count] if candidate_mask is not None else None
+        segment_has_candidate = True
+        if eligible_mask is not None:
+            segment_has_candidate = bool(np.any(eligible_mask[start:end]))
+        compressed_indices = _support_aware_candidates(
+            start,
+            end,
+            risk_scores,
+            support_scores=support_scores,
+            candidate_mask=eligible_mask,
+        )
         full_cost = int(np.sum(turn_costs[full_indices])) if full_indices else 0
         compressed_cost = int(np.sum(turn_costs[compressed_indices])) if compressed_indices else 0
-        segment_risk = _segment_score(np.asarray(risk_scores[start:end], dtype=np.float32))
+        segment_values = np.asarray(risk_scores[start:end], dtype=np.float32)
+        if support_scores is not None:
+            segment_values = segment_values + 0.60 * np.asarray(support_scores[start:end], dtype=np.float32)
+        segment_risk = _segment_score(segment_values)
         if full_cost <= 0:
             continue
         compression_ratio = float(compressed_cost / max(full_cost, 1))
-        # Favor compression when it preserves most of a segment's value at materially lower cost.
         compress_preservation = 0.86 + 0.12 * (1.0 - compression_ratio)
         keep_preservation = 1.0
         memory_stub = SparseSegmentMemory(
@@ -117,29 +213,32 @@ def select_sparse_segment_memory(
             risk=segment_risk,
             action="compress",
         )
-        options = [
-            ("evict", 0, 0.0, memory_stub),
-            (
-                "compress",
-                compressed_cost,
-                compress_preservation * segment_risk,
-                memory_stub,
-            ),
-            (
-                "keep",
-                full_cost,
-                keep_preservation * segment_risk,
-                SparseSegmentMemory(
-                    segment_start=start,
-                    segment_end=end,
-                    anchor_turn_index=start,
-                    support_turn_indices=[idx for idx in full_indices if idx != start],
-                    retained_turn_indices=full_indices,
-                    risk=segment_risk,
-                    action="keep",
-                ),
-            ),
-        ]
+        options = [("evict", 0, 0.0, memory_stub)]
+        if segment_has_candidate and compressed_cost > 0:
+            options.append(
+                (
+                    "compress",
+                    compressed_cost,
+                    compress_preservation * segment_risk,
+                    memory_stub,
+                )
+            )
+            options.append(
+                (
+                    "keep",
+                    full_cost,
+                    keep_preservation * segment_risk,
+                    SparseSegmentMemory(
+                        segment_start=start,
+                        segment_end=end,
+                        anchor_turn_index=start,
+                        support_turn_indices=[idx for idx in full_indices if idx != start],
+                        retained_turn_indices=full_indices,
+                        risk=segment_risk,
+                        action="keep",
+                    ),
+                )
+            )
 
         next_states: dict[int, tuple[float, list[tuple[str, SparseSegmentMemory]]]] = {}
         for spent_cost, (utility, actions) in states.items():
@@ -185,4 +284,77 @@ def select_sparse_segment_memory(
         compressed_segment_count=compressed,
         evicted_segment_count=evicted,
         memory_objects=memory_objects,
+    )
+
+
+def select_sparse_segment_memory(
+    *,
+    risk_scores: np.ndarray,
+    turn_costs: np.ndarray,
+    prefix_turn_count: int,
+    budget_fraction: float,
+    recent_window: int,
+    segment_span: int = 2,
+) -> CodecSelection:
+    return _select_sparse_segment_memory_core(
+        risk_scores=risk_scores,
+        turn_costs=turn_costs,
+        prefix_turn_count=prefix_turn_count,
+        budget_fraction=budget_fraction,
+        recent_window=recent_window,
+        segment_span=segment_span,
+        support_scores=None,
+        candidate_mask=None,
+    )
+
+
+def select_support_aware_sparse_segment_memory(
+    *,
+    risk_scores: np.ndarray,
+    support_scores: np.ndarray,
+    turn_costs: np.ndarray,
+    prefix_turn_count: int,
+    budget_fraction: float,
+    recent_window: int,
+    segment_span: int = 3,
+) -> CodecSelection:
+    return _select_sparse_segment_memory_core(
+        risk_scores=_normalize(risk_scores + 0.75 * support_scores),
+        turn_costs=turn_costs,
+        prefix_turn_count=prefix_turn_count,
+        budget_fraction=budget_fraction,
+        recent_window=recent_window,
+        segment_span=segment_span,
+        support_scores=support_scores,
+        candidate_mask=None,
+    )
+
+
+def select_semantic_filtered_sparse_segment_memory(
+    *,
+    geometry_like_scores: np.ndarray,
+    support_scores: np.ndarray,
+    semantic_scores: np.ndarray,
+    turn_costs: np.ndarray,
+    prefix_turn_count: int,
+    budget_fraction: float,
+    recent_window: int,
+    segment_span: int = 3,
+    latest_user_index: int | None = None,
+) -> CodecSelection:
+    candidate_mask = semantic_shortlist_mask(
+        semantic_scores=semantic_scores,
+        turn_costs=turn_costs,
+        budget_fraction=budget_fraction,
+        latest_user_index=latest_user_index,
+    )
+    return _select_sparse_segment_memory_core(
+        risk_scores=_normalize(geometry_like_scores + 0.60 * support_scores),
+        turn_costs=turn_costs,
+        prefix_turn_count=prefix_turn_count,
+        budget_fraction=budget_fraction,
+        recent_window=recent_window,
+        segment_span=segment_span,
+        support_scores=support_scores,
+        candidate_mask=candidate_mask,
     )

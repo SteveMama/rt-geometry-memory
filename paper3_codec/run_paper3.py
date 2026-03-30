@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -20,7 +21,13 @@ from paper2_memory.policies import (
     turn_semantic_risk,
 )
 
-from .policies import CodecSelection, SparseSegmentMemory, select_sparse_segment_memory
+from .policies import (
+    CodecSelection,
+    SparseSegmentMemory,
+    select_semantic_filtered_sparse_segment_memory,
+    select_sparse_segment_memory,
+    select_support_aware_sparse_segment_memory,
+)
 
 
 DEFAULT_OUTPUT = Path(__file__).resolve().parents[1] / "results" / "paper3"
@@ -34,6 +41,35 @@ DEFAULT_POLICIES = (
     "geometry_segment_actions",
     "geometry_keep_compress_drop",
     "semantic_keep_compress_drop",
+)
+
+CONSTRAINT_MARKERS: tuple[str, ...] = (
+    "must",
+    "should",
+    "exactly",
+    "only",
+    "never",
+    "always",
+    "remember",
+    "constraint",
+    "format",
+    "schema",
+    "json",
+    "yaml",
+    "sql",
+    "python",
+    "javascript",
+    "regex",
+    "csv",
+    "xml",
+    "api",
+    "fetch",
+    "query",
+    "retrieve",
+    "retrieval",
+    "search",
+    "sort",
+    "order by",
 )
 
 
@@ -81,6 +117,82 @@ def _sample_target_turns(
     if sampled[-1] != target_turns[-1]:
         sampled[-1] = target_turns[-1]
     return sampled
+
+
+def _normalize(values: np.ndarray) -> np.ndarray:
+    if values.size == 0:
+        return np.zeros(0, dtype=np.float32)
+    minimum = float(np.min(values))
+    maximum = float(np.max(values))
+    if maximum - minimum < 1e-8:
+        return np.zeros_like(values, dtype=np.float32)
+    return ((values - minimum) / (maximum - minimum)).astype(np.float32)
+
+
+def _constraint_marker_score(text: str) -> float:
+    lowered = text.lower()
+    marker_hits = sum(1.0 for marker in CONSTRAINT_MARKERS if marker in lowered)
+    numeric_hits = float(len(re.findall(r"\d+", text)))
+    structural_hits = 0.0
+    if any(token in text for token in ("`", "{", "}", "[", "]", "(", ")", "->", "::")):
+        structural_hits += 1.0
+    if ":" in text:
+        structural_hits += 0.5
+    return marker_hits + min(numeric_hits, 3.0) * 0.35 + structural_hits
+
+
+def _latest_user_index(conversation: ConversationRecord, prefix_turn_count: int) -> int | None:
+    for idx in range(prefix_turn_count - 1, -1, -1):
+        if conversation.turns[idx].role == "user":
+            return idx
+    return None
+
+
+def _support_scores(
+    *,
+    conversation: ConversationRecord,
+    prefix_turn_count: int,
+    geometry_risk: np.ndarray,
+    semantic_risk: np.ndarray,
+) -> np.ndarray:
+    if prefix_turn_count <= 0:
+        return np.zeros(0, dtype=np.float32)
+    user_bonus = np.asarray(
+        [1.0 if conversation.turns[idx].role == "user" else 0.0 for idx in range(prefix_turn_count)],
+        dtype=np.float32,
+    )
+    marker_scores = np.asarray(
+        [_constraint_marker_score(conversation.turns[idx].content) for idx in range(prefix_turn_count)],
+        dtype=np.float32,
+    )
+    latest_user = _latest_user_index(conversation, prefix_turn_count)
+    latest_user_bonus = np.zeros(prefix_turn_count, dtype=np.float32)
+    if latest_user is not None:
+        latest_user_bonus[latest_user] = 1.0
+
+    recency = np.linspace(0.0, 1.0, num=prefix_turn_count, dtype=np.float32)
+    return _normalize(
+        0.32 * _normalize(semantic_risk[:prefix_turn_count])
+        + 0.18 * _normalize(geometry_risk[:prefix_turn_count])
+        + 0.24 * user_bonus
+        + 0.18 * _normalize(marker_scores)
+        + 0.08 * recency
+        + 0.40 * latest_user_bonus
+    )
+
+
+def _harm_proxy_scores(
+    *,
+    geometry_risk: np.ndarray,
+    semantic_risk: np.ndarray,
+    support_scores: np.ndarray,
+    prefix_turn_count: int,
+) -> np.ndarray:
+    return _normalize(
+        0.45 * _normalize(geometry_risk[:prefix_turn_count])
+        + 0.30 * _normalize(semantic_risk[:prefix_turn_count])
+        + 0.25 * _normalize(support_scores[:prefix_turn_count])
+    )
 
 
 def _prefix_turn_costs(prefix_token_counts: np.ndarray) -> np.ndarray:
@@ -315,6 +427,19 @@ def run_codec_pilot(
             prefix_turn_count = target_turn
             prefix_turn_costs = turn_costs[:prefix_turn_count]
             semantic_risk = turn_semantic_risk(full_batch.states, target_turn)[:prefix_turn_count]
+            support_scores = _support_scores(
+                conversation=conversation,
+                prefix_turn_count=prefix_turn_count,
+                geometry_risk=geometry_risk,
+                semantic_risk=semantic_risk,
+            )
+            harm_proxy = _harm_proxy_scores(
+                geometry_risk=geometry_risk,
+                semantic_risk=semantic_risk,
+                support_scores=support_scores,
+                prefix_turn_count=prefix_turn_count,
+            )
+            latest_user_index = _latest_user_index(conversation, prefix_turn_count)
             is_behavior_turn = (
                 conversation.turns[target_turn].role == "user"
                 and target_turn + 1 < len(conversation.turns)
@@ -389,6 +514,30 @@ def run_codec_pilot(
                             budget_fraction=budget,
                             recent_window=recent_window,
                             segment_span=segment_span,
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "support_aware_geometry_keep_compress_drop":
+                        selection = select_support_aware_sparse_segment_memory(
+                            risk_scores=harm_proxy,
+                            support_scores=support_scores,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=max(segment_span, 3),
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "semantic_filtered_geometry_keep_compress_drop":
+                        selection = select_semantic_filtered_sparse_segment_memory(
+                            geometry_like_scores=harm_proxy,
+                            support_scores=support_scores,
+                            semantic_scores=semantic_risk,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=max(segment_span, 3),
+                            latest_user_index=latest_user_index,
                         )
                         memory_objects = selection.memory_objects
                     else:

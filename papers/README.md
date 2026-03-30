@@ -15,7 +15,8 @@ For the current manuscript-grade checkpoint paper, see:
 4. [`paper3_manifold_memory_codecs.md`](/Users/pranav/Documents/RT/papers/paper3_manifold_memory_codecs.md)
 5. [`paper3_public_benchmark_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_public_benchmark_checkpoint.md)
 6. [`paper3_msc_semantic_codec_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_msc_semantic_codec_checkpoint.md)
-7. [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
+7. [`paper3_low_budget_kcd_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_low_budget_kcd_smoke_checkpoint.md)
+8. [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
 
 ## Logic
 
@@ -29,3 +30,4 @@ For the current manuscript-grade checkpoint paper, see:
 - Paper 2: strong control result with a mechanism story
 - Paper 3: active codec stage with a fairness-controlled low/mid-budget winner and a positive 3B validation run
 - Paper 3 now also has a semantic-memory checkpoint showing that benchmark family changes the winning policy form
+- Paper 3 now has a low-budget upgrade smoke checkpoint showing that support-aware geometry-KCD materially improves over the original geometry-KCD baseline, even though semantic-led policies still dominate semantic-memory benchmarks

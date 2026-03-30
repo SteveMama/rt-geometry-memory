@@ -44,6 +44,8 @@ Included:
   - run a bounded quick benchmark loop for smaller datasets such as MSC or LoCoMo
 - [`run_paper3_semantic_codec_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_semantic_codec_probe.sh)
   - run the semantic-codec Paper 3 comparison with `uniform`, `semantic`, `geometry`, `geometry_keep_compress_drop`, and `semantic_keep_compress_drop`
+- [`run_paper3_low_budget_kcd_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_low_budget_kcd_probe.sh)
+  - run the new low-budget Paper 3 comparison with support-aware and semantic-filtered geometry-KCD variants
 - [`build_manuscript_assets.py`](/Users/pranav/Documents/RT/scripts/build_manuscript_assets.py)
   - generate manuscript tables and packaged figures directly from tracked artifact JSON
 - [`run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)

@@ -119,6 +119,29 @@ This file is the cumulative log of the RT research program checkpointed in this 
 - Added a higher-level synthesis white paper:
   - [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
 
+## Phase 9: Low-Budget KCD Upgrade Smoke Checkpoint
+
+- Added two new low-budget Paper 3 policy families:
+  - `support_aware_geometry_keep_compress_drop`
+  - `semantic_filtered_geometry_keep_compress_drop`
+- Added a dedicated bounded runner:
+  - [`scripts/run_paper3_low_budget_kcd_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_low_budget_kcd_probe.sh)
+- Added a dedicated Colab notebook:
+  - [`notebooks/rt_paper3_low_budget_kcd_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_low_budget_kcd_runner.ipynb)
+- Built the first support-aware low-budget upgrade:
+  - support-score bonuses for user turns, latest user turns, and constraint-like text markers
+  - a support-aware sparse segment selector
+  - a semantic shortlist feeding the support-aware geometry-KCD stage
+- Ran bounded smoke checks on:
+  - [`paper3_low_budget_smoke_msc`](/Users/pranav/Documents/RT/results/paper3/studies/paper3_low_budget_smoke_msc)
+  - [`paper3_low_budget_smoke_locomo`](/Users/pranav/Documents/RT/results/paper3/studies/paper3_low_budget_smoke_locomo)
+- Main directional findings:
+  - the support-aware geometry-KCD variant clearly improves over the original `geometry_keep_compress_drop` baseline on both smoke benchmarks
+  - semantic-led policies remain strongest overall on semantic-memory-style benchmarks
+  - the most promising next real-scale hybrid is now `semantic_filtered_geometry_keep_compress_drop`
+- Added a dedicated smoke-checkpoint write-up:
+  - [`paper3_low_budget_kcd_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_low_budget_kcd_smoke_checkpoint.md)
+
 ## Current Scientific Reading
 
 - Paper 1 is frozen and defensible.

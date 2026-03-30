@@ -9,6 +9,7 @@ Current notebook:
 - [`rt_paper3_next_batch_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_next_batch_runner.ipynb)
 - [`rt_paper3_public_solidification_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_public_solidification_runner.ipynb)
 - [`rt_paper3_quick_benchmarks_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_quick_benchmarks_runner.ipynb)
+- [`rt_paper3_low_budget_kcd_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_low_budget_kcd_runner.ipynb)
 
 Purpose:
 
@@ -27,4 +28,5 @@ Purpose:
   - `LoCoMo10`
   - `LongMemEval`
   - plus manual-source fallback paths for `GapChat`, `REALTALK`, and `EvolMem`
+- run the new support-aware and semantic-filtered low-budget KCD variants on `MSC` and `LoCoMo`
 - publish tracked artifacts back into the repository after a Colab run
