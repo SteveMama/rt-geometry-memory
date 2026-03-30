@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import random
 import statistics
 import sys
 from pathlib import Path
@@ -62,6 +63,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--output-dir",
         type=Path,
         default=Path("results/state_update_alignment/state_update_synthetic_v1"),
+    )
+    parser.add_argument(
+        "--control-seed",
+        type=int,
+        default=0,
+        help="Seed for the single sampled same-role non-update control turn.",
     )
     return parser
 
@@ -127,6 +134,17 @@ def _turn_exit_vectors(unit_states: np.ndarray) -> dict[int, np.ndarray]:
     return vectors
 
 
+def _state_position_vectors(unit_states: np.ndarray) -> dict[int, np.ndarray]:
+    n_states = unit_states.shape[0]
+    if n_states == 0:
+        return {}
+    reference = segment_reference(unit_states, 0, n_states - 1)
+    vectors: dict[int, np.ndarray] = {}
+    for turn_index in range(n_states):
+        vectors[turn_index] = sphere_log_map(reference, unit_states[turn_index]).astype(np.float32)
+    return vectors
+
+
 def main() -> None:
     args = build_arg_parser().parse_args()
 
@@ -160,6 +178,7 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     isolated_cache: dict[tuple[str, str], np.ndarray] = {}
+    rng = random.Random(args.control_seed)
     pair_rows: list[dict[str, Any]] = []
 
     for index, spec in enumerate(conversation_specs, start=1):
@@ -177,6 +196,7 @@ def main() -> None:
         unit_states, _ = normalize_rows(np.asarray(batch.states, dtype=np.float32))
         entry_vectors = _turn_entry_vectors(unit_states)
         exit_vectors = _turn_exit_vectors(unit_states)
+        state_positions = _state_position_vectors(unit_states)
         if original_turn not in exit_vectors or update_turn not in exit_vectors:
             raise ValueError(
                 f"Conversation {conversation_id} needs labeled turns with a following turn for exit vectors, "
@@ -187,6 +207,26 @@ def main() -> None:
         update_exit = exit_vectors[update_turn]
         original_entry = entry_vectors.get(original_turn)
         update_entry = entry_vectors.get(update_turn)
+        original_state_position = state_positions[original_turn]
+
+        control_candidates = [
+            turn_index
+            for turn_index, role in enumerate(batch.turn_roles)
+            if role == conversation.turns[update_turn].role
+            and turn_index in entry_vectors
+            and turn_index not in {original_turn, update_turn, query_turn}
+        ]
+        if not control_candidates:
+            raise ValueError(f"Conversation {conversation_id} has no same-role non-update control turns")
+        sampled_control_turn = rng.choice(control_candidates)
+        sampled_control_entry = entry_vectors[sampled_control_turn]
+        control_cross_values = [_cosine(original_state_position, entry_vectors[turn_index]) for turn_index in control_candidates]
+        state_update_entry_cross = _cosine(original_state_position, update_entry) if update_entry is not None else 0.0
+        sampled_control_entry_cross = _cosine(original_state_position, sampled_control_entry)
+        mean_control_entry_cross = statistics.mean(control_cross_values)
+        min_control_entry_cross = min(control_cross_values)
+        update_more_negative_than_mean_control = state_update_entry_cross < mean_control_entry_cross
+        update_more_negative_than_all_controls = state_update_entry_cross < min_control_entry_cross
 
         original_isolated = _isolated_turn_state(
             extractor,
@@ -231,6 +271,14 @@ def main() -> None:
                 "entry_alignment": entry_alignment,
                 "original_entry_update_exit_alignment": original_entry_update_exit_alignment,
                 "original_exit_update_entry_alignment": original_exit_update_entry_alignment,
+                "state_update_entry_cross": state_update_entry_cross,
+                "sampled_control_turn": sampled_control_turn,
+                "sampled_control_entry_cross": sampled_control_entry_cross,
+                "mean_control_entry_cross": mean_control_entry_cross,
+                "min_control_entry_cross": min_control_entry_cross,
+                "num_control_candidates": len(control_candidates),
+                "update_more_negative_than_mean_control": update_more_negative_than_mean_control,
+                "update_more_negative_than_all_controls": update_more_negative_than_all_controls,
                 "original_exit_norm": float(np.linalg.norm(original_exit)),
                 "update_exit_norm": float(np.linalg.norm(update_exit)),
                 "original_entry_norm": float(np.linalg.norm(original_entry)) if original_entry is not None else 0.0,
@@ -255,6 +303,9 @@ def main() -> None:
     entry_alignments = [row["entry_alignment"] for row in pair_rows]
     entry_exit_alignments = [row["original_entry_update_exit_alignment"] for row in pair_rows]
     exit_entry_alignments = [row["original_exit_update_entry_alignment"] for row in pair_rows]
+    state_update_crosses = [row["state_update_entry_cross"] for row in pair_rows]
+    sampled_control_crosses = [row["sampled_control_entry_cross"] for row in pair_rows]
+    mean_control_crosses = [row["mean_control_entry_cross"] for row in pair_rows]
     pair_semantics = [row["pair_semantic_similarity"] for row in pair_rows]
     query_gaps = [row["query_similarity_gap"] for row in pair_rows]
 
@@ -277,6 +328,13 @@ def main() -> None:
         "mean_original_exit_update_entry_alignment": statistics.mean(exit_entry_alignments),
         "negative_entry_exit_count": sum(value < 0.0 for value in entry_exit_alignments),
         "negative_exit_entry_count": sum(value < 0.0 for value in exit_entry_alignments),
+        "mean_state_update_entry_cross": statistics.mean(state_update_crosses),
+        "mean_sampled_control_entry_cross": statistics.mean(sampled_control_crosses),
+        "mean_control_entry_cross": statistics.mean(mean_control_crosses),
+        "negative_state_update_entry_cross_count": sum(value < 0.0 for value in state_update_crosses),
+        "negative_sampled_control_cross_count": sum(value < 0.0 for value in sampled_control_crosses),
+        "update_more_negative_than_mean_control_count": sum(bool(row["update_more_negative_than_mean_control"]) for row in pair_rows),
+        "update_more_negative_than_all_controls_count": sum(bool(row["update_more_negative_than_all_controls"]) for row in pair_rows),
         "mean_pair_semantic_similarity": statistics.mean(pair_semantics),
         "median_pair_semantic_similarity": statistics.median(pair_semantics),
         "semantic_gt_threshold_count": sum(value > args.semantic_threshold for value in pair_semantics),
@@ -313,6 +371,14 @@ def main() -> None:
                 "entry_alignment",
                 "original_entry_update_exit_alignment",
                 "original_exit_update_entry_alignment",
+                "state_update_entry_cross",
+                "sampled_control_turn",
+                "sampled_control_entry_cross",
+                "mean_control_entry_cross",
+                "min_control_entry_cross",
+                "num_control_candidates",
+                "update_more_negative_than_mean_control",
+                "update_more_negative_than_all_controls",
                 "original_exit_norm",
                 "update_exit_norm",
                 "original_entry_norm",
@@ -354,6 +420,13 @@ def main() -> None:
         f"- Mean original-entry / update-exit alignment (diagnostic): {aggregate['mean_original_entry_update_exit_alignment']:.4f}",
         f"- Mean original-exit / update-entry alignment (diagnostic): {aggregate['mean_original_exit_update_entry_alignment']:.4f}",
         f"- Negative mixed entry/exit counts: {aggregate['negative_entry_exit_count']} / {aggregate['num_conversations']} and {aggregate['negative_exit_entry_count']} / {aggregate['num_conversations']}",
+        f"- Mean state-position / update-entry cross (diagnostic): {aggregate['mean_state_update_entry_cross']:.4f}",
+        f"- Mean sampled non-update control cross (diagnostic): {aggregate['mean_sampled_control_entry_cross']:.4f}",
+        f"- Mean all-control cross (diagnostic): {aggregate['mean_control_entry_cross']:.4f}",
+        f"- Negative state-update cross count: {aggregate['negative_state_update_entry_cross_count']} / {aggregate['num_conversations']}",
+        f"- Negative sampled-control cross count: {aggregate['negative_sampled_control_cross_count']} / {aggregate['num_conversations']}",
+        f"- Update more negative than mean control: {aggregate['update_more_negative_than_mean_control_count']} / {aggregate['num_conversations']}",
+        f"- Update more negative than all controls: {aggregate['update_more_negative_than_all_controls_count']} / {aggregate['num_conversations']}",
         f"- Mean original-update semantic similarity: {aggregate['mean_pair_semantic_similarity']:.4f}",
         f"- Semantic similarities above threshold: {aggregate['semantic_gt_threshold_count']} / {aggregate['num_conversations']}",
         f"- Joint threshold passes: {aggregate['joint_success_count']} / {aggregate['num_conversations']}",
@@ -368,17 +441,16 @@ def main() -> None:
         "",
         "## Per-conversation results",
         "",
-        "| Conversation | Exit align | Entry align | Pair semantic | Query->orig | Query->update | Gap | Joint pass |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | :---: |",
+        "| Conversation | Exit align | Entry align | State/update cross | Mean control cross | Pair semantic | Joint pass |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | :---: |",
     ]
     for row in pair_rows:
         lines.append(
             f"| {row['conversation_id']} | {row['directional_alignment']:.4f} | "
             f"{row['entry_alignment']:.4f} | "
+            f"{row['state_update_entry_cross']:.4f} | "
+            f"{row['mean_control_entry_cross']:.4f} | "
             f"{row['pair_semantic_similarity']:.4f} | "
-            f"{row['query_to_original_semantic_similarity']:.4f} | "
-            f"{row['query_to_update_semantic_similarity']:.4f} | "
-            f"{row['query_similarity_gap']:.4f} | "
             f"{'yes' if row['joint_success'] else 'no'} |"
         )
     lines.extend(
@@ -397,6 +469,7 @@ def main() -> None:
                 f"- Update turn `{row['update_turn']}`: {row['update_text']}",
                 f"- Query turn `{row['query_turn']}`: {row['query_text']}",
                 f"- Expected current answer: `{row['expected_current_answer']}`",
+                f"- Sampled control turn `{row['sampled_control_turn']}` with cross `{row['sampled_control_entry_cross']:.4f}`",
                 "",
             ]
         )

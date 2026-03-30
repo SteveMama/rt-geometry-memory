@@ -1,0 +1,78 @@
+{
+  "aggregate": {
+    "benchmark": "msc_valid",
+    "model_key": "qwen25_05b",
+    "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+    "device": "mps",
+    "max_input_tokens": 768,
+    "num_conversations": 5,
+    "mean_delta_curvature": 0.12201853791872656,
+    "median_delta_curvature": 0.010408292214075576,
+    "positive_delta_count": 3,
+    "negative_delta_count": 2,
+    "mean_support_percentile": 0.6138440860215054,
+    "mean_filler_percentile": 0.6087135176651306
+  },
+  "conversations": [
+    {
+      "conversation_id": "msc-00000",
+      "support_turns": "3,21,43,59",
+      "filler_turns": "27,31,35,51",
+      "support_mean_curvature": 1.0655816197395325,
+      "filler_mean_curvature": 0.0,
+      "delta_curvature": 1.0655816197395325,
+      "support_mean_percentile": 0.7583333333333333,
+      "filler_mean_percentile": 0.6333333333333333,
+      "support_note": "Reading/device facts that plausibly support the final Kindle continuation.",
+      "filler_note": "Topically nearby book or stunt chatter that is not needed for the final device decision."
+    },
+    {
+      "conversation_id": "1",
+      "support_turns": "6,50,54,56",
+      "filler_turns": "8,10,38,46",
+      "support_mean_curvature": 0.5024755597114563,
+      "filler_mean_curvature": 1.0047613382339478,
+      "delta_curvature": -0.5022857785224915,
+      "support_mean_percentile": 0.5166666666666667,
+      "filler_mean_percentile": 0.55,
+      "support_note": "Wrestling identity and the late fight outcome that support the final encouragement.",
+      "filler_note": "Nearby casual or affective wrestling-adjacent turns that are not core support for the final continuation."
+    },
+    {
+      "conversation_id": "2",
+      "support_turns": "8,22,56,60",
+      "filler_turns": "24,30,34,44",
+      "support_mean_curvature": 0.9594191908836365,
+      "filler_mean_curvature": 0.5345165729522705,
+      "delta_curvature": 0.42490261793136597,
+      "support_mean_percentile": 0.5791666666666667,
+      "filler_mean_percentile": 0.5958333333333334,
+      "support_note": "Economics/job/new-house facts that support the final reaction to the user's bonus and company.",
+      "filler_note": "Nearby house and social-planning chatter that is related to life context but not the final company judgment."
+    },
+    {
+      "conversation_id": "6",
+      "support_turns": "5,57,61",
+      "filler_turns": "9,21,37,45",
+      "support_mean_curvature": 0.6756567160288492,
+      "filler_mean_curvature": 1.064170777797699,
+      "delta_curvature": -0.38851406176884973,
+      "support_mean_percentile": 0.5483870967741935,
+      "filler_mean_percentile": 0.657258064516129,
+      "support_note": "Pet-specific facts that support the final continuation about animals having personalities.",
+      "filler_note": "Other persona turns from the same conversation that are not the pet-memory support used at the end."
+    },
+    {
+      "conversation_id": "8",
+      "support_turns": "1,9,13",
+      "filler_turns": "3,5,7,11",
+      "support_mean_curvature": 2.0097535053888955,
+      "filler_mean_curvature": 1.99934521317482,
+      "delta_curvature": 0.010408292214075576,
+      "support_mean_percentile": 0.6666666666666666,
+      "filler_mean_percentile": 0.6071428571428571,
+      "support_note": "Age/history facts that support the final continuation about remembering historical change.",
+      "filler_note": "Neighboring age-themed banter that is stylistically related but not the specific factual support used by the end."
+    }
+  ]
+}

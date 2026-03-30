@@ -75,8 +75,9 @@ Current Paper 3 checkpoint:
 - geometric regime atlas smoke report: [`geometric_regime_atlas_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/geometric_regime_atlas_smoke_checkpoint.md)
 - MSC persona-curvature falsification check: [`msc_persona_curvature_check.md`](/Users/pranav/Documents/RT/papers/msc_persona_curvature_check.md)
 - synthetic state-update alignment falsification check: [`state_update_alignment_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/state_update_alignment_smoke_checkpoint.md)
-- next experiment focus: semantic-first, query-conditioned geometry-KCD rather than pure geometry-first query conditioning
-- new geometry-atlas direction: classify segment regimes from geometry first, then learn regime-specific compression rather than forcing one codec across all memory types
+- current Paper 3 reading: hard support-turn benchmarks favor geometry-aware codecs, while semantic-memory benchmarks favor semantic-led policies
+- current negative-result reading: geometry-only regime classification, MSC support/filler curvature separation, and compact-model state-update supersession detection are all currently falsified or too weak to support a standalone algorithm
+- next experiment focus: learned or benchmark-aware selectors that combine semantic candidate discovery with geometry where structural support turns matter
 
 ## Start Here
 

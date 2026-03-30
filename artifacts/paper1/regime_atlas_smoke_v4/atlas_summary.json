@@ -1,0 +1,255 @@
+{
+  "metadata": {
+    "study_name": "regime_atlas_smoke_v4",
+    "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+    "model_key": "qwen25_05b",
+    "device": "mps",
+    "dtype": "auto",
+    "state_layer": -1,
+    "input_paths": [
+      "/tmp/atlas_msc_smoke.jsonl",
+      "/tmp/atlas_locomo_smoke.jsonl",
+      "/tmp/atlas_longmem_smoke.jsonl",
+      "/tmp/atlas_stress_smoke.jsonl"
+    ],
+    "limit_conversations": 14,
+    "max_input_tokens": 1024,
+    "max_turns": 96,
+    "rank_energy": 0.95,
+    "max_segment_len": 8,
+    "min_segment_len": 3,
+    "cluster_count": 4,
+    "seed": 0,
+    "num_conversations": 14,
+    "num_segments": 208
+  },
+  "cluster_summaries": {
+    "0": {
+      "cluster_id": 0,
+      "count": 71,
+      "family_counts": {
+        "locomo10": 36,
+        "longmemeval_s_cleaned": 25,
+        "msc_valid": 10
+      },
+      "centroid": {
+        "mean_curvature": 25.301874698047907,
+        "std_curvature": 1.1282907405369718e-06,
+        "skew_curvature": 0.30985915492957744,
+        "max_curvature": 25.301875289057342,
+        "mean_turning_angle": 1.265093764788668,
+        "mean_step_norm": 0.00042902907843596604,
+        "std_step_norm": 4.509044155268602e-12,
+        "max_step_norm": 0.00042902908294501017,
+        "rank95": 1.5070422535211268,
+        "mean_rank_jump": 5.513746552135126e-27,
+        "mean_subspace_shift": 0.008048202790005106,
+        "mean_boundary_score": 0.00035189139914147975,
+        "role_switch_rate": 0.98859825620389,
+        "switch_step_norm": 0.00042902907884587914,
+        "segment_turn_count": 7.619718309859155
+      },
+      "description": "near_stationary_fact_memory"
+    },
+    "1": {
+      "cluster_id": 1,
+      "count": 34,
+      "family_counts": {
+        "locomo10": 12,
+        "msc_valid": 11,
+        "retrieval_heavy": 6,
+        "longmemeval_s_cleaned": 3,
+        "long_dependency": 2
+      },
+      "centroid": {
+        "mean_curvature": 1.1378879485761417,
+        "std_curvature": 0.18464835777002223,
+        "skew_curvature": 0.08269619240480311,
+        "max_curvature": 1.377931857810301,
+        "mean_turning_angle": 1.4517341554164886,
+        "mean_step_norm": 1.3349238257197773,
+        "std_step_norm": 0.12068375331514022,
+        "max_step_norm": 1.4890204422614153,
+        "rank95": 1.3235294117647058,
+        "mean_rank_jump": 2.785332238839628e-06,
+        "mean_subspace_shift": 0.5722542370066923,
+        "mean_boundary_score": 1.9061130968963398,
+        "role_switch_rate": 1.0,
+        "switch_step_norm": 1.3349238257197773,
+        "segment_turn_count": 2.8823529411764706
+      },
+      "description": "curvature_spike_transition"
+    },
+    "2": {
+      "cluster_id": 2,
+      "count": 7,
+      "family_counts": {
+        "locomo10": 4,
+        "longmemeval_s_cleaned": 2,
+        "msc_valid": 1
+      },
+      "centroid": {
+        "mean_curvature": 18.822099413190568,
+        "std_curvature": 11.771733011518206,
+        "skew_curvature": -0.790774153811591,
+        "max_curvature": 27.801950454711914,
+        "mean_turning_angle": 1.607499292918614,
+        "mean_step_norm": 0.3059479102791686,
+        "std_step_norm": 0.4885652916813602,
+        "max_step_norm": 1.1996032146811817,
+        "rank95": 1.5714285714285714,
+        "mean_rank_jump": 2.154660667090382e-06,
+        "mean_subspace_shift": 0.6775450791631427,
+        "mean_boundary_score": 0.8407163832868848,
+        "role_switch_rate": 0.9183673469387755,
+        "switch_step_norm": 0.34568017915756044,
+        "segment_turn_count": 8.0
+      },
+      "description": "curvature_spike_transition"
+    },
+    "3": {
+      "cluster_id": 3,
+      "count": 96,
+      "family_counts": {
+        "locomo10": 44,
+        "msc_valid": 44,
+        "retrieval_heavy": 6,
+        "long_dependency": 1,
+        "longmemeval_s_cleaned": 1
+      },
+      "centroid": {
+        "mean_curvature": 2.097055085003376,
+        "std_curvature": 0.04979164785860727,
+        "skew_curvature": 0.03835985716432333,
+        "max_curvature": 2.1494983037312827,
+        "mean_turning_angle": 2.913003352781137,
+        "mean_step_norm": 1.3924124514063199,
+        "std_step_norm": 0.030281247086198466,
+        "max_step_norm": 1.423073270668586,
+        "rank95": 1.0,
+        "mean_rank_jump": 3.207076150602006e-05,
+        "mean_subspace_shift": 0.38323236055051285,
+        "mean_boundary_score": 4.072667293250561,
+        "role_switch_rate": 1.0,
+        "switch_step_norm": 1.3924124514063199,
+        "segment_turn_count": 3.1979166666666665
+      },
+      "description": "curvature_spike_transition"
+    }
+  },
+  "family_regime_summary": [
+    {
+      "family": "locomo10",
+      "regime_id": 0,
+      "regime_name": "near_stationary_fact_memory",
+      "count": 36,
+      "fraction": 0.375
+    },
+    {
+      "family": "locomo10",
+      "regime_id": 1,
+      "regime_name": "curvature_spike_transition",
+      "count": 12,
+      "fraction": 0.125
+    },
+    {
+      "family": "locomo10",
+      "regime_id": 2,
+      "regime_name": "curvature_spike_transition",
+      "count": 4,
+      "fraction": 0.041666666666666664
+    },
+    {
+      "family": "locomo10",
+      "regime_id": 3,
+      "regime_name": "curvature_spike_transition",
+      "count": 44,
+      "fraction": 0.4583333333333333
+    },
+    {
+      "family": "long_dependency",
+      "regime_id": 1,
+      "regime_name": "curvature_spike_transition",
+      "count": 2,
+      "fraction": 0.6666666666666666
+    },
+    {
+      "family": "long_dependency",
+      "regime_id": 3,
+      "regime_name": "curvature_spike_transition",
+      "count": 1,
+      "fraction": 0.3333333333333333
+    },
+    {
+      "family": "longmemeval_s_cleaned",
+      "regime_id": 0,
+      "regime_name": "near_stationary_fact_memory",
+      "count": 25,
+      "fraction": 0.8064516129032258
+    },
+    {
+      "family": "longmemeval_s_cleaned",
+      "regime_id": 1,
+      "regime_name": "curvature_spike_transition",
+      "count": 3,
+      "fraction": 0.0967741935483871
+    },
+    {
+      "family": "longmemeval_s_cleaned",
+      "regime_id": 2,
+      "regime_name": "curvature_spike_transition",
+      "count": 2,
+      "fraction": 0.06451612903225806
+    },
+    {
+      "family": "longmemeval_s_cleaned",
+      "regime_id": 3,
+      "regime_name": "curvature_spike_transition",
+      "count": 1,
+      "fraction": 0.03225806451612903
+    },
+    {
+      "family": "msc_valid",
+      "regime_id": 0,
+      "regime_name": "near_stationary_fact_memory",
+      "count": 10,
+      "fraction": 0.15151515151515152
+    },
+    {
+      "family": "msc_valid",
+      "regime_id": 1,
+      "regime_name": "curvature_spike_transition",
+      "count": 11,
+      "fraction": 0.16666666666666666
+    },
+    {
+      "family": "msc_valid",
+      "regime_id": 2,
+      "regime_name": "curvature_spike_transition",
+      "count": 1,
+      "fraction": 0.015151515151515152
+    },
+    {
+      "family": "msc_valid",
+      "regime_id": 3,
+      "regime_name": "curvature_spike_transition",
+      "count": 44,
+      "fraction": 0.6666666666666666
+    },
+    {
+      "family": "retrieval_heavy",
+      "regime_id": 1,
+      "regime_name": "curvature_spike_transition",
+      "count": 6,
+      "fraction": 0.5
+    },
+    {
+      "family": "retrieval_heavy",
+      "regime_id": 3,
+      "regime_name": "curvature_spike_transition",
+      "count": 6,
+      "fraction": 0.5
+    }
+  ],
+  "num_segments": 208
+}

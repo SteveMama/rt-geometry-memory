@@ -257,6 +257,8 @@ This file is the cumulative log of the RT research program checkpointed in this 
   - [`scripts/run_state_update_alignment_smoke.sh`](/Users/pranav/Documents/RT/scripts/run_state_update_alignment_smoke.sh)
 - Published the first synthetic smoke artifact:
   - [`artifacts/paper3/state_update_alignment_smoke_qwen05b`](/Users/pranav/Documents/RT/artifacts/paper3/state_update_alignment_smoke_qwen05b)
+- Published the follow-on state/update cross-control artifact:
+  - [`artifacts/paper3/state_update_cross_control_qwen05b`](/Users/pranav/Documents/RT/artifacts/paper3/state_update_cross_control_qwen05b)
 - Main result:
   - the straightforward same-sign directional-alignment supersession hypothesis fails cleanly on the synthetic benchmark
   - mean exit-step alignment is `0.9128`
@@ -264,6 +266,11 @@ This file is the cumulative log of the RT research program checkpointed in this 
   - alignments below `-0.2`: `0 / 10`
   - semantic similarity remains extremely high: mean `0.9942`, `10 / 10` above the threshold
   - the predeclared falsification gate therefore fails: `0 / 10` joint passes
+- Follow-on result:
+  - a geometrically consistent state-position / update-entry cross-term also fails as a sign-based detector
+  - mean update cross is `0.9707` versus mean all-control cross `0.9780`
+  - negative update crosses: `0 / 10`
+  - the only surviving effect is a very small ranking margin, which is not strong enough to justify a benchmark-scale algorithm
 - Important secondary diagnostic:
   - mixed entry/exit alignments are strongly negative in `10 / 10` synthetic cases
   - this means the state-update theorem direction is mathematically underspecified about which turn-associated vector should encode the update signal

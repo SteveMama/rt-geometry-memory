@@ -1,0 +1,17 @@
+family,regime_id,regime_name,count,fraction
+locomo10,0,near_stationary_fact_memory,36,0.375
+locomo10,1,curvature_spike_transition,12,0.125
+locomo10,2,curvature_spike_transition,4,0.041666666666666664
+locomo10,3,curvature_spike_transition,44,0.4583333333333333
+long_dependency,1,curvature_spike_transition,2,0.6666666666666666
+long_dependency,3,curvature_spike_transition,1,0.3333333333333333
+longmemeval_s_cleaned,0,near_stationary_fact_memory,25,0.8064516129032258
+longmemeval_s_cleaned,1,curvature_spike_transition,3,0.0967741935483871
+longmemeval_s_cleaned,2,curvature_spike_transition,2,0.06451612903225806
+longmemeval_s_cleaned,3,curvature_spike_transition,1,0.03225806451612903
+msc_valid,0,near_stationary_fact_memory,10,0.15151515151515152
+msc_valid,1,curvature_spike_transition,11,0.16666666666666666
+msc_valid,2,curvature_spike_transition,1,0.015151515151515152
+msc_valid,3,curvature_spike_transition,44,0.6666666666666666
+retrieval_heavy,1,curvature_spike_transition,6,0.5
+retrieval_heavy,3,curvature_spike_transition,6,0.5

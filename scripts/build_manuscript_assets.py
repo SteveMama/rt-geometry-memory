@@ -85,7 +85,7 @@ def _build_program_overview() -> None:
             0.25,
             0.66,
             "Paper 3: Sparse Codec",
-            "A segment anchor plus sparse support memory enables keep/compress/drop decisions. The low/mid-budget winner is geometry_keep_compress_drop; plain geometry retakes the lead at looser budgets.",
+            "A segment anchor plus sparse support memory enables keep/compress/drop decisions. Hard support-turn benchmarks favor geometry-aware codecs, while semantic-memory benchmarks favor semantic-led policies and also expose clear limits of geometry-only extensions.",
             "#fff0d9",
         ),
     ]
@@ -127,6 +127,66 @@ def _build_program_overview() -> None:
     )
     fig.tight_layout()
     fig.savefig(FIGURES / "program_overview.png", bbox_inches="tight")
+    plt.close(fig)
+
+
+def _build_paper3_regime_map() -> None:
+    fig, ax = plt.subplots(figsize=(8.8, 3.8), dpi=220)
+    ax.set_xlim(0, 3)
+    ax.set_ylim(0, 4)
+    ax.axis("off")
+
+    palette = {
+        "KCD": "#f4c27a",
+        "semantic": "#9cc5e8",
+        "semantic-family": "#b7d7f0",
+        "geometry": "#a9d18e",
+        "mixed": "#d9d9d9",
+    }
+    grid = [
+        ("Hard stress", ["KCD", "KCD", "geometry"]),
+        ("LongMemEval public", ["semantic", "mixed", "KCD"]),
+        ("MSC", ["semantic-family", "semantic", "semantic"]),
+        ("LoCoMo (bounded)", ["semantic-family", "semantic-family", "semantic-family"]),
+    ]
+    budgets = ["0.20", "0.35", "0.50"]
+
+    for x, label in enumerate(budgets):
+        ax.text(x + 0.5, 4.08, f"Budget {label}", ha="center", va="bottom", fontsize=11.5, fontweight="bold")
+
+    for row_idx, (name, winners) in enumerate(grid):
+        y = 3 - row_idx
+        ax.text(-0.08, y + 0.5, name, ha="right", va="center", fontsize=11.0, fontweight="bold")
+        for x, winner in enumerate(winners):
+            rect = FancyBboxPatch(
+                (x + 0.06, y + 0.08),
+                0.88,
+                0.84,
+                boxstyle="round,pad=0.012,rounding_size=0.02",
+                linewidth=1.0,
+                edgecolor="#25313d",
+                facecolor=palette[winner],
+            )
+            ax.add_patch(rect)
+            label = {
+                "KCD": "KCD",
+                "semantic": "semantic",
+                "semantic-family": "semantic\nfamily",
+                "geometry": "geometry",
+                "mixed": "semantic /\nsegment",
+            }[winner]
+            ax.text(x + 0.5, y + 0.5, label, ha="center", va="center", fontsize=10.5)
+
+    ax.text(
+        1.5,
+        -0.18,
+        "Qualitative winner map from the current checkpoint: no universal best codec, only benchmark-dependent win regions.",
+        ha="center",
+        va="top",
+        fontsize=10.5,
+    )
+    fig.tight_layout()
+    fig.savefig(FIGURES / "paper3_regime_map.png", bbox_inches="tight")
     plt.close(fig)
 
 
@@ -232,6 +292,77 @@ def _paper3_table() -> str:
     return "\n".join(lines)
 
 
+def _paper3_regime_table() -> str:
+    lines = [
+        r"\begin{tabular}{p{2.15cm}p{1.4cm}p{1.4cm}p{1.4cm}p{2.9cm}}",
+        r"\toprule",
+        r"Evaluation set & 0.20 & 0.35 & 0.50 & Reading \\",
+        r"\midrule",
+        r"Hard stress / fairness / 3B & KCD & KCD & geometry & Support-turn-critical memory; sparse geometry codecs help most under scarcity. \\",
+        r"LongMemEval public & semantic & semantic / segment & KCD & Broader episode memory; geometry-family policies remain useful but ranking changes. \\",
+        r"MSC & semantic family & semantic & semantic & Persona and conversational continuity dominate; geometry-KCD is the wrong family. \\",
+        r"LoCoMo (bounded) & semantic family & semantic family & semantic family & Mixed temporal-semantic memory; semantic-led codecs remain strongest in current probes. \\",
+        r"\bottomrule",
+        r"\end{tabular}",
+    ]
+    return "\n".join(lines)
+
+
+def _negative_results_table() -> str:
+    atlas = _load_json(ARTIFACTS / "paper1" / "regime_atlas_smoke_v4" / "atlas_summary.json")
+    persona = _load_json(ARTIFACTS / "paper3" / "msc_persona_curvature_v1" / "summary.json")
+    state_align = _load_json(ARTIFACTS / "paper3" / "state_update_alignment_smoke_qwen05b" / "summary.json")
+    state_cross = _load_json(ARTIFACTS / "paper3" / "state_update_cross_control_qwen05b" / "summary.json")
+
+    persona_ag = persona["aggregate"]
+    align_ag = state_align["aggregate"]
+    cross_ag = state_cross["aggregate"]
+    retrieval_rows = [
+        row for row in atlas["family_regime_summary"]
+        if row["family"] == "retrieval_heavy"
+    ]
+    retrieval_summary = ", ".join(
+        f"{row['count']} in regime {row['regime_id']}" for row in retrieval_rows
+    )
+
+    lines = [
+        r"\begin{tabular}{p{2.6cm}p{2.0cm}p{3.0cm}p{2.3cm}}",
+        r"\toprule",
+        r"Check & Setting & Quantitative result & Reading \\",
+        r"\midrule",
+        (
+            "MSC support vs filler curvature & "
+            "5 conv. & "
+            f"$\\Delta\\kappa={_fmt(persona_ag['mean_delta_curvature'])}$, "
+            f"{persona_ag['positive_delta_count']}/5 positive & "
+            "No robust within-topic curvature separation. \\\\"
+        ),
+        (
+            "Regime atlas & "
+            "208 segments & "
+            f"retrieval\\_heavy: {retrieval_summary} & "
+            "After stabilization, geometry-only regimes still mix stress and casual segments. \\\\"
+        ),
+        (
+            "State-update alignment & "
+            "10 synthetic conv. & "
+            f"mean $A={_fmt(align_ag['mean_directional_alignment'])}$, "
+            f"{align_ag['negative_alignment_count']}/10 negative & "
+            "Same-sign increment alignment does not detect supersession. \\\\"
+        ),
+        (
+            "State/increment cross-term & "
+            "10 synthetic conv. & "
+            f"update {_fmt(cross_ag['mean_state_update_entry_cross'])} vs control {_fmt(cross_ag['mean_control_entry_cross'])}; "
+            f"{cross_ag['negative_state_update_entry_cross_count']}/10 negative & "
+            "Only a weak ranking margin, not a usable sign-based detector. \\\\"
+        ),
+        r"\bottomrule",
+        r"\end{tabular}",
+    ]
+    return "\n".join(lines)
+
+
 def _model_table() -> str:
     lines = [
         r"\begin{tabular}{lll}",
@@ -287,10 +418,13 @@ def main() -> None:
     FIGURES.mkdir(parents=True, exist_ok=True)
     _copy_figures()
     _build_program_overview()
+    _build_paper3_regime_map()
     _write(GENERATED / "table_models.tex", _model_table())
     _write(GENERATED / "table_paper1_results.tex", _paper1_table())
     _write(GENERATED / "table_paper2_results.tex", _paper2_table())
     _write(GENERATED / "table_paper3_results.tex", _paper3_table())
+    _write(GENERATED / "table_paper3_regimes.tex", _paper3_regime_table())
+    _write(GENERATED / "table_negative_results.tex", _negative_results_table())
     _write(GENERATED / "checkpoint_summary.json", json.dumps(_checkpoint_summary(), indent=2))
 
 

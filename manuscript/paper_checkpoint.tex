@@ -33,7 +33,7 @@
 \newcommand{\Logit}{\Delta_{\ell_2}}
 \newcommand{\NLL}{\Delta_{\mathrm{NLL}}}
 
-\title{Geometry-Aware Conversational Memory Compression in Small Language Models}
+\title{Geometry of Multi-Turn Conversation Trajectories in Small Language Models: Characterization, Compression, and Limits}
 
 \author{
 \IEEEauthorblockN{Pranav Kompally}
@@ -48,7 +48,7 @@ New York, USA\\
 \maketitle
 
 \begin{abstract}
-We present a manuscript-grade checkpoint of a three-stage research program on conversational memory compression for small language models. The program proceeds from geometry measurement (Paper~1), to geometry-aware control under fixed memory budgets (Paper~2), to sparse conversational memory codecs (Paper~3). In Paper~1, we model turn-level conversation states as points on the unit sphere and analyze transported increments in local tangent spaces. Across three compact model families, conversation-state trajectories are extremely low-rank and geometric reconstruction error is tightly coupled to decoder drift: mean rank95 ranges from 1.049 to 1.528, while the correlation between geometric distortion and logit drift ranges from 0.989 to 0.994, with permutation and shuffled-order null controls collapsing these effects. In Paper~2, we show that geometry-aware budget allocation improves decoder fidelity relative to uniform retention under conversational memory scarcity and, on a hard stress set, preserves memory-critical support turns more often than uniform policies. In Paper~3, we establish the first viable sparse codec family: a geometry-driven keep/compress/drop policy is now fairness-controlled, statistically credible, and validated at 3B scale. The current picture is a clean regime split: sparse geometry codecs are strongest under low-to-mid budgets, while plain geometry retention regains the lead when budget loosens. We provide the mathematical setup, theorem directions, proof sketches, tracked results, figures, tables, and full reproducibility bundle for the current checkpoint.
+We present a manuscript-grade checkpoint of a three-stage research program on conversational memory compression for small language models and, equally importantly, a record of where that program fails. The program proceeds from geometry measurement (Paper~1), to geometry-aware control under fixed memory budgets (Paper~2), to sparse conversational memory codecs (Paper~3). In Paper~1, we model turn-level conversation states as points on the unit sphere and analyze transported increments in local tangent spaces. Across three compact model families, conversation-state trajectories are extremely low-rank and geometric reconstruction error is tightly coupled to decoder drift: mean rank95 ranges from 1.049 to 1.528, while the correlation between geometric distortion and logit drift ranges from 0.989 to 0.994, with permutation and shuffled-order null controls collapsing these effects. In Paper~2, geometry-aware budget allocation improves decoder fidelity relative to uniform retention under conversational memory scarcity and preserves memory-critical support turns more often than uniform policies on a hard stress set. In Paper~3, sparse codecs become real on the same hard support-turn benchmark family: fairness-controlled \texttt{geometry\_keep\_compress\_drop} is strongest under low-to-mid budgets on the hard set, while plain geometry retakes the lead in a looser-budget 3B regime. But the broader benchmark story is not a universal geometry win. On the full LongMemEval public benchmark, semantic or segment-style policies are strongest under scarcity and KCD becomes best only at 0.50 budget; on MSC-style conversational-memory benchmarks, plain semantic retention remains the strongest family. We also report explicit negative results: geometry does not robustly separate support/persona turns from filler in MSC, a geometry-only regime atlas remains too coarse to classify conversation types reliably, and two state-update supersession formulations fail on a synthetic falsification benchmark. The resulting claim boundary is sharper and stronger: geometry is real, decoder-relevant, and useful for support-turn-critical memory control, but semantic-memory benchmarks require semantic-led policies, and several plausible geometry-only extensions fail in compact models.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -65,7 +65,7 @@ This repository organizes the project into three linked papers:
     \item \textbf{Paper~3: Sparse conversational codecs.} Replace part of raw history retention with a compressed memory object that preserves the right support structure.
 \end{enumerate}
 
-The current checkpoint is beyond proof-of-concept. Paper~1 is frozen scientifically; Paper~2 has a stable systems result with a mechanism story; Paper~3 has two viable compressed-memory families and a fairness-controlled sparse-codec win. The main open problem is no longer whether geometry matters. It is how to unify low/mid-budget sparse codec behavior with higher-budget geometry retention.
+The current checkpoint is beyond proof-of-concept, but it is not a universal-win story. Paper~1 is frozen scientifically; Paper~2 has a stable systems result with a mechanism story; Paper~3 has real sparse codecs on hard support-turn benchmarks, but also clear benchmark-dependent losses and several failed extensions. The main open problem is no longer whether geometry matters. It is how to combine geometry with semantic signal in a way that respects the type of memory the benchmark actually requires.
 
 \begin{figure*}[t]
     \centering
@@ -79,7 +79,9 @@ The current checkpoint is beyond proof-of-concept. Paper~1 is frozen scientifica
     \item A geometric formalization of turn-level conversational dynamics on the sphere using local tangent-space transport.
     \item Stable empirical evidence that conversation-state trajectories are extremely low-rank and strongly decoder-relevant across compact model families.
     \item A geometry-aware memory-control result under conversational scarcity, including a mechanism analysis showing rescue of memory-critical support turns.
-    \item A first fairness-controlled sparse codec family, \texttt{geometry\_keep\_compress\_drop} (KCD), that is now active, budget-responsive, and positive at 3B scale.
+    \item A first fairness-controlled sparse codec family, \texttt{geometry\_keep\_compress\_drop} (KCD), that is active, budget-responsive, and positive on hard support-turn benchmarks.
+    \item An explicit benchmark-dependent Paper~3 reading: semantic-memory benchmarks favor semantic-led policies, while support-turn-critical benchmarks favor geometry-aware codecs.
+    \item A falsification record showing the limits of geometry-only extensions in compact models: failed persona-vs-filler separation on MSC, a too-coarse geometry-only regime atlas, and failed state-update supersession detection.
 \end{itemize}
 
 \section{Mathematical Setup}
@@ -192,7 +194,7 @@ We evaluate compact and mid-scale open models suitable for local and Colab-based
     \centering
     \caption{Current model registry used across the checkpoint.}
     \label{tab:models}
-    \input{generated/table_models.tex}
+    \resizebox{\columnwidth}{!}{\input{generated/table_models.tex}}
 \end{table}
 
 \subsection{Conversation Families and Evaluation Sets}
@@ -219,7 +221,7 @@ The core Paper~1 result is strong and stable. Conversation-state trajectories ar
     \centering
     \caption{Paper~1 main quantitative results. Rank95 remains small, shuffled-turn nulls increase rank, and geometry--logit coupling remains extremely high.}
     \label{tab:paper1}
-    \input{generated/table_paper1_results.tex}
+    \resizebox{\columnwidth}{!}{\input{generated/table_paper1_results.tex}}
 \end{table}
 
 The exact numbers are the right scale for a compressibility argument. For \texttt{qwen25\_05b}, mean rank95 is 1.049 with a 95\% bootstrap interval of [1.000, 1.111], while the shuffled-turn-order null rises to 1.486. The corresponding geometry--logit correlation is 0.989. The same pattern holds for \texttt{qwen25\_15b} (rank95 1.167, correlation 0.994) and \texttt{smollm2\_17b} (rank95 1.528, correlation 0.989). These are not borderline effects. They define the scientific core of the program.
@@ -233,7 +235,7 @@ Paper~2 asks whether the geometry signal can be used as a control law under fixe
     \centering
     \caption{Paper~2 geometry-vs-uniform results on the hard stress set. Negative deltas are improvements over uniform.}
     \label{tab:paper2}
-    \input{generated/table_paper2_results.tex}
+    \resizebox{\columnwidth}{!}{\input{generated/table_paper2_results.tex}}
 \end{table}
 
 At budget 0.20, geometry improves mean logit drift by 65.65 on \texttt{qwen25\_05b} and 33.65 on \texttt{qwen25\_15b}; at budget 0.35, the improvements are 99.50 and 21.67, respectively. The \texttt{qwen25\_15b} effect weakens faster than the \texttt{qwen25\_05b} effect, but the low-to-mid budget regime still carries the clearest overall Paper~2 signal. \texttt{smollm2\_17b} is noisier, but still directionally favorable in the same region. The harder behavior probe is no longer flat, although answer-level improvements remain mixed and weaker than logit-level improvements.
@@ -249,17 +251,17 @@ The mechanism story is now one of the strongest parts of the repo. On the focuse
 
 The correct claim boundary is therefore narrow and strong: geometry is the right signal for decoder-fidelity control in conversations, but not every downstream answer-level metric has yet become geometry-specific. That is acceptable for the current paper boundary because the primary systems objective is decoder-stability under budget.
 
-\subsection{Paper~3: Sparse Conversational Codecs Are Now Real}
-Paper~3 is where the program crosses from smarter retention into genuine compression. The key fact is simple: KCD is no longer degenerate. The \texttt{compress} branch is active, budget-responsive, and mechanism-valid.
+\subsection{Paper~3: Sparse Conversational Codecs Are Real, But Not Universal}
+Paper~3 is where the program crosses from smarter retention into genuine compression. The positive result is real: KCD is no longer degenerate. The \texttt{compress} branch is active, budget-responsive, and mechanism-valid on hard support-turn benchmarks. But the broader lesson is no longer ``geometry codec wins everywhere.'' The winning policy depends on the kind of memory the benchmark requires.
 
 \begin{table}[t]
     \centering
     \caption{Paper~3 fairness and 3B checkpoint. KCD is strongest in the scarcity regime; geometry retakes the lead when budget loosens on the 3B probe.}
     \label{tab:paper3}
-    \input{generated/table_paper3_results.tex}
+    \resizebox{\columnwidth}{!}{\input{generated/table_paper3_results.tex}}
 \end{table}
 
-On the fairness-controlled \texttt{qwen25\_15b} sweep, KCD is the strongest logit policy at every budget from 0.24 through 0.46, with particularly strong low/mid-budget results:
+On the fairness-controlled hard-set \texttt{qwen25\_15b} sweep, KCD is the strongest logit policy through the low/mid-budget region, with particularly strong results at:
 \begin{itemize}[leftmargin=1.4em]
     \item 0.24: $\Logit = -38.272$, relative logit 0.898, $p=0.0022$
     \item 0.28: $\Logit = -42.138$, relative logit 0.883, $p=0.0008$
@@ -270,20 +272,47 @@ These are fairness-relevant because realized token fractions are tight in the sa
 
 Behavior also strengthens in the same regime. KCD produces significant answer-level improvements on \texttt{qwen25\_15b} at 0.32, 0.35, 0.46, and 0.50. Pairwise results show that KCD beats \texttt{geometry\_segment\_actions} on behavior at 0.46 and 0.50.
 
-The 3B probe sharpens the scientific picture further. On \texttt{qwen25\_3b}, KCD is the strongest codec policy at 0.35, but plain geometry becomes the strongest logit policy at 0.50. Pairwise significance confirms that this is a real regime split, not just noise:
+The 3B probe sharpens the hard-set picture further. On \texttt{qwen25\_3b}, KCD is the strongest codec policy at 0.35, but plain geometry becomes the strongest logit policy at 0.50. Pairwise significance confirms that this is a real regime split, not just noise:
 \begin{itemize}[leftmargin=1.4em]
     \item KCD vs geometry at 0.35: $\Delta \Logit = -53.675$, $p=0.0272$
     \item KCD vs geometry at 0.50: $\Delta \Logit = +24.357$, $p=0.0063$
 \end{itemize}
-Under scarcity, the sparse codec wins. Once budgets loosen, direct geometry retention retakes the lead.
-The policy reading is explicit: \texttt{geometry\_keep\_compress\_drop} is the current low/mid-budget sparse codec, plain \texttt{geometry} is the higher-budget fallback/control policy, and \texttt{geometry\_segment\_actions} remains viable but is not the lead family on the fairness-controlled Qwen runs. All comparisons here are budgeted rather than perfectly token-matched; the fairness sweeps are included precisely to test whether the low/mid-budget KCD result survives under tighter realized-token control, and it does.
+Under scarcity on the hard set, the sparse geometry codec wins. Once budgets loosen, direct geometry retention retakes the lead. The policy reading is therefore explicit but local: \texttt{geometry\_keep\_compress\_drop} is the current hard-set low/mid-budget sparse codec, plain \texttt{geometry} is the higher-budget fallback/control policy, and \texttt{geometry\_segment\_actions} remains viable but is not the lead family on the fairness-controlled Qwen runs. All comparisons here are budgeted rather than perfectly token-matched; the fairness sweeps are included precisely to test whether the low/mid-budget KCD result survives under tighter realized-token control, and it does.
 
 \begin{figure*}[t]
     \centering
     \includegraphics[width=0.95\textwidth]{figures/paper3_checkpoint_overview.png}
-    \caption{Paper~3 checkpoint overview. KCD is the strongest low/mid-budget sparse codec family under fairness control, while plain geometry becomes the stronger higher-budget fallback on the 3B probe.}
+    \caption{Paper~3 hard-set checkpoint overview. On the support-turn-critical benchmark family, KCD is the strongest low/mid-budget sparse codec under fairness control, while plain geometry becomes the stronger higher-budget fallback on the 3B probe.}
     \label{fig:paper3_overview}
 \end{figure*}
+
+\subsection{Paper~3 Produces a Benchmark-Dependent Regime Map}
+The hard-set win does not extrapolate unchanged to broader conversational-memory benchmarks. The public LongMemEval benchmark, MSC-style multi-session conversational memory, and bounded LoCoMo probes all shift the ranking. Table~\ref{tab:paper3_regimes} summarizes the current checkpoint reading.
+
+\begin{table}[t]
+    \centering
+    \caption{Current Paper~3 regime map. The winning policy family depends on the memory type emphasized by the benchmark.}
+    \label{tab:paper3_regimes}
+    \resizebox{\columnwidth}{!}{\input{generated/table_paper3_regimes.tex}}
+\end{table}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.48\textwidth]{figures/paper3_regime_map.png}
+    \caption{Qualitative Paper~3 winner map from the current checkpoint. Hard support-turn benchmarks and broader semantic-memory benchmarks do not share the same best policy family.}
+    \label{fig:paper3_regime_map}
+\end{figure}
+
+The clearest public-benchmark result is the full \texttt{qwen25\_15b} LongMemEval run. At budget 0.20, \texttt{semantic} is strongest ($\Delta \Logit=-122.613$, $p=0.0000$). At budget 0.35, \texttt{semantic} and \texttt{geometry\_segment\_actions} are strongest ($-104.183$ and $-97.432$, both $p=0.0000$). At budget 0.50, KCD becomes the strongest public-benchmark policy ($\Delta \Logit=-48.466$, $p=0.0000$), while plain geometry becomes significantly worse than uniform ($+31.038$, $p=0.0032$). This means the geometry program still helps at 0.50 budget, but the winning policy is benchmark-dependent: KCD is the best public-benchmark policy at 0.50, while geometry is the best hard-set 3B policy at the same budget.
+
+MSC pushes the semantic-memory story further. On the 24-conversation \texttt{msc\_valid} run with \texttt{qwen25\_15b}, plain \texttt{semantic} is the strongest overall family. At budget 0.20, \texttt{semantic\_keep\_compress\_drop} is directionally better than plain \texttt{semantic} on mean logit distortion, but not significantly so. At 0.35 and 0.50, plain semantic is better overall, especially on behavior. Geometry remains useful relative to uniform on MSC, but geometry-KCD is strongly mismatched.
+
+Bounded LoCoMo probes reinforce the same qualitative reading rather than reversing it. The old geometry-KCD family performs poorly, support-aware geometry variants rescue part of that failure, and semantic-led codecs remain strongest overall. Taken together, these results support a benchmark taxonomy rather than a universal winner:
+\begin{itemize}[leftmargin=1.4em]
+    \item \textbf{support-turn-critical memory} $\rightarrow$ geometry-aware sparse codecs;
+    \item \textbf{semantic or persona continuity} $\rightarrow$ semantic-led retention or semantic-led codecs;
+    \item \textbf{mixed temporal-semantic memory} $\rightarrow$ still unresolved, but semantic-led families are currently safer than pure geometry codecs.
+\end{itemize}
 
 \subsection{Mechanism: The Codec Preserves the Right Support Structure}
 Mechanism analysis is the clearest reason not to treat Paper~3 as just another compression heuristic. At budget 0.35:
@@ -295,6 +324,22 @@ Mechanism analysis is the clearest reason not to treat Paper~3 as just another c
 
 The rescued support objects are semantically precise: code constraints, retrieval packets, exact ordering requirements, and compact fact bundles. That makes the codec interpretable in a way generic token pruning is not. The system is not merely ``keeping more useful tokens'' in the abstract; it is preferentially preserving the specific earlier turns that later answers depend on.
 
+\subsection{Negative Results and Explicit Limits}
+The checkpoint is stronger because several plausible extensions failed. Table~\ref{tab:negative_checks} records the main falsification results.
+
+\begin{table}[t]
+    \centering
+    \caption{Negative-result checkpoints. These tests sharpen the claim boundary of the geometry program rather than weakening it.}
+    \label{tab:negative_checks}
+    \resizebox{\columnwidth}{!}{\input{generated/table_negative_results.tex}}
+\end{table}
+
+The first failed direction is within-topic curvature discrimination on MSC. In a manual five-conversation support-vs-filler check, mean support-filler curvature delta was only 0.122, with positive deltas in 3/5 conversations and negative deltas in 2/5. That is not a robust support detector.
+
+The second failed direction is geometry-only regime classification. After fixing a genuine long-conversation curvature blow-up, the regime atlas still remained too coarse: retrieval-heavy hard-set segments were split across the same spike-heavy regime family as large portions of MSC and LoCoMo, so geometry alone did not recover a reliable benchmark taxonomy.
+
+The third failed direction is state-update supersession detection. The direct same-sign alignment hypothesis fails completely on a synthetic benchmark of explicit state updates: mean alignment is 0.913 and 0/10 alignments are negative. A more geometrically careful state-vs-increment cross-term also fails as a sign-based detector: mean update cross is 0.971 versus mean control cross 0.978, with 0/10 negative update crosses. The only surviving effect is a very small ranking margin, which is not strong enough to justify a benchmark-scale algorithm.
+
 \section{Discussion}
 \subsection{What Is Scientifically Settled}
 The checkpoint is already strong enough to support several stable claims.
@@ -302,14 +347,16 @@ The checkpoint is already strong enough to support several stable claims.
     \item \textbf{Geometry is real and useful.} Paper~1 rules out the strongest null explanations for low-rank conversation dynamics and shows extreme geometry--decoder coupling.
     \item \textbf{Geometry helps under memory scarcity.} Paper~2 establishes a real geometry-aware control result with a mechanism story.
     \item \textbf{Compression itself is now contributing.} Paper~3 has an active, fairness-controlled, budget-responsive codec family rather than just a smarter retention policy.
+    \item \textbf{There is no universal best memory signal.} Hard support-turn benchmarks and semantic-memory benchmarks reward different policy families.
+    \item \textbf{Several plausible geometry-only extensions fail in compact models.} Those failures are now part of the scientific result, not side notes.
 \end{enumerate}
 
 \subsection{What Remains Open}
 Three main questions remain open.
 \begin{enumerate}[leftmargin=1.4em]
-    \item \textbf{Public-benchmark ranking.} A larger public-benchmark batch is still running. Early bounded slices suggest that benchmark-dependent policy ranking may differ from the hard stress set, so final benchmark claims should wait for the full run.
-    \item \textbf{Unified policy family.} The current checkpoint shows a regime split: KCD for scarcity, plain geometry for looser budgets. A unified policy should probably be support-aware rather than more complicated in action space alone.
-    \item \textbf{Learned distortion prediction.} The theorem directions for Paper~3 still assume a bounded harm predictor rather than deriving it from a learned model.
+    \item \textbf{Can a learned selector combine the right signals?} The current data suggests semantic candidate discovery plus structure-aware refinement, rather than one fixed codec, but that selector is not learned yet.
+    \item \textbf{What is the model-size threshold for richer geometric discrimination?} The failed state-update and MSC-support checks may be compact-model limitations rather than universal impossibilities.
+    \item \textbf{Can the harm predictor be learned directly?} The theorem directions for Paper~3 still assume bounded distortion terms rather than deriving them from a trained predictor.
 \end{enumerate}
 
 \subsection{Limitations}
@@ -318,7 +365,8 @@ This checkpoint remains a research program in progress, not a finished product.
     \item The primary mechanism and codec evidence comes from custom hard stress sets designed to expose support-turn failures.
     \item Most stable results are on compact models, with only the first 3B validations completed.
     \item Boundary-localization evidence from Paper~1 is secondary and should not be oversold as exact regime recovery.
-    \item The public-benchmark story is still being solidified and is therefore intentionally excluded from the main quantitative claims here.
+    \item Several broader-benchmark codec results are still bounded checkpoint studies rather than fully standardized large-scale sweeps.
+    \item The later negative-result checks were designed to falsify plausible extensions quickly; they sharpen the claim boundary, but do not by themselves provide an alternative algorithm.
 \end{itemize}
 
 \section{Reproducibility and Repository Packaging}
@@ -338,7 +386,7 @@ tectonic manuscript/paper\_checkpoint.tex
 \end{center}
 
 \section{Conclusion}
-The current checkpoint shows that geometry-aware conversational memory compression is a coherent, cumulative program rather than a disconnected set of experiments. Paper~1 establishes the geometric substrate; Paper~2 turns that substrate into a useful control law; Paper~3 demonstrates that sparse codec behavior is now real, fairness-controlled, and positive at 3B scale. The open problem has narrowed in the right way: the next step is not to prove that geometry matters, but to design a support-aware compressed memory object that preserves the low/mid-budget strength of KCD while retaining the higher-budget robustness of direct geometry control.
+The current checkpoint shows that geometry-aware conversational memory compression is a coherent, cumulative program rather than a disconnected set of experiments, but the final claim is now more precise than the early optimistic version. Paper~1 establishes a strong geometric substrate: conversation trajectories are extremely low-rank and almost perfectly decoder-coupled. Paper~2 turns that substrate into a real control law under scarcity, with a concrete mechanism centered on support-turn rescue. Paper~3 shows that sparse codecs are real and useful on support-turn-critical benchmarks, and that the geometry program still helps at 0.50 budget, but it also shows that there is no universal best policy family. Semantic-memory benchmarks favor semantic-led methods; several tempting geometry-only extensions fail. That is a stronger research outcome than a single unchecked win story. The right next step is not to keep searching for another standalone geometry heuristic. It is to build a benchmark-aware or learned selector that uses geometry where structure matters, uses semantic signal where broad continuity matters, and treats the negative results in this checkpoint as hard design constraints rather than inconveniences.
 
 \appendices
 \section{Storage Accounting for Sparse Codecs}
@@ -356,10 +404,14 @@ Future work should refine this accounting into exact byte counts for latent summ
 The most important tracked bundles are:
 \begin{itemize}[leftmargin=1.4em]
     \item Paper~1 final: \path{artifacts/paper1/expanded_v8_final}
+    \item Paper~1 regime atlas limits: \path{artifacts/paper1/regime_atlas_smoke_v4}
     \item Paper~2 hard stress: \path{artifacts/paper2/behavior_stress_v1}
     \item Paper~2 mechanism cases: \path{artifacts/paper2/behavior_stress_qwen_cases}
     \item Paper~3 fairness: \path{artifacts/paper3/paper3_batch_v1_fairness}
     \item Paper~3 3B probe: \path{artifacts/paper3/paper3_batch_v1_3b}
+    \item Paper~3 MSC persona falsification: \path{artifacts/paper3/msc_persona_curvature_v1}
+    \item Paper~3 state-update falsification: \path{artifacts/paper3/state_update_alignment_smoke_qwen05b}
+    \item Paper~3 state/update cross control: \path{artifacts/paper3/state_update_cross_control_qwen05b}
 \end{itemize}
 
 \begin{thebibliography}{9}

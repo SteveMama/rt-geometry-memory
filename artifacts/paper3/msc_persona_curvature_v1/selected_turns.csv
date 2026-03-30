@@ -1,0 +1,39 @@
+conversation_id,label,turn_index,role,curvature,percentile_rank,content
+msc-00000,support,3,assistant,1.9044339656829834,0.7666666666666667,"I rather read, I've read about 20 books this year."
+msc-00000,support,21,assistant,2.3578925132751465,1.0,"I have kindle unlimited and the libby app, but I believe that particular one was on Kindle Unlimited. It was about teenaged girls being kidnapped and locked in a giant jar and turned into butterflies permanently after the man and his son had their way with them. So I had to lay off her books for a bit. Oh! I also read Billy Straight. that was on libby from my library. It is AMAZING. and it is a true crime story! What was the book you read?"
+msc-00000,support,43,assistant,0.0,0.6333333333333333,"I am reading The Butterfly Garden book, and it is good.  How was Fatal Charm?"
+msc-00000,support,59,assistant,0.0,0.6333333333333333,"How do you like using your kindle? I use my phone to read my books, but I'm starting to think I should just get a paperwhite and separate my reading from my phone"
+msc-00000,filler,27,assistant,0.0,0.6333333333333333,"I mean, you said you like Stephen King. And Shawshank. I read that book. It was pretty boring. But it was also amazing. You never know what someone else might like to read. Also, doing stunts isn't always fun or exciting. Sometimes it is just falling off a roof and having to lay up for 7 weeks over a broken ankle. Nobody wants to hear about binge reading all of Jeff Wheelers books!"
+msc-00000,filler,31,assistant,0.0,0.6333333333333333,"A character is shopping for hats and trying all types of hats on and none are suitable until he finds his old hat which he had taken off when he entered the hat store.  Not an actual classic, but lots of fun."
+msc-00000,filler,35,assistant,0.0,0.6333333333333333,I stood in for the actor who is playing Rocky Balboa in a remake of the original Rocky movie.
+msc-00000,filler,51,assistant,0.0,0.6333333333333333,"I still thought it was amazing, but it wasn't my style of book"
+1,support,6,user,2.009902238845825,0.6166666666666667,Cool. Not really into cars. My day job is wrestling.
+1,support,50,user,0.0,0.48333333333333334,I won my fight today.
+1,support,54,user,0.0,0.48333333333333334,"You had to ask, didn't you?! I jest. But it was very close. I was worried I was going to lose at first, but I just stayed focused and in the moment. It really is all about trusting your instincts and not getting in your own way."
+1,support,56,user,0.0,0.48333333333333334,"I sure hope so. This fight paid $5,000!"
+1,filler,8,user,2.0170645713806152,0.6333333333333333,"Yes, I love the crowds, getting to know people."
+1,filler,10,user,2.001980781555176,0.6,"Understood. When I need to be alone, I work out a few times each week."
+1,filler,38,user,0.0,0.48333333333333334,Did you take your dogs out for a walk today?
+1,filler,46,user,0.0,0.48333333333333334,"Yes, getting beat is not a highlight but makes you want to train even harder! And working up a sweat is no joke! Ha ha."
+2,support,8,user,1.787057638168335,0.55,Maybe you should consider going back to school. I did. I major in economics.
+2,support,22,user,2.050619125366211,0.7333333333333333,"Good, I was finally able to find a job that valued it. Who knew economics wouldn't be easily employable. What would you go back to school for?"
+2,support,56,user,0.0,0.5166666666666667,"I quit my day job thinking I would be hired right away, but then had to go to work at nights in the university hamburger and pizza bar for six months before I found the right position."
+2,support,60,user,0.0,0.5166666666666667,"Now that's an idea, thanks! I expect a bonus after my six months on the job too, and that's three months from now.  Should be substantial enough to buy some additional furniture... IF my wife's expensive tastes can be toned down a little."
+2,filler,24,user,2.138066291809082,0.8333333333333334,Haha I can only imagine how bad you need a break from hospitals. If you'd like I can show you how to coupon to help save money when you go back in school
+2,filler,30,user,0.0,0.5166666666666667,Yes they are just happy that I'm now happy in a job doing what I love to do. I know previously you have said you want to learn how to save using coupons my wife would be more and happy to give you some tips if you like.
+2,filler,34,user,0.0,0.5166666666666667,"It is honestly beautiful, our new neighbours have been so welcoming and we are actually have a get together this weekend you should come over too if your not busy!"
+2,filler,44,user,0.0,0.5166666666666667,"It went well. I haven't got much inside yet as I don't have much money. However, I have big plans for the future for the space."
+6,support,5,assistant,2.026970148086548,0.6774193548387096,"I've a bird and she loves cheeseburgers like me, my favorite"
+6,support,57,assistant,0.0,0.4838709677419355,Yeah they'll end up chasing around like Tom and Jerry! I have a bird called cheese and a dog called bertie
+6,support,61,assistant,0.0,0.4838709677419355,"Dude she just steals them, she's one crazy chick!! I let her fly around a lot, she's pretty smart."
+6,filler,9,assistant,2.17024564743042,0.9193548387096774,I do love the holidays I volunteer a soup kitchen during the holiday season
+6,filler,21,assistant,2.086437463760376,0.7419354838709677,I just wanted something different at the moment! Would you ever consider dying your hair?
+6,filler,37,assistant,0.0,0.4838709677419355,Yeah Macy's sure is the place to shop. I know you said you dont like the holidays but if you like you can spend Thanksgiving with my family this year if you like?
+6,filler,45,assistant,0.0,0.4838709677419355,"I'm all about the clearance deals! I think I've got a keen eye for bargains because my family didn't have much money while I was growing up. Hot Topic has a lot of rock band merchandise, gothic wear, punk rock wear, music, accessories, and more."
+8,support,1,assistant,1.8949428796768188,0.2857142857142857,Only if I can get a ride. I am very old and cannot drive
+8,support,9,assistant,2.0054612159729004,0.7142857142857143,Doing both of those things has helped me make it to my 100th birthday.
+8,support,13,assistant,2.1288564205169678,1.0,Women were not even allowed to vote when I was a child.
+8,filler,3,assistant,1.994075059890747,0.6428571428571429,How nice. You must love kids.
+8,filler,5,assistant,1.9472429752349854,0.35714285714285715,Would you like to know the secret to living as long as I've?
+8,filler,7,assistant,1.9764798879623413,0.5714285714285714,"Drinking wine, and dancing in the moonlight."
+8,filler,11,assistant,2.079582929611206,0.8571428571428571,"I may be old, but I'm stronger than I look!"
