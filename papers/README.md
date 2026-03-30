@@ -17,7 +17,8 @@ For the current manuscript-grade checkpoint paper, see:
 6. [`paper3_msc_semantic_codec_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_msc_semantic_codec_checkpoint.md)
 7. [`paper3_low_budget_kcd_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_low_budget_kcd_smoke_checkpoint.md)
 8. [`paper3_semantic_kcd_optimization_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_semantic_kcd_optimization_checkpoint.md)
-9. [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
+9. [`paper3_query_conditioned_geometry_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_query_conditioned_geometry_smoke_checkpoint.md)
+10. [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
 
 ## Logic
 
@@ -33,3 +34,4 @@ For the current manuscript-grade checkpoint paper, see:
 - Paper 3 now also has a semantic-memory checkpoint showing that benchmark family changes the winning policy form
 - Paper 3 now has a low-budget upgrade smoke checkpoint showing that support-aware geometry-KCD materially improves over the original geometry-KCD baseline, even though semantic-led policies still dominate semantic-memory benchmarks
 - Paper 3 now has a semantic-KCD optimization checkpoint showing that the next likely gains require a learned harm signal and a denser compressed memory object rather than more heuristic score mixing
+- Paper 3 now has a query-conditioned geometry smoke checkpoint showing that tangent-space query conditioning improves geometry, but still does not displace the strongest semantic codecs on semantic-memory benchmarks

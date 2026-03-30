@@ -11,6 +11,10 @@ import numpy as np
 
 DEFAULT_PAIRS: tuple[tuple[str, str], ...] = (
     ("geometry_keep_compress_drop", "geometry"),
+    ("query_conditioned_geometry", "geometry"),
+    ("query_conditioned_geometry_keep_compress_drop", "support_aware_geometry_keep_compress_drop"),
+    ("query_conditioned_geometry_keep_compress_drop", "semantic_keep_compress_drop"),
+    ("query_conditioned_geometry_keep_compress_drop", "geometry_keep_compress_drop"),
     ("geometry_keep_compress_drop", "geometry_segment_actions"),
     ("geometry_segment_actions", "geometry"),
     ("semantic_keep_compress_drop", "semantic"),

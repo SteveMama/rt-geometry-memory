@@ -142,6 +142,27 @@ This file is the cumulative log of the RT research program checkpointed in this 
 - Added a dedicated smoke-checkpoint write-up:
   - [`paper3_low_budget_kcd_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_low_budget_kcd_smoke_checkpoint.md)
 
+## Phase 10: Query-Conditioned Geometry Smoke Checkpoint
+
+- Added query-conditioned geometry features in a tangent-space-consistent implementation:
+  - [`paper3_codec/query_geometry.py`](/Users/pranav/Documents/RT/paper3_codec/query_geometry.py)
+- Added two new Paper 3 policy families:
+  - `query_conditioned_geometry`
+  - `query_conditioned_geometry_keep_compress_drop`
+- Added bounded runner and Colab notebook support:
+  - [`scripts/run_paper3_query_conditioned_geometry_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_query_conditioned_geometry_probe.sh)
+  - [`notebooks/rt_paper3_query_conditioned_geometry_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_query_conditioned_geometry_runner.ipynb)
+- Ran bounded smoke checks on:
+  - [`paper3_query_geom_smoke_msc`](/Users/pranav/Documents/RT/results/paper3/studies/paper3_query_geom_smoke_msc)
+  - [`paper3_query_geom_smoke_locomo`](/Users/pranav/Documents/RT/results/paper3/studies/paper3_query_geom_smoke_locomo)
+- Main directional findings:
+  - query-conditioning clearly improves plain geometry on MSC
+  - query-conditioned geometry-KCD is competitive under tight budgets
+  - the new query-conditioned retention signal is unstable on LoCoMo at `0.35`
+  - semantic codecs remain the stronger primary family on semantic-memory benchmarks
+- Added a dedicated write-up:
+  - [`paper3_query_conditioned_geometry_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_query_conditioned_geometry_smoke_checkpoint.md)
+
 ## Phase 10: Semantic KCD Optimization Checkpoint
 
 - Added two new semantic-led Paper 3 policies:

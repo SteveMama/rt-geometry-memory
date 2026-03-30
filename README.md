@@ -69,8 +69,9 @@ Current Paper 3 checkpoint:
 - MSC semantic-codec report: [`paper3_msc_semantic_codec_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_msc_semantic_codec_checkpoint.md)
 - low-budget KCD smoke report: [`paper3_low_budget_kcd_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_low_budget_kcd_smoke_checkpoint.md)
 - semantic-KCD optimization report: [`paper3_semantic_kcd_optimization_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_semantic_kcd_optimization_checkpoint.md)
+- query-conditioned geometry smoke report: [`paper3_query_conditioned_geometry_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_query_conditioned_geometry_smoke_checkpoint.md)
 - research synthesis white paper: [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
-- next experiment focus: publication-scale semantic-KCD reruns and then a learned harm predictor if the new hand-designed semantic variants still fail to separate clearly
+- next experiment focus: semantic-first, query-conditioned geometry-KCD rather than pure geometry-first query conditioning
 
 ## Start Here
 
@@ -86,6 +87,7 @@ Current Paper 3 checkpoint:
 - Use [`notebooks/rt_paper3_quick_benchmarks_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_quick_benchmarks_runner.ipynb) for one-notebook benchmark fetch/normalize/run loops across `MSC`, `LoCoMo10`, `LongMemEval`, and manual-source fallbacks
 - Use [`notebooks/rt_paper3_low_budget_kcd_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_low_budget_kcd_runner.ipynb) for the new low-budget KCD variants on `MSC` and `LoCoMo`
 - Use [`notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb) for the next semantic-led codec optimization pass on `MSC`, `LoCoMo`, and `LongMemEval`
+- Use [`notebooks/rt_paper3_query_conditioned_geometry_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_query_conditioned_geometry_runner.ipynb) for the tangent-space query-conditioned geometry comparison on `MSC` and `LoCoMo`
 - Use [`scripts/README.md`](/Users/pranav/Documents/RT/scripts/README.md) for command-line reruns
 
 ## Recommended Local Models

@@ -28,6 +28,7 @@ from .policies import (
     select_sparse_segment_memory,
     select_support_aware_sparse_segment_memory,
 )
+from .query_geometry import query_conditioned_turn_risk
 
 
 DEFAULT_OUTPUT = Path(__file__).resolve().parents[1] / "results" / "paper3"
@@ -38,8 +39,10 @@ DEFAULT_POLICIES = (
     "uniform",
     "semantic",
     "geometry",
+    "query_conditioned_geometry",
     "geometry_segment_actions",
     "geometry_keep_compress_drop",
+    "query_conditioned_geometry_keep_compress_drop",
     "semantic_keep_compress_drop",
 )
 
@@ -449,6 +452,12 @@ def run_codec_pilot(
             prefix_turn_count = target_turn
             prefix_turn_costs = turn_costs[:prefix_turn_count]
             semantic_risk = turn_semantic_risk(full_batch.states, target_turn)[:prefix_turn_count]
+            query_conditioned = query_conditioned_turn_risk(
+                full_batch.states,
+                target_turn,
+                ambient_geometry=geometry_risk,
+            )
+            query_geometry_risk = query_conditioned.risk[:prefix_turn_count]
             support_scores = _support_scores(
                 conversation=conversation,
                 prefix_turn_count=prefix_turn_count,
@@ -515,6 +524,15 @@ def run_codec_pilot(
                             budget_fraction=budget,
                             recent_window=recent_window,
                         )
+                    elif policy_name == "query_conditioned_geometry":
+                        selection = select_turns(
+                            policy_name=policy_name,
+                            risk_scores=query_geometry_risk,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                        )
                     elif policy_name == "geometry_segment_actions":
                         selection = select_segment_actions(
                             policy_name=policy_name,
@@ -532,6 +550,17 @@ def run_codec_pilot(
                             budget_fraction=budget,
                             recent_window=recent_window,
                             segment_span=segment_span,
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "query_conditioned_geometry_keep_compress_drop":
+                        selection = select_support_aware_sparse_segment_memory(
+                            risk_scores=query_geometry_risk,
+                            support_scores=support_scores,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=max(segment_span, 3),
                         )
                         memory_objects = selection.memory_objects
                     elif policy_name == "semantic_keep_compress_drop":

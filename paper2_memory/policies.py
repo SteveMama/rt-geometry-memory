@@ -294,7 +294,7 @@ def select_turns(
     older_scores = risk_scores[:older_count]
     if policy_name == "uniform":
         candidate_order = _uniform_indices(older_count, older_count)
-    elif policy_name in {"lexical", "geometry", "geometry_lexical", "semantic"}:
+    elif policy_name in {"lexical", "geometry", "geometry_lexical", "semantic", "query_conditioned_geometry"}:
         density = older_scores / np.maximum(older_costs.astype(np.float32), 1.0)
         candidate_order = list(np.argsort(-density, kind="stable"))
     else:
