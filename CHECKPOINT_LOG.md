@@ -104,10 +104,27 @@ This file is the cumulative log of the RT research program checkpointed in this 
 - Added a quick-benchmark Colab notebook:
   - [`rt_paper3_quick_benchmarks_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_quick_benchmarks_runner.ipynb)
 
+## Phase 8: MSC Semantic-Codec Checkpoint
+
+- Added `semantic_keep_compress_drop` as a first-class Paper 3 policy.
+- Ran the first semantic-codec benchmark on `msc_valid`:
+  - [`paper3_semantic_kcd_msc_valid`](/Users/pranav/Documents/RT/results/paper3/studies/paper3_semantic_kcd_msc_valid)
+- Main findings:
+  - `semantic` is the strongest overall policy family on MSC
+  - `semantic_keep_compress_drop` is competitive at `0.20`, but does not establish a significant win over plain `semantic`
+  - at `0.35` and `0.50`, plain `semantic` is better than `semantic_keep_compress_drop`, especially on behavior
+  - `geometry_keep_compress_drop` is strongly mismatched to MSC
+- Added a dedicated experiment report:
+  - [`paper3_msc_semantic_codec_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_msc_semantic_codec_checkpoint.md)
+- Added a higher-level synthesis white paper:
+  - [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
+
 ## Current Scientific Reading
 
 - Paper 1 is frozen and defensible.
 - Paper 2 is a real geometry-aware memory-control paper with a mechanism story.
 - Paper 3 has crossed from “interesting pilot” into “real compression system territory.”
 - The current design frontier is no longer whether geometry matters.
-- The current design frontier is how to turn the strong low/mid-budget sparse codec behavior of `geometry_keep_compress_drop` into a more unified compression family without losing the higher-budget strength of geometry-based retention/control.
+- The current design frontier is how to model benchmark-dependent conversational-memory regimes:
+  - support-turn-critical sparse memory
+  - broader semantic conversational memory

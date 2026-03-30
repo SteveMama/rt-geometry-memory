@@ -62,9 +62,12 @@ Current Paper 3 checkpoint:
 - `geometry_keep_compress_drop` is now a real compression policy, not a degenerate prototype
 - under fairness control, `geometry_keep_compress_drop` is the strongest low-to-mid budget Paper 3 family on `qwen25_15b`
 - the 3B probe shows a clean regime split: `geometry_keep_compress_drop` wins at `0.35`, while plain `geometry` retakes the lead at `0.50`
+- the MSC semantic-codec checkpoint shows that semantic-memory benchmarks favor `semantic`, while sparse codec form is benchmark-dependent rather than universal
 - status: latest tracked checkpoint in [`artifacts/paper3/paper3_pilot_v3_full`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_pilot_v3_full)
 - new tracked extensions: [`artifacts/paper3/paper3_batch_v1_fairness`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_batch_v1_fairness) and [`artifacts/paper3/paper3_batch_v1_3b`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_batch_v1_3b)
 - first full public-benchmark report: [`paper3_public_benchmark_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_public_benchmark_checkpoint.md)
+- MSC semantic-codec report: [`paper3_msc_semantic_codec_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_msc_semantic_codec_checkpoint.md)
+- research synthesis white paper: [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
 - next experiment focus: support-aware compression and semantic codec baselines after the fairness and 3B checkpoints
 
 ## Start Here

@@ -14,6 +14,8 @@ For the current manuscript-grade checkpoint paper, see:
 3. [`paper2_geometry_guided_adaptive_memory_compression.md`](/Users/pranav/Documents/RT/papers/paper2_geometry_guided_adaptive_memory_compression.md)
 4. [`paper3_manifold_memory_codecs.md`](/Users/pranav/Documents/RT/papers/paper3_manifold_memory_codecs.md)
 5. [`paper3_public_benchmark_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_public_benchmark_checkpoint.md)
+6. [`paper3_msc_semantic_codec_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_msc_semantic_codec_checkpoint.md)
+7. [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
 
 ## Logic
 
@@ -26,3 +28,4 @@ For the current manuscript-grade checkpoint paper, see:
 - Paper 1: frozen characterization result
 - Paper 2: strong control result with a mechanism story
 - Paper 3: active codec stage with a fairness-controlled low/mid-budget winner and a positive 3B validation run
+- Paper 3 now also has a semantic-memory checkpoint showing that benchmark family changes the winning policy form
