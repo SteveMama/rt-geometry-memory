@@ -13,6 +13,9 @@ DEFAULT_PAIRS: tuple[tuple[str, str], ...] = (
     ("geometry_keep_compress_drop", "geometry"),
     ("geometry_keep_compress_drop", "geometry_segment_actions"),
     ("geometry_segment_actions", "geometry"),
+    ("semantic_keep_compress_drop", "semantic"),
+    ("semantic_keep_compress_drop", "geometry"),
+    ("semantic_keep_compress_drop", "geometry_keep_compress_drop"),
 )
 
 

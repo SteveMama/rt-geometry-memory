@@ -28,6 +28,7 @@ Current solidification track:
 
 - recommended first public benchmark: `LongMemEval-S cleaned`
 - one normalized public benchmark on Qwen using `uniform`, `semantic`, `geometry`, `geometry_segment_actions`, and `geometry_keep_compress_drop`
+- one semantic-codec comparison using `uniform`, `semantic`, `geometry`, `geometry_keep_compress_drop`, and `semantic_keep_compress_drop`
 - one non-Qwen 3B hard-set probe using `uniform`, `geometry`, and `geometry_keep_compress_drop`
 - one dense crossover sweep over the hard set plus the public benchmark using `uniform`, `semantic`, `geometry`, and `geometry_keep_compress_drop`
 

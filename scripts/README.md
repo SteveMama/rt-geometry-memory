@@ -42,6 +42,8 @@ Included:
   - download the auto-supported public benchmarks: `LongMemEval`, `MSC`, and `LoCoMo10`
 - [`run_paper3_quick_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_quick_benchmark.sh)
   - run a bounded quick benchmark loop for smaller datasets such as MSC or LoCoMo
+- [`run_paper3_semantic_codec_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_semantic_codec_probe.sh)
+  - run the semantic-codec Paper 3 comparison with `uniform`, `semantic`, `geometry`, `geometry_keep_compress_drop`, and `semantic_keep_compress_drop`
 - [`build_manuscript_assets.py`](/Users/pranav/Documents/RT/scripts/build_manuscript_assets.py)
   - generate manuscript tables and packaged figures directly from tracked artifact JSON
 - [`run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)

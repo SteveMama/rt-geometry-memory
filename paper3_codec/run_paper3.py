@@ -33,6 +33,7 @@ DEFAULT_POLICIES = (
     "geometry",
     "geometry_segment_actions",
     "geometry_keep_compress_drop",
+    "semantic_keep_compress_drop",
 )
 
 
@@ -373,6 +374,16 @@ def run_codec_pilot(
                     elif policy_name == "geometry_keep_compress_drop":
                         selection = select_sparse_segment_memory(
                             risk_scores=geometry_risk[:prefix_turn_count],
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=segment_span,
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "semantic_keep_compress_drop":
+                        selection = select_sparse_segment_memory(
+                            risk_scores=semantic_risk,
                             turn_costs=prefix_turn_costs,
                             prefix_turn_count=prefix_turn_count,
                             budget_fraction=budget,
