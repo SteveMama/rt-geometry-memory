@@ -71,7 +71,10 @@ Current Paper 3 checkpoint:
 - semantic-KCD optimization report: [`paper3_semantic_kcd_optimization_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_semantic_kcd_optimization_checkpoint.md)
 - query-conditioned geometry smoke report: [`paper3_query_conditioned_geometry_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_query_conditioned_geometry_smoke_checkpoint.md)
 - research synthesis white paper: [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
+- benchmark-memory reading note: [`benchmark_memory_type_analysis.md`](/Users/pranav/Documents/RT/papers/benchmark_memory_type_analysis.md)
+- geometric regime atlas smoke report: [`geometric_regime_atlas_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/geometric_regime_atlas_smoke_checkpoint.md)
 - next experiment focus: semantic-first, query-conditioned geometry-KCD rather than pure geometry-first query conditioning
+- new geometry-atlas direction: classify segment regimes from geometry first, then learn regime-specific compression rather than forcing one codec across all memory types
 
 ## Start Here
 

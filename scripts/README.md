@@ -50,6 +50,8 @@ Included:
   - run the semantic-led Paper 3 optimization set with support-aware and budget-aware semantic-KCD variants
 - [`run_paper3_query_conditioned_geometry_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_query_conditioned_geometry_probe.sh)
   - run the tangent-space query-conditioned geometry comparison against semantic and sparse-codec baselines
+- [`run_geometry_regime_atlas.sh`](/Users/pranav/Documents/RT/scripts/run_geometry_regime_atlas.sh)
+  - build a segment-level geometric regime atlas over one or more conversation JSONL files and emit cluster reports
 - [`build_manuscript_assets.py`](/Users/pranav/Documents/RT/scripts/build_manuscript_assets.py)
   - generate manuscript tables and packaged figures directly from tracked artifact JSON
 - [`run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)
