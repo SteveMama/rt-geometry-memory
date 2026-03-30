@@ -1,0 +1,41 @@
+{
+  "benchmark": "msc_valid",
+  "description": "Manual support-vs-filler labels for a targeted MSC curvature check. Each conversation was chosen because a human can reasonably point to earlier factual/persona turns that support the final assistant continuation.",
+  "conversations": [
+    {
+      "conversation_id": "msc-00000",
+      "support_turns": [3, 21, 43, 59],
+      "filler_turns": [27, 31, 35, 51],
+      "support_note": "Reading/device facts that plausibly support the final Kindle continuation.",
+      "filler_note": "Topically nearby book or stunt chatter that is not needed for the final device decision."
+    },
+    {
+      "conversation_id": "1",
+      "support_turns": [6, 50, 54, 56],
+      "filler_turns": [8, 10, 38, 46],
+      "support_note": "Wrestling identity and the late fight outcome that support the final encouragement.",
+      "filler_note": "Nearby casual or affective wrestling-adjacent turns that are not core support for the final continuation."
+    },
+    {
+      "conversation_id": "2",
+      "support_turns": [8, 22, 56, 60],
+      "filler_turns": [24, 30, 34, 44],
+      "support_note": "Economics/job/new-house facts that support the final reaction to the user's bonus and company.",
+      "filler_note": "Nearby house and social-planning chatter that is related to life context but not the final company judgment."
+    },
+    {
+      "conversation_id": "6",
+      "support_turns": [5, 57, 61],
+      "filler_turns": [9, 21, 37, 45],
+      "support_note": "Pet-specific facts that support the final continuation about animals having personalities.",
+      "filler_note": "Other persona turns from the same conversation that are not the pet-memory support used at the end."
+    },
+    {
+      "conversation_id": "8",
+      "support_turns": [1, 9, 13],
+      "filler_turns": [3, 5, 7, 11],
+      "support_note": "Age/history facts that support the final continuation about remembering historical change.",
+      "filler_note": "Neighboring age-themed banter that is stylistically related but not the specific factual support used by the end."
+    }
+  ]
+}

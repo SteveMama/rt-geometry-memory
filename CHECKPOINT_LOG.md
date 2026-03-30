@@ -230,6 +230,22 @@ This file is the cumulative log of the RT research program checkpointed in this 
 - Updated checkpoint note:
   - [`geometric_regime_atlas_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/geometric_regime_atlas_smoke_checkpoint.md)
 
+## Phase 13: MSC Persona-Curvature Falsification Check
+
+- Added a targeted manual-support curvature check for `MSC`:
+  - [`scripts/run_msc_persona_curvature_check.py`](/Users/pranav/Documents/RT/scripts/run_msc_persona_curvature_check.py)
+  - [`benchmarks/msc_persona_curvature_labels.json`](/Users/pranav/Documents/RT/benchmarks/msc_persona_curvature_labels.json)
+- Ran the first artifact:
+  - [`results/msc_persona_curvature/msc_persona_curvature_v1`](/Users/pranav/Documents/RT/results/msc_persona_curvature/msc_persona_curvature_v1)
+- Main finding:
+  - on a five-conversation manual `MSC` check with `qwen25_05b`, earlier support/persona turns do not separate cleanly from filler by stabilized curvature alone
+  - mean support-filler curvature delta was only `0.1220`
+  - positive deltas appeared in `3 / 5` conversations, with `2 / 5` negative
+  - mean support percentile `0.6138` was nearly identical to mean filler percentile `0.6087`
+- This weakens the claim that geometry provides a strong within-topic support discriminator on `MSC`
+- Added a written note:
+  - [`msc_persona_curvature_check.md`](/Users/pranav/Documents/RT/papers/msc_persona_curvature_check.md)
+
 ## Current Scientific Reading
 
 - Paper 1 is frozen and defensible.

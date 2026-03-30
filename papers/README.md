@@ -21,6 +21,7 @@ For the current manuscript-grade checkpoint paper, see:
 10. [`whitepaper_benchmark_dependent_memory_regimes.md`](/Users/pranav/Documents/RT/papers/whitepaper_benchmark_dependent_memory_regimes.md)
 11. [`benchmark_memory_type_analysis.md`](/Users/pranav/Documents/RT/papers/benchmark_memory_type_analysis.md)
 12. [`geometric_regime_atlas_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/geometric_regime_atlas_smoke_checkpoint.md)
+13. [`msc_persona_curvature_check.md`](/Users/pranav/Documents/RT/papers/msc_persona_curvature_check.md)
 
 ## Logic
 
@@ -38,3 +39,4 @@ For the current manuscript-grade checkpoint paper, see:
 - Paper 3 now has a semantic-KCD optimization checkpoint showing that the next likely gains require a learned harm signal and a denser compressed memory object rather than more heuristic score mixing
 - Paper 3 now has a query-conditioned geometry smoke checkpoint showing that tangent-space query conditioning improves geometry, but still does not displace the strongest semantic codecs on semantic-memory benchmarks
 - The project now also has a benchmark-reading note plus a first geometric regime atlas smoke checkpoint, which turn the benchmark split into an explicit data-structure hypothesis rather than a post-hoc result description
+- The project now also has a targeted MSC persona-curvature falsification check showing that manually labeled support/persona turns do not separate cleanly from filler by stabilized curvature alone
