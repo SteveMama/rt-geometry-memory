@@ -54,6 +54,8 @@ Included:
   - build a segment-level geometric regime atlas over one or more conversation JSONL files and emit cluster reports
 - [`run_msc_persona_curvature_check.py`](/Users/pranav/Documents/RT/scripts/run_msc_persona_curvature_check.py)
   - run a manual-support curvature check on selected `MSC` conversations to test whether support/persona turns separate from filler by stabilized curvature
+- [`run_role_residual_check.py`](/Users/pranav/Documents/RT/scripts/run_role_residual_check.py)
+  - run a role-conditioned parent-residual probe to test whether user turns carry larger residual novelty than assistant turns in benchmarks such as `MSC`
 - [`run_state_update_alignment_check.py`](/Users/pranav/Documents/RT/scripts/run_state_update_alignment_check.py)
   - run the synthetic state-update supersession falsification check with semantic similarity and tangent-space directional alignment
 - [`run_state_update_alignment_smoke.sh`](/Users/pranav/Documents/RT/scripts/run_state_update_alignment_smoke.sh)
