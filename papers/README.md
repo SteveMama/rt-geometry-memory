@@ -22,6 +22,7 @@ For the current manuscript-grade checkpoint paper, see:
 11. [`benchmark_memory_type_analysis.md`](/Users/pranav/Documents/RT/papers/benchmark_memory_type_analysis.md)
 12. [`geometric_regime_atlas_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/geometric_regime_atlas_smoke_checkpoint.md)
 13. [`msc_persona_curvature_check.md`](/Users/pranav/Documents/RT/papers/msc_persona_curvature_check.md)
+14. [`state_update_alignment_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/state_update_alignment_smoke_checkpoint.md)
 
 ## Logic
 
@@ -40,3 +41,4 @@ For the current manuscript-grade checkpoint paper, see:
 - Paper 3 now has a query-conditioned geometry smoke checkpoint showing that tangent-space query conditioning improves geometry, but still does not displace the strongest semantic codecs on semantic-memory benchmarks
 - The project now also has a benchmark-reading note plus a first geometric regime atlas smoke checkpoint, which turn the benchmark split into an explicit data-structure hypothesis rather than a post-hoc result description
 - The project now also has a targeted MSC persona-curvature falsification check showing that manually labeled support/persona turns do not separate cleanly from filler by stabilized curvature alone
+- The project now also has a synthetic state-update falsification check showing that the straightforward same-sign directional-alignment supersession hypothesis fails cleanly, while a mixed entry/exit diagnostic exposes a real mathematical ambiguity in how turn-associated update vectors should be defined

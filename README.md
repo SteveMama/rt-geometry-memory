@@ -74,6 +74,7 @@ Current Paper 3 checkpoint:
 - benchmark-memory reading note: [`benchmark_memory_type_analysis.md`](/Users/pranav/Documents/RT/papers/benchmark_memory_type_analysis.md)
 - geometric regime atlas smoke report: [`geometric_regime_atlas_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/geometric_regime_atlas_smoke_checkpoint.md)
 - MSC persona-curvature falsification check: [`msc_persona_curvature_check.md`](/Users/pranav/Documents/RT/papers/msc_persona_curvature_check.md)
+- synthetic state-update alignment falsification check: [`state_update_alignment_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/state_update_alignment_smoke_checkpoint.md)
 - next experiment focus: semantic-first, query-conditioned geometry-KCD rather than pure geometry-first query conditioning
 - new geometry-atlas direction: classify segment regimes from geometry first, then learn regime-specific compression rather than forcing one codec across all memory types
 

@@ -95,6 +95,13 @@ Quick-benchmark plan:
 - [`quick_benchmark_plan.md`](/Users/pranav/Documents/RT/benchmarks/quick_benchmark_plan.md)
 - [`sample_packets.md`](/Users/pranav/Documents/RT/benchmarks/sample_packets.md)
 
+Synthetic diagnostic benchmark:
+
+- [`state_update_synthetic_conversations.jsonl`](/Users/pranav/Documents/RT/benchmarks/state_update_synthetic_conversations.jsonl)
+  - ten small conversations with one explicit state update each
+- [`state_update_synthetic_labels.json`](/Users/pranav/Documents/RT/benchmarks/state_update_synthetic_labels.json)
+  - labels for original fact turn, later update turn, and final query turn
+
 If the upstream benchmark schema differs from the heuristics here, preprocess it
 into the normalized JSONL structure first. The benchmark runners do not depend
 on the original dataset format once this JSONL exists.

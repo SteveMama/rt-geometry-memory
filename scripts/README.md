@@ -54,6 +54,10 @@ Included:
   - build a segment-level geometric regime atlas over one or more conversation JSONL files and emit cluster reports
 - [`run_msc_persona_curvature_check.py`](/Users/pranav/Documents/RT/scripts/run_msc_persona_curvature_check.py)
   - run a manual-support curvature check on selected `MSC` conversations to test whether support/persona turns separate from filler by stabilized curvature
+- [`run_state_update_alignment_check.py`](/Users/pranav/Documents/RT/scripts/run_state_update_alignment_check.py)
+  - run the synthetic state-update supersession falsification check with semantic similarity and tangent-space directional alignment
+- [`run_state_update_alignment_smoke.sh`](/Users/pranav/Documents/RT/scripts/run_state_update_alignment_smoke.sh)
+  - rerun the state-update smoke benchmark with one command
 - [`build_manuscript_assets.py`](/Users/pranav/Documents/RT/scripts/build_manuscript_assets.py)
   - generate manuscript tables and packaged figures directly from tracked artifact JSON
 - [`run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)

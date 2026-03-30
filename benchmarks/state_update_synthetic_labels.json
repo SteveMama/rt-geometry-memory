@@ -1,0 +1,86 @@
+{
+  "benchmark": "state_update_synthetic_v1",
+  "description": "Ten synthetic conversations with one explicit state update buried inside casual chat. Labels point to the original fact turn, the later update turn, and the final query turn.",
+  "conversations": [
+    {
+      "conversation_id": "state-update-001-employment",
+      "topic": "employment",
+      "original_turn": 2,
+      "update_turn": 8,
+      "query_turn": 10,
+      "expected_current_answer": "Meta on AR tools"
+    },
+    {
+      "conversation_id": "state-update-002-city",
+      "topic": "city",
+      "original_turn": 2,
+      "update_turn": 8,
+      "query_turn": 10,
+      "expected_current_answer": "Austin"
+    },
+    {
+      "conversation_id": "state-update-003-codename",
+      "topic": "codename",
+      "original_turn": 2,
+      "update_turn": 8,
+      "query_turn": 10,
+      "expected_current_answer": "Beacon"
+    },
+    {
+      "conversation_id": "state-update-004-team-lead",
+      "topic": "team_lead",
+      "original_turn": 2,
+      "update_turn": 8,
+      "query_turn": 10,
+      "expected_current_answer": "Mina"
+    },
+    {
+      "conversation_id": "state-update-005-phone",
+      "topic": "phone",
+      "original_turn": 2,
+      "update_turn": 8,
+      "query_turn": 10,
+      "expected_current_answer": "Pixel 9"
+    },
+    {
+      "conversation_id": "state-update-006-diet",
+      "topic": "diet",
+      "original_turn": 2,
+      "update_turn": 8,
+      "query_turn": 10,
+      "expected_current_answer": "pescatarian"
+    },
+    {
+      "conversation_id": "state-update-007-apartment",
+      "topic": "apartment",
+      "original_turn": 2,
+      "update_turn": 8,
+      "query_turn": 10,
+      "expected_current_answer": "9C"
+    },
+    {
+      "conversation_id": "state-update-008-workout",
+      "topic": "workout_time",
+      "original_turn": 2,
+      "update_turn": 8,
+      "query_turn": 10,
+      "expected_current_answer": "mornings"
+    },
+    {
+      "conversation_id": "state-update-009-gate",
+      "topic": "flight_gate",
+      "original_turn": 2,
+      "update_turn": 8,
+      "query_turn": 10,
+      "expected_current_answer": "C7"
+    },
+    {
+      "conversation_id": "state-update-010-manager",
+      "topic": "manager",
+      "original_turn": 2,
+      "update_turn": 8,
+      "query_turn": 10,
+      "expected_current_answer": "Daniel"
+    }
+  ]
+}

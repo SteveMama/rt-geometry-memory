@@ -246,6 +246,31 @@ This file is the cumulative log of the RT research program checkpointed in this 
 - Added a written note:
   - [`msc_persona_curvature_check.md`](/Users/pranav/Documents/RT/papers/msc_persona_curvature_check.md)
 
+## Phase 14: Synthetic State-Update Alignment Falsification Check
+
+- Added a synthetic benchmark for explicit state updates:
+  - [`benchmarks/state_update_synthetic_conversations.jsonl`](/Users/pranav/Documents/RT/benchmarks/state_update_synthetic_conversations.jsonl)
+- Added labels for original fact turn, later update turn, and final query turn:
+  - [`benchmarks/state_update_synthetic_labels.json`](/Users/pranav/Documents/RT/benchmarks/state_update_synthetic_labels.json)
+- Added the analysis runner and shell entrypoint:
+  - [`scripts/run_state_update_alignment_check.py`](/Users/pranav/Documents/RT/scripts/run_state_update_alignment_check.py)
+  - [`scripts/run_state_update_alignment_smoke.sh`](/Users/pranav/Documents/RT/scripts/run_state_update_alignment_smoke.sh)
+- Published the first synthetic smoke artifact:
+  - [`artifacts/paper3/state_update_alignment_smoke_qwen05b`](/Users/pranav/Documents/RT/artifacts/paper3/state_update_alignment_smoke_qwen05b)
+- Main result:
+  - the straightforward same-sign directional-alignment supersession hypothesis fails cleanly on the synthetic benchmark
+  - mean exit-step alignment is `0.9128`
+  - negative alignments: `0 / 10`
+  - alignments below `-0.2`: `0 / 10`
+  - semantic similarity remains extremely high: mean `0.9942`, `10 / 10` above the threshold
+  - the predeclared falsification gate therefore fails: `0 / 10` joint passes
+- Important secondary diagnostic:
+  - mixed entry/exit alignments are strongly negative in `10 / 10` synthetic cases
+  - this means the state-update theorem direction is mathematically underspecified about which turn-associated vector should encode the update signal
+  - the direct implementation of the written formula is not enough to justify a benchmark-scale follow-up yet
+- Added a dedicated write-up:
+  - [`state_update_alignment_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/state_update_alignment_smoke_checkpoint.md)
+
 ## Current Scientific Reading
 
 - Paper 1 is frozen and defensible.
