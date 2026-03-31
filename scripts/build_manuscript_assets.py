@@ -363,6 +363,22 @@ def _negative_results_table() -> str:
     return "\n".join(lines)
 
 
+def _appendix_bridge_table() -> str:
+    lines = [
+        r"\begin{tabular}{p{1.2cm}p{0.9cm}p{2.25cm}p{1.55cm}}",
+        r"\toprule",
+        r"Layer & Status & Core evidence & Deep-dive companion \\",
+        r"\midrule",
+        r"Paper~1 & Frozen & Low rank + geometry--decoder coupling & ledger \\",
+        r"Paper~2 & Stable & Geometry-aware control + support-turn rescue & experiment matrix \\",
+        r"Paper~3 & Mixed & Hard-set codec wins; benchmark-dependent transfer & experiment matrix \\",
+        r"Extensions & Failed / weak & MSC curvature, atlas, state-update tests & negative matrix \\",
+        r"\bottomrule",
+        r"\end{tabular}",
+    ]
+    return "\n".join(lines)
+
+
 def _model_table() -> str:
     lines = [
         r"\begin{tabular}{lll}",
@@ -425,6 +441,7 @@ def main() -> None:
     _write(GENERATED / "table_paper3_results.tex", _paper3_table())
     _write(GENERATED / "table_paper3_regimes.tex", _paper3_regime_table())
     _write(GENERATED / "table_negative_results.tex", _negative_results_table())
+    _write(GENERATED / "table_appendix_bridge.tex", _appendix_bridge_table())
     _write(GENERATED / "checkpoint_summary.json", json.dumps(_checkpoint_summary(), indent=2))
 
 

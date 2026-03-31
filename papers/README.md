@@ -7,6 +7,12 @@ For the current manuscript-grade checkpoint paper, see:
 - [`manuscript/paper_checkpoint.tex`](/Users/pranav/Documents/RT/manuscript/paper_checkpoint.tex)
 - [`manuscript/README.md`](/Users/pranav/Documents/RT/manuscript/README.md)
 
+For the canonical math-to-code-to-artifact synthesis, see:
+
+- [`rt_derivation_ledger.md`](/Users/pranav/Documents/RT/papers/rt_derivation_ledger.md)
+- [`generated/rt_experiment_matrix.csv`](/Users/pranav/Documents/RT/papers/generated/rt_experiment_matrix.csv)
+- [`generated/rt_negative_result_matrix.csv`](/Users/pranav/Documents/RT/papers/generated/rt_negative_result_matrix.csv)
+
 ## Sequence
 
 1. [`paper1_geometry_of_conversation_state_trajectories.md`](/Users/pranav/Documents/RT/papers/paper1_geometry_of_conversation_state_trajectories.md)
@@ -35,6 +41,7 @@ For the current manuscript-grade checkpoint paper, see:
 - Paper 1: frozen characterization result
 - Paper 2: strong control result with a mechanism story
 - Paper 3: active codec stage with a fairness-controlled low/mid-budget winner and a positive 3B validation run
+- The master derivation ledger is now the canonical deep-dive companion to the manuscript, covering definitions, code mappings, benchmark structure, experiment history, and failure analysis
 - Paper 3 now also has a semantic-memory checkpoint showing that benchmark family changes the winning policy form
 - Paper 3 now has a low-budget upgrade smoke checkpoint showing that support-aware geometry-KCD materially improves over the original geometry-KCD baseline, even though semantic-led policies still dominate semantic-memory benchmarks
 - Paper 3 now has a semantic-KCD optimization checkpoint showing that the next likely gains require a learned harm signal and a denser compressed memory object rather than more heuristic score mixing

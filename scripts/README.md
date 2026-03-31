@@ -62,6 +62,8 @@ Included:
   - rerun the state-update smoke benchmark with one command
 - [`build_manuscript_assets.py`](/Users/pranav/Documents/RT/scripts/build_manuscript_assets.py)
   - generate manuscript tables and packaged figures directly from tracked artifact JSON
+- [`build_research_ledger_assets.py`](/Users/pranav/Documents/RT/scripts/build_research_ledger_assets.py)
+  - generate the canonical experiment and negative-result CSV inventories for the derivation ledger from tracked artifacts and committed notes
 - [`run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)
   - run the Paper 3 policy family on one normalized public benchmark with a Qwen model
 - [`run_paper3_nonqwen_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_nonqwen_3b_probe.sh)
@@ -81,3 +83,4 @@ Recommended usage:
 - use these scripts directly when you want a reproducible command-line rerun
 - normalize public benchmarks into one JSONL before using the new public-benchmark runners
 - generate manuscript assets before building the checkpoint PDF in [`manuscript`](/Users/pranav/Documents/RT/manuscript)
+- generate the research-ledger inventories before sharing the deep-dive companion in [`papers/rt_derivation_ledger.md`](/Users/pranav/Documents/RT/papers/rt_derivation_ledger.md)

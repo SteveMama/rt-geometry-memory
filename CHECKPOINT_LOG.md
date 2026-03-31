@@ -287,3 +287,29 @@ This file is the cumulative log of the RT research program checkpointed in this 
 - The current design frontier is how to model benchmark-dependent conversational-memory regimes:
   - support-turn-critical sparse memory
   - broader semantic conversational memory
+
+## Phase 15: Derivation Ledger and Appendix Bridge
+
+- Added the canonical deep-dive synthesis note:
+  - [`papers/rt_derivation_ledger.md`](/Users/pranav/Documents/RT/papers/rt_derivation_ledger.md)
+- Added a machine-readable experiment inventory builder:
+  - [`scripts/build_research_ledger_assets.py`](/Users/pranav/Documents/RT/scripts/build_research_ledger_assets.py)
+- Generated the canonical ledger inventories:
+  - [`papers/generated/rt_experiment_matrix.csv`](/Users/pranav/Documents/RT/papers/generated/rt_experiment_matrix.csv)
+  - [`papers/generated/rt_negative_result_matrix.csv`](/Users/pranav/Documents/RT/papers/generated/rt_negative_result_matrix.csv)
+- Extended the manuscript asset builder to emit an appendix-bridge table:
+  - [`scripts/build_manuscript_assets.py`](/Users/pranav/Documents/RT/scripts/build_manuscript_assets.py)
+  - [`manuscript/generated/table_appendix_bridge.tex`](/Users/pranav/Documents/RT/manuscript/generated/table_appendix_bridge.tex)
+- Updated the checkpoint manuscript to point readers into the derivation ledger rather than duplicating the full derivation history inside the PDF:
+  - [`manuscript/paper_checkpoint.tex`](/Users/pranav/Documents/RT/manuscript/paper_checkpoint.tex)
+- Rebuilt the manuscript PDF:
+  - [`manuscript/build/paper_checkpoint.pdf`](/Users/pranav/Documents/RT/manuscript/build/paper_checkpoint.pdf)
+- Updated repo navigation so the ledger, inventories, and appendix bridge are discoverable from the top-level docs:
+  - [`README.md`](/Users/pranav/Documents/RT/README.md)
+  - [`papers/README.md`](/Users/pranav/Documents/RT/papers/README.md)
+  - [`manuscript/README.md`](/Users/pranav/Documents/RT/manuscript/README.md)
+  - [`scripts/README.md`](/Users/pranav/Documents/RT/scripts/README.md)
+- Main result:
+  - the repository now has a canonical math-to-code-to-artifact companion for the full RT program
+  - all major branches are explicitly classified as `frozen`, `stable`, `provisional`, or `failed`
+  - the appendix bridge keeps the manuscript concise while making the deeper derivation and falsification history easy to audit

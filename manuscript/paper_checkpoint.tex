@@ -400,6 +400,16 @@ Any honest codec comparison must count more than just retained raw tokens. For s
 \end{equation}
 Future work should refine this accounting into exact byte counts for latent summaries and decoder-compatible surrogates.
 
+\section{Research Ledger Bridge}
+This checkpoint now has a companion derivation ledger at \path{papers/rt_derivation_ledger.md}. That ledger is the canonical deep-dive reference for the full math-to-code-to-artifact chain: every mathematical object, every benchmark family, every major experiment phase, and every explicit falsification branch. It is paired with machine-readable inventories at \path{papers/generated/rt_experiment_matrix.csv} and \path{papers/generated/rt_negative_result_matrix.csv}. Table~\ref{tab:appendix_bridge} gives the condensed bridge between the manuscript-level claims and the deeper ledger.
+
+\begin{table}[t]
+    \centering
+    \caption{Appendix bridge from the checkpoint manuscript to the full derivation ledger.}
+    \label{tab:appendix_bridge}
+    \resizebox{\columnwidth}{!}{\input{generated/table_appendix_bridge.tex}}
+\end{table}
+
 \section{Checkpoint Artifact Map}
 The most important tracked bundles are:
 \begin{itemize}[leftmargin=1.4em]

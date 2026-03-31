@@ -19,6 +19,13 @@ This checkpoint now also includes a manuscript-grade paper bundle:
 - manuscript asset generator: [`scripts/build_manuscript_assets.py`](/Users/pranav/Documents/RT/scripts/build_manuscript_assets.py)
 - manuscript README: [`manuscript/README.md`](/Users/pranav/Documents/RT/manuscript/README.md)
 
+This checkpoint now also includes a canonical research ledger:
+
+- master derivation ledger: [`papers/rt_derivation_ledger.md`](/Users/pranav/Documents/RT/papers/rt_derivation_ledger.md)
+- machine-readable experiment inventory: [`papers/generated/rt_experiment_matrix.csv`](/Users/pranav/Documents/RT/papers/generated/rt_experiment_matrix.csv)
+- machine-readable negative-result inventory: [`papers/generated/rt_negative_result_matrix.csv`](/Users/pranav/Documents/RT/papers/generated/rt_negative_result_matrix.csv)
+- ledger asset generator: [`scripts/build_research_ledger_assets.py`](/Users/pranav/Documents/RT/scripts/build_research_ledger_assets.py)
+
 This project is separate from the CARP/KV-compression repo. The current codebase implements the Paper 1 bootstrap:
 
 - extract one hidden-state summary per conversation turn
@@ -83,6 +90,7 @@ Current Paper 3 checkpoint:
 
 - Read [`artifacts/README.md`](/Users/pranav/Documents/RT/artifacts/README.md) for the frozen checkpoint bundle
 - Read [`papers/README.md`](/Users/pranav/Documents/RT/papers/README.md) for the research-program logic
+- Read [`papers/rt_derivation_ledger.md`](/Users/pranav/Documents/RT/papers/rt_derivation_ledger.md) for the full math-to-code-to-artifact chain and failure ledger
 - Read [`CHECKPOINT_LOG.md`](/Users/pranav/Documents/RT/CHECKPOINT_LOG.md) for the cumulative execution log and result history
 - Read [`manuscript/README.md`](/Users/pranav/Documents/RT/manuscript/README.md) for the checkpoint paper and PDF build path
 - Read [`benchmarks/quick_benchmark_plan.md`](/Users/pranav/Documents/RT/benchmarks/quick_benchmark_plan.md) for the next small-benchmark loop
@@ -183,6 +191,13 @@ Generate manuscript assets directly from tracked artifact JSON:
 ```bash
 cd /Users/pranav/Documents/RT
 python scripts/build_manuscript_assets.py
+```
+
+Generate the ledger inventories directly from tracked artifacts and committed notes:
+
+```bash
+cd /Users/pranav/Documents/RT
+python scripts/build_research_ledger_assets.py
 ```
 
 Compile the IEEE-style checkpoint PDF:
