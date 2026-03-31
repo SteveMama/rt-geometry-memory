@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import argparse
 import csv
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import hashlib
 import json
 from pathlib import Path
+import shutil
 from typing import Any
 
 import numpy as np
 import torch
+
+from .stats import collapse_rows_by_keys, kendall_tau, spearman
 
 
 DEFAULT_FEATURE_NAMES: tuple[str, ...] = (
@@ -79,6 +82,10 @@ def feature_vector_from_row(
     feature_names: tuple[str, ...] = DEFAULT_FEATURE_NAMES,
 ) -> np.ndarray:
     return np.asarray([float(row.get(name, 0.0) or 0.0) for name in feature_names], dtype=np.float32)
+
+
+def feature_names_without_attention(feature_names: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(name for name in feature_names if not name.startswith("attention_"))
 
 
 def scalarize_harm(
@@ -173,45 +180,102 @@ def _to_tensor(array: np.ndarray) -> torch.Tensor:
     return torch.from_numpy(array.astype(np.float32))
 
 
-def train_harm_predictor(
+def _normalize_features(
+    features: np.ndarray,
+    *,
+    feature_mean: np.ndarray,
+    feature_std: np.ndarray,
+) -> np.ndarray:
+    return ((features - feature_mean) / feature_std).astype(np.float32)
+
+
+def _aggregate_conversation_metrics(
+    values: np.ndarray,
+    rows: list[dict[str, Any]],
+) -> np.ndarray:
+    metric_key = "_value"
+    collapsed = collapse_rows_by_keys(
+        [
+            {
+                metric_key: float(value),
+                "conversation_id": str(row["conversation_id"]),
+            }
+            for value, row in zip(values.tolist(), rows, strict=True)
+        ],
+        metric_keys=[metric_key],
+        group_keys=["conversation_id"],
+    )
+    return np.asarray([float(item[metric_key]) for item in collapsed], dtype=np.float32)
+
+
+def _prediction_scalar_from_outputs(
+    *,
+    pred_logit: np.ndarray,
+    pred_behavior: np.ndarray,
+) -> np.ndarray:
+    logit_score = scalarize_harm(logit_values=pred_logit)
+    behavior_score = scalarize_harm(logit_values=np.maximum(pred_behavior, 0.0))
+    return (logit_score + 0.5 * behavior_score).astype(np.float32)
+
+
+def _ranking_metrics_for_predictions(
+    *,
+    pred_score: np.ndarray,
+    target_score: np.ndarray,
+    rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    row_metrics = {
+        "kendall_tau": float(kendall_tau(pred_score, target_score)),
+        "spearman": float(spearman(pred_score, target_score)),
+    }
+    conv_pred = _aggregate_conversation_metrics(pred_score, rows)
+    conv_target = _aggregate_conversation_metrics(target_score, rows)
+    conversation_metrics = {
+        "kendall_tau": float(kendall_tau(conv_pred, conv_target)),
+        "spearman": float(spearman(conv_pred, conv_target)),
+    }
+    return {
+        "row_level": row_metrics,
+        "conversation_level": conversation_metrics,
+    }
+
+
+def _train_harm_predictor_variant(
     rows: list[dict[str, Any]],
     *,
     output_dir: Path,
-    config: HarmPredictorConfig | None = None,
+    config: HarmPredictorConfig,
+    model_filename: str,
+    variant_name: str,
 ) -> dict[str, Any]:
-    cfg = config or HarmPredictorConfig()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    arrays = prepare_training_arrays(rows, config=cfg)
+    arrays = prepare_training_arrays(rows, config=config)
     train_split = arrays["train"]
     val_split = arrays["val"]
     test_split = arrays["test"]
     if train_split is None or val_split is None:
         raise RuntimeError("Need non-empty train and validation splits for harm predictor training.")
 
-    torch.manual_seed(cfg.seed)
-    np.random.seed(cfg.seed)
+    torch.manual_seed(config.seed)
+    np.random.seed(config.seed)
 
     feature_mean = train_split["features"].mean(axis=0)
     feature_std = train_split["features"].std(axis=0)
     feature_std = np.where(feature_std < 1e-6, 1.0, feature_std)
 
-    def _normalize_features(features: np.ndarray) -> np.ndarray:
-        return ((features - feature_mean) / feature_std).astype(np.float32)
-
     model = HarmPredictor(
-        input_dim=len(cfg.feature_names),
-        hidden_dims=cfg.hidden_dims,
-        dropout=cfg.dropout,
+        input_dim=len(config.feature_names),
+        hidden_dims=config.hidden_dims,
+        dropout=config.dropout,
     )
     optimizer = torch.optim.Adam(
         model.parameters(),
-        lr=cfg.learning_rate,
-        weight_decay=cfg.weight_decay,
+        lr=config.learning_rate,
+        weight_decay=config.weight_decay,
     )
     mse = torch.nn.MSELoss(reduction="none")
 
-    train_x = _normalize_features(train_split["features"])
-    val_x = _normalize_features(val_split["features"])
+    train_x = _normalize_features(train_split["features"], feature_mean=feature_mean, feature_std=feature_std)
+    val_x = _normalize_features(val_split["features"], feature_mean=feature_mean, feature_std=feature_std)
 
     train_features = _to_tensor(train_x)
     train_logit = _to_tensor(train_split["harm_scalar"])
@@ -225,13 +289,13 @@ def train_harm_predictor(
 
     best_state: dict[str, Any] | None = None
     best_val = float("inf")
-    patience_left = cfg.patience
+    patience_left = config.patience
 
-    for _ in range(cfg.max_epochs):
+    for _ in range(config.max_epochs):
         model.train()
         permutation = np.random.permutation(train_features.shape[0])
-        for start in range(0, train_features.shape[0], cfg.batch_size):
-            batch_indices = permutation[start : start + cfg.batch_size]
+        for start in range(0, train_features.shape[0], config.batch_size):
+            batch_indices = permutation[start : start + config.batch_size]
             features = train_features[batch_indices]
             logit_targets = train_logit[batch_indices]
             behavior_targets = train_behavior[batch_indices]
@@ -259,7 +323,7 @@ def train_harm_predictor(
 
         if val_loss + 1e-8 < best_val:
             best_val = val_loss
-            patience_left = cfg.patience
+            patience_left = config.patience
             best_state = {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
         else:
             patience_left -= 1
@@ -269,34 +333,117 @@ def train_harm_predictor(
     if best_state is None:
         raise RuntimeError("Harm predictor training did not produce a valid checkpoint.")
     model.load_state_dict(best_state)
+    model.eval()
+
+    validation_metrics: dict[str, Any] = {}
+    test_metrics: dict[str, Any] = {}
+    with torch.no_grad():
+        val_pred_logit, val_pred_behavior = model(val_features)
+        val_pred_score = _prediction_scalar_from_outputs(
+            pred_logit=val_pred_logit.detach().cpu().numpy().astype(np.float32),
+            pred_behavior=val_pred_behavior.detach().cpu().numpy().astype(np.float32),
+        )
+        validation_metrics = _ranking_metrics_for_predictions(
+            pred_score=val_pred_score,
+            target_score=val_split["harm_scalar"],
+            rows=val_split["rows"],
+        )
+        if test_split is not None:
+            test_x = _normalize_features(test_split["features"], feature_mean=feature_mean, feature_std=feature_std)
+            test_features = _to_tensor(test_x)
+            test_pred_logit, test_pred_behavior = model(test_features)
+            test_pred_score = _prediction_scalar_from_outputs(
+                pred_logit=test_pred_logit.detach().cpu().numpy().astype(np.float32),
+                pred_behavior=test_pred_behavior.detach().cpu().numpy().astype(np.float32),
+            )
+            test_metrics = _ranking_metrics_for_predictions(
+                pred_score=test_pred_score,
+                target_score=test_split["harm_scalar"],
+                rows=test_split["rows"],
+            )
 
     payload = {
         "config": {
-            "feature_names": list(cfg.feature_names),
-            "hidden_dims": list(cfg.hidden_dims),
-            "dropout": cfg.dropout,
-            "learning_rate": cfg.learning_rate,
-            "weight_decay": cfg.weight_decay,
-            "max_epochs": cfg.max_epochs,
-            "patience": cfg.patience,
-            "batch_size": cfg.batch_size,
-            "seed": cfg.seed,
+            "feature_names": list(config.feature_names),
+            "hidden_dims": list(config.hidden_dims),
+            "dropout": config.dropout,
+            "learning_rate": config.learning_rate,
+            "weight_decay": config.weight_decay,
+            "max_epochs": config.max_epochs,
+            "patience": config.patience,
+            "batch_size": config.batch_size,
+            "seed": config.seed,
+            "variant_name": variant_name,
         },
         "feature_mean": feature_mean.tolist(),
         "feature_std": feature_std.tolist(),
         "state_dict": model.state_dict(),
         "split": arrays["split"],
         "best_val_loss": best_val,
+        "validation_metrics": validation_metrics,
+        "test_metrics": test_metrics,
     }
-    torch.save(payload, output_dir / "harm_predictor.pt")
-    summary = {
+    model_path = output_dir / model_filename
+    torch.save(payload, model_path)
+    return {
+        "variant_name": variant_name,
+        "model_path": str(model_path),
+        "feature_names": list(config.feature_names),
         "best_val_loss": best_val,
-        "num_train_rows": 0 if train_split is None else int(train_split["features"].shape[0]),
-        "num_val_rows": 0 if val_split is None else int(val_split["features"].shape[0]),
+        "num_train_rows": int(train_split["features"].shape[0]),
+        "num_val_rows": int(val_split["features"].shape[0]),
         "num_test_rows": 0 if test_split is None else int(test_split["features"].shape[0]),
+        "validation_metrics": validation_metrics,
+        "test_metrics": test_metrics,
     }
-    (output_dir / "training_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    return summary
+
+
+def train_harm_predictor(
+    rows: list[dict[str, Any]],
+    *,
+    output_dir: Path,
+    config: HarmPredictorConfig | None = None,
+) -> dict[str, Any]:
+    cfg = config or HarmPredictorConfig()
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    variants: list[tuple[str, HarmPredictorConfig, str]] = []
+    no_attention_features = feature_names_without_attention(cfg.feature_names)
+    if no_attention_features != cfg.feature_names:
+        variants.append(("no_attention", replace(cfg, feature_names=no_attention_features), "harm_predictor_no_attention.pt"))
+    variants.append(("with_attention", cfg, "harm_predictor_with_attention.pt"))
+
+    variant_summaries: dict[str, Any] = {}
+    for variant_name, variant_config, filename in variants:
+        variant_summaries[variant_name] = _train_harm_predictor_variant(
+            rows,
+            output_dir=output_dir,
+            config=variant_config,
+            model_filename=filename,
+            variant_name=variant_name,
+        )
+
+    if "no_attention" in variant_summaries and "with_attention" in variant_summaries:
+        attention_delta = (
+            float(variant_summaries["with_attention"]["validation_metrics"]["row_level"]["kendall_tau"])
+            - float(variant_summaries["no_attention"]["validation_metrics"]["row_level"]["kendall_tau"])
+        )
+        selected_variant = "with_attention" if attention_delta >= 0.03 else "no_attention"
+    else:
+        selected_variant = next(iter(variant_summaries))
+        attention_delta = 0.0
+
+    selected_path = Path(str(variant_summaries[selected_variant]["model_path"]))
+    shutil.copyfile(selected_path, output_dir / "harm_predictor.pt")
+    comparison_summary = {
+        "selected_variant": selected_variant,
+        "attention_validation_kendall_delta": attention_delta,
+        "selection_rule": "use_attention_if_validation_row_kendall_improves_by_at_least_0.03",
+        "variants": variant_summaries,
+    }
+    (output_dir / "comparison_summary.json").write_text(json.dumps(comparison_summary, indent=2), encoding="utf-8")
+    (output_dir / "training_summary.json").write_text(json.dumps(comparison_summary, indent=2), encoding="utf-8")
+    return comparison_summary
 
 
 @dataclass(slots=True)
@@ -361,7 +508,8 @@ def main() -> None:
     summary = train_harm_predictor(rows, output_dir=args.output_dir)
     print(
         f"Trained harm predictor at {args.output_dir} "
-        f"(train={summary['num_train_rows']} val={summary['num_val_rows']} test={summary['num_test_rows']})",
+        f"(selected={summary['selected_variant']}, "
+        f"attention_delta={summary['attention_validation_kendall_delta']:.4f})",
         flush=True,
     )
 

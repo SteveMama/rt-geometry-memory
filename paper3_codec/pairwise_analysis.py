@@ -35,6 +35,8 @@ DEFAULT_PAIRS: tuple[tuple[str, str], ...] = (
     ("query_conditioned_geometry_keep_compress_drop_v2", "query_conditioned_geometry_keep_compress_drop"),
     ("semantic_query_conditioned_geometry_keep_compress_drop", "budget_aware_semantic_keep_compress_drop"),
     ("semantic_query_conditioned_geometry_keep_compress_drop", "semantic_keep_compress_drop"),
+    ("semantic_query_conditioned_geometry_keep_compress_drop", "semantic_ambient_geometry_keep_compress_drop"),
+    ("semantic_ambient_geometry_keep_compress_drop", "budget_aware_semantic_keep_compress_drop"),
     ("semantic_query_conditioned_geometry_keep_compress_drop_no_query", "semantic_query_conditioned_geometry_keep_compress_drop"),
     ("semantic_query_conditioned_geometry_keep_compress_drop_no_support", "semantic_query_conditioned_geometry_keep_compress_drop"),
     ("semantic_harm_keep_compress_drop", "semantic_query_conditioned_geometry_keep_compress_drop"),

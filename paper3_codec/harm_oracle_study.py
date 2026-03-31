@@ -399,11 +399,9 @@ def _apply_harm_scalar(rows: list[dict[str, Any]]) -> None:
             rows[row_idx]["harm_scalar"] = float(score[local_idx])
 
 
-def _ranking_summary(
+def _turn_row_views(
     rows: list[dict[str, Any]],
-    *,
-    feature_keys: tuple[str, ...] = DEFAULT_FEATURE_KEYS,
-) -> dict[str, Any]:
+) -> dict[str, dict[tuple[str, str, str, str], list[dict[str, Any]]]]:
     turn_rows = [row for row in rows if str(row["candidate_type"]) == "turn"]
     overall_groups: dict[tuple[str, str, str, str], list[dict[str, Any]]] = defaultdict(list)
     shortlist_groups: dict[tuple[str, str, str, str], list[dict[str, Any]]] = defaultdict(list)
@@ -417,7 +415,14 @@ def _ranking_summary(
         overall_groups[key].append(row)
         if int(row.get("in_semantic_topk", 0)) == 1:
             shortlist_groups[key].append(row)
+    return {"overall": overall_groups, "semantic_shortlist": shortlist_groups}
 
+
+def _ranking_summary(
+    rows: list[dict[str, Any]],
+    *,
+    feature_keys: tuple[str, ...] = DEFAULT_FEATURE_KEYS,
+) -> dict[str, Any]:
     def _group_metrics(grouped: dict[tuple[str, str, str, str], list[dict[str, Any]]]) -> dict[str, Any]:
         feature_metrics: dict[tuple[str, str, str], dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
         for (benchmark, model_key, budget_key, group_id), group_rows in grouped.items():
@@ -488,10 +493,115 @@ def _ranking_summary(
                 budget_payload[feature_key] = payload
         return summary
 
-    return {
-        "overall": _group_metrics(overall_groups),
-        "semantic_shortlist": _group_metrics(shortlist_groups),
-    }
+    turn_row_views = _turn_row_views(rows)
+    return {view_name: _group_metrics(grouped) for view_name, grouped in turn_row_views.items()}
+
+
+def _topk_indices_from_scores(scores: np.ndarray, k: int) -> np.ndarray:
+    if scores.size == 0 or k <= 0:
+        return np.zeros(0, dtype=np.int32)
+    k = min(k, scores.size)
+    order = np.argsort(-scores, kind="stable")
+    return order[:k].astype(np.int32)
+
+
+def _oracle_topk_summary(
+    rows: list[dict[str, Any]],
+    *,
+    feature_keys: tuple[str, ...] = DEFAULT_FEATURE_KEYS,
+    k_values: tuple[int, ...] = (1, 3, 5),
+) -> dict[str, Any]:
+    def _group_metrics(grouped: dict[tuple[str, str, str, str], list[dict[str, Any]]]) -> dict[str, Any]:
+        feature_metrics: dict[tuple[str, str, str], dict[str, list[dict[str, float | str]]]] = defaultdict(lambda: defaultdict(list))
+        for (benchmark, model_key, budget_key, group_id), group_rows in grouped.items():
+            if len(group_rows) < 2:
+                continue
+            oracle = np.asarray([float(row["harm_scalar"]) for row in group_rows], dtype=np.float32)
+            conversation_id = group_id.split("::", 1)[0]
+            for k in k_values:
+                k_eff = min(k, len(group_rows))
+                if k_eff <= 0:
+                    continue
+                oracle_top = _topk_indices_from_scores(oracle, k_eff)
+                oracle_top_set = {int(item) for item in oracle_top.tolist()}
+                oracle_top_mean_harm = float(np.mean(oracle[oracle_top]))
+                for feature_key in feature_keys:
+                    predicted = np.asarray([float(row.get(feature_key, 0.0) or 0.0) for row in group_rows], dtype=np.float32)
+                    predicted_top = _topk_indices_from_scores(predicted, k_eff)
+                    predicted_top_set = {int(item) for item in predicted_top.tolist()}
+                    predicted_top_mean_harm = float(np.mean(oracle[predicted_top]))
+                    bucket = feature_metrics[(benchmark, model_key, budget_key)][feature_key]
+                    if not bucket or str(bucket[-1].get("conversation_id")) != conversation_id:
+                        bucket.append({"conversation_id": conversation_id})
+                    bucket[-1].update(
+                        {
+                            f"top{k}_recall": float(len(oracle_top_set & predicted_top_set) / max(k_eff, 1)),
+                            f"top{k}_predicted_mean_harm": predicted_top_mean_harm,
+                            f"top{k}_oracle_mean_harm": oracle_top_mean_harm,
+                            f"top{k}_regret": oracle_top_mean_harm - predicted_top_mean_harm,
+                        }
+                    )
+
+        summary: dict[str, Any] = {}
+        rng = np.random.default_rng(20260414)
+        for (benchmark, model_key, budget_key), metric_map in feature_metrics.items():
+            benchmark_payload = summary.setdefault(benchmark, {})
+            model_payload = benchmark_payload.setdefault(model_key, {})
+            budget_payload = model_payload.setdefault(budget_key, {})
+            semantic_rows = metric_map.get("semantic_score", [])
+            for feature_key, rows_for_feature in metric_map.items():
+                payload: dict[str, Any] = {}
+                for k in k_values:
+                    for metric_name in (
+                        f"top{k}_recall",
+                        f"top{k}_predicted_mean_harm",
+                        f"top{k}_oracle_mean_harm",
+                        f"top{k}_regret",
+                    ):
+                        metric_values = [float(item[metric_name]) for item in rows_for_feature]
+                        conversation_metric_values = [
+                            float(value[metric_name])
+                            for value in collapse_rows_by_keys(
+                                [
+                                    {
+                                        metric_name: float(item[metric_name]),
+                                        "conversation_id": item["conversation_id"],
+                                    }
+                                    for item in rows_for_feature
+                                ],
+                                metric_keys=[metric_name],
+                                group_keys=["conversation_id"],
+                            )
+                        ]
+                        payload[metric_name] = {
+                            "row_level": bootstrap_mean_ci(metric_values, rng=rng),
+                            "conversation_level": bootstrap_mean_ci(conversation_metric_values, rng=rng),
+                        }
+                if feature_key != "semantic_score" and semantic_rows:
+                    comparison_payload: dict[str, Any] = {}
+                    for k in k_values:
+                        for metric_name in (f"top{k}_recall", f"top{k}_predicted_mean_harm", f"top{k}_regret"):
+                            semantic_by_conv = {item["conversation_id"]: float(item[metric_name]) for item in semantic_rows}
+                            feature_by_conv = {item["conversation_id"]: float(item[metric_name]) for item in rows_for_feature}
+                            common = sorted(set(semantic_by_conv) & set(feature_by_conv))
+                            deltas = [feature_by_conv[item] - semantic_by_conv[item] for item in common]
+                            delta_array = np.asarray(deltas, dtype=np.float64)
+                            comparison_payload[metric_name] = {
+                                "row_level": {
+                                    **bootstrap_mean_ci(deltas, rng=rng),
+                                    "p_value": paired_signflip_test(delta_array, rng=rng),
+                                },
+                                "conversation_level": {
+                                    **bootstrap_mean_ci(deltas, rng=rng),
+                                    "p_value": paired_signflip_test(delta_array, rng=rng),
+                                },
+                            }
+                    payload["vs_semantic"] = comparison_payload
+                budget_payload[feature_key] = payload
+        return summary
+
+    turn_row_views = _turn_row_views(rows)
+    return {view_name: _group_metrics(grouped) for view_name, grouped in turn_row_views.items()}
 
 
 def _gate_summary(ranking_summary: dict[str, Any]) -> dict[str, Any]:
@@ -570,6 +680,29 @@ def _format_report(summary: dict[str, Any]) -> str:
                     recall = payload["top5_recall"]["row_level"]["mean"]
                     lines.append(
                         f"    - {feature_key}: kendall {kendall:.4f}, top5 recall {recall:.4f}"
+                    )
+    lines.append("")
+    lines.append("## Oracle Top-k Headroom (semantic shortlist)")
+    lines.append("")
+    for benchmark, benchmark_payload in summary["oracle_topk_summary"]["semantic_shortlist"].items():
+        lines.append(f"### {benchmark}")
+        lines.append("")
+        for model_key, budget_payload in benchmark_payload.items():
+            lines.append(f"- {model_key}:")
+            for budget_key, feature_payload in budget_payload.items():
+                lines.append(f"  - budget {budget_key}:")
+                for feature_key in ("semantic_score", "query_geom_v2_risk", "combined_structural_score"):
+                    payload = feature_payload.get(feature_key)
+                    if payload is None:
+                        continue
+                    top5_recall = payload["top5_recall"]["row_level"]["mean"]
+                    top5_regret = payload["top5_regret"]["row_level"]["mean"]
+                    top5_mean_harm = payload["top5_predicted_mean_harm"]["row_level"]["mean"]
+                    semantic_delta = payload.get("vs_semantic", {}).get("top5_recall", {}).get("row_level", {}).get("mean", 0.0)
+                    lines.append(
+                        f"    - {feature_key}: top5 recall {top5_recall:.4f}, "
+                        f"top5 mean harm {top5_mean_harm:.4f}, top5 regret {top5_regret:.4f}, "
+                        f"Δ recall vs semantic {semantic_delta:.4f}"
                     )
     lines.append("")
     return "\n".join(lines).rstrip() + "\n"
@@ -727,6 +860,7 @@ def run_oracle_harm_probe(
 
     _apply_harm_scalar(candidate_rows)
     ranking_summary = _ranking_summary(candidate_rows)
+    oracle_topk_summary = _oracle_topk_summary(candidate_rows)
     gate_summary = _gate_summary(ranking_summary)
     summary = {
         "study_name": study_name,
@@ -739,6 +873,7 @@ def run_oracle_harm_probe(
         "num_candidate_rows": len(candidate_rows),
         "models": model_payloads,
         "ranking_summary": ranking_summary,
+        "oracle_topk_summary": oracle_topk_summary,
         "gate_summary": gate_summary,
     }
 

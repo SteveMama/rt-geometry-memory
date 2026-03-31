@@ -28,6 +28,7 @@ python -m paper3_codec.harm_predictor \
 echo "[run_paper3_harm_predictor_probe] study=${RUN_NAME} models=${MODEL_KEYS} budgets=${BUDGETS}" >&2
 echo "[run_paper3_harm_predictor_probe] input=${INPUT_PATH}" >&2
 echo "[run_paper3_harm_predictor_probe] predictor=${PREDICTOR_DIR}/harm_predictor.pt" >&2
+echo "[run_paper3_harm_predictor_probe] comparison=${PREDICTOR_DIR}/comparison_summary.json" >&2
 
 PYTHONUNBUFFERED=1 python -u -m paper3_codec.study \
   --study-name "$RUN_NAME" \

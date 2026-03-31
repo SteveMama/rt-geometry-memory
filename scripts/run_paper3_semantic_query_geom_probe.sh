@@ -16,7 +16,7 @@ BUDGETS="${4:-0.20,0.35,0.50}"
 LIMIT_CONVERSATIONS="${5:-24}"
 TARGET_TURN_STRIDE="${6:-4}"
 MAX_TARGET_TURNS="${7:-16}"
-POLICIES="uniform,semantic,geometry,support_aware_geometry_keep_compress_drop,semantic_keep_compress_drop,budget_aware_semantic_keep_compress_drop,query_conditioned_geometry_v2,query_conditioned_geometry_keep_compress_drop_v2,semantic_query_conditioned_geometry_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop_no_query,semantic_query_conditioned_geometry_keep_compress_drop_no_support"
+POLICIES="uniform,semantic,geometry,support_aware_geometry_keep_compress_drop,semantic_keep_compress_drop,budget_aware_semantic_keep_compress_drop,query_conditioned_geometry_v2,query_conditioned_geometry_keep_compress_drop_v2,semantic_query_conditioned_geometry_keep_compress_drop,semantic_ambient_geometry_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop_no_query,semantic_query_conditioned_geometry_keep_compress_drop_no_support"
 
 echo "[run_paper3_semantic_query_geom_probe] study=${RUN_NAME} models=${MODEL_KEYS} budgets=${BUDGETS}" >&2
 echo "[run_paper3_semantic_query_geom_probe] input=${INPUT_PATH}" >&2

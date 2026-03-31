@@ -660,6 +660,14 @@ def run_codec_pilot(
                     include_query=True,
                     include_support=True,
                 )
+                hybrid_ambient_support = _hybrid_query_support_semantic_scores(
+                    query_scores=geometry_risk[:prefix_turn_count],
+                    support_scores=support_scores,
+                    semantic_scores=semantic_risk,
+                    prefix_turn_count=prefix_turn_count,
+                    include_query=True,
+                    include_support=True,
+                )
                 hybrid_no_query = _hybrid_query_support_semantic_scores(
                     query_scores=query_geometry_risk_v2,
                     support_scores=support_scores,
@@ -805,6 +813,18 @@ def run_codec_pilot(
                     elif policy_name == "semantic_query_conditioned_geometry_keep_compress_drop":
                         selection = select_support_aware_sparse_segment_memory(
                             risk_scores=hybrid_query_support,
+                            support_scores=support_scores,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=int(semantic_budget_params["segment_span"]),
+                            candidate_mask=shortlist_mask,
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "semantic_ambient_geometry_keep_compress_drop":
+                        selection = select_support_aware_sparse_segment_memory(
+                            risk_scores=hybrid_ambient_support,
                             support_scores=support_scores,
                             turn_costs=prefix_turn_costs,
                             prefix_turn_count=prefix_turn_count,
