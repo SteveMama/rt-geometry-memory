@@ -38,6 +38,15 @@ Current solidification track:
 - one query-conditioned geometry comparison using:
   - `query_conditioned_geometry`
   - `query_conditioned_geometry_keep_compress_drop`
+- one oracle-harm headroom probe to test whether query-geometry adds signal inside a semantic shortlist
+- one semantic-first query-geometry hybrid comparison using:
+  - `query_conditioned_geometry_v2`
+  - `query_conditioned_geometry_keep_compress_drop_v2`
+  - `semantic_query_conditioned_geometry_keep_compress_drop`
+  - `semantic_query_conditioned_geometry_keep_compress_drop_no_query`
+  - `semantic_query_conditioned_geometry_keep_compress_drop_no_support`
+- one learned-harm deployment comparison using:
+  - `semantic_harm_keep_compress_drop`
 - one non-Qwen 3B hard-set probe using `uniform`, `geometry`, and `geometry_keep_compress_drop`
 - one dense crossover sweep over the hard set plus the public benchmark using `uniform`, `semantic`, `geometry`, and `geometry_keep_compress_drop`
 
@@ -51,6 +60,9 @@ Use:
 - [`scripts/run_paper3_low_budget_kcd_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_low_budget_kcd_probe.sh)
 - [`scripts/run_paper3_semantic_kcd_optimization.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_semantic_kcd_optimization.sh)
 - [`scripts/run_paper3_query_conditioned_geometry_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_query_conditioned_geometry_probe.sh)
+- [`scripts/run_paper3_harm_oracle_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_harm_oracle_probe.sh)
+- [`scripts/run_paper3_semantic_query_geom_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_semantic_query_geom_probe.sh)
+- [`scripts/run_paper3_harm_predictor_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_harm_predictor_probe.sh)
 - [`scripts/run_paper3_public_benchmark.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_public_benchmark.sh)
 - [`scripts/run_paper3_nonqwen_3b_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_nonqwen_3b_probe.sh)
 - [`scripts/run_paper3_crossover_sweep.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_crossover_sweep.sh)
@@ -60,12 +72,24 @@ Use:
 - [`notebooks/rt_paper3_low_budget_kcd_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_low_budget_kcd_runner.ipynb)
 - [`notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb)
 - [`notebooks/rt_paper3_query_conditioned_geometry_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_query_conditioned_geometry_runner.ipynb)
+- [`notebooks/rt_paper3_harm_oracle_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_harm_oracle_runner.ipynb)
+- [`notebooks/rt_paper3_semantic_query_geom_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_semantic_query_geom_runner.ipynb)
+- [`notebooks/rt_paper3_harm_predictor_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_harm_predictor_runner.ipynb)
+- [`papers/paper3_oracle_harm_headroom_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_oracle_harm_headroom_checkpoint.md)
+- [`papers/paper3_semantic_query_geom_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_semantic_query_geom_checkpoint.md)
+- [`papers/paper3_harm_predictor_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_harm_predictor_checkpoint.md)
 
 Notebook run order:
 
 1. `tiny smoke`
 2. `medium public-benchmark subset`
 3. `full bounded solidification batch`
+
+Current promotion logic:
+
+1. Gate 1: oracle-harm headroom must show semantic-shortlist ranking gains
+2. Gate 2: semantic-first query-geometry hybrid must beat the best semantic incumbent on a public benchmark
+3. Gate 3: learned harm predictor is only promoted if it improves both oracle ranking and benchmark outcomes
 
 Checkpoint manuscript:
 

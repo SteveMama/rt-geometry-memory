@@ -116,6 +116,15 @@ class MessageScore:
     state: np.ndarray
     logits: np.ndarray
     token_count: int
+    attention_summary: "TurnAttentionSummary | None" = None
+
+
+@dataclass(slots=True)
+class TurnAttentionSummary:
+    raw_turn_weights: np.ndarray
+    sink_corrected_turn_weights: np.ndarray
+    sink_baseline: float
+    query_position: int
 
 
 @dataclass(slots=True)
@@ -231,21 +240,90 @@ class ConversationStateExtractor:
         self,
         messages: list[dict[str, str]],
         max_input_tokens: int | None = None,
+        *,
+        return_attention_summary: bool = False,
+        cumulative_turn_token_counts: np.ndarray | None = None,
+        attention_layers: int = 4,
+        sink_token_count: int = 32,
     ) -> MessageScore:
         with self.torch.no_grad():
             encoded = self._tokenize_messages(messages, max_input_tokens=max_input_tokens)
             outputs = self.model(
                 **encoded,
                 output_hidden_states=True,
+                output_attentions=return_attention_summary,
                 use_cache=False,
                 return_dict=True,
             )
             hidden_state = outputs.hidden_states[self.state_layer][0, -1].detach().to(self.torch.float32).cpu().numpy()
             next_logits = outputs.logits[0, -1].detach().to(self.torch.float32).cpu().numpy()
+            attention_summary = None
+            if return_attention_summary and cumulative_turn_token_counts is not None:
+                attention_summary = self._summarize_turn_attention(
+                    attentions=outputs.attentions,
+                    cumulative_turn_token_counts=np.asarray(cumulative_turn_token_counts, dtype=np.int32),
+                    total_tokens=int(encoded["input_ids"].shape[1]),
+                    attention_layers=attention_layers,
+                    sink_token_count=sink_token_count,
+                )
         return MessageScore(
             state=hidden_state.astype(np.float32),
             logits=next_logits.astype(np.float32),
             token_count=int(encoded["input_ids"].shape[1]),
+            attention_summary=attention_summary,
+        )
+
+    def _summarize_turn_attention(
+        self,
+        *,
+        attentions: Any,
+        cumulative_turn_token_counts: np.ndarray,
+        total_tokens: int,
+        attention_layers: int,
+        sink_token_count: int,
+    ) -> TurnAttentionSummary:
+        if attentions is None or cumulative_turn_token_counts.size == 0 or total_tokens <= 0:
+            empty = np.zeros(cumulative_turn_token_counts.size, dtype=np.float32)
+            return TurnAttentionSummary(
+                raw_turn_weights=empty,
+                sink_corrected_turn_weights=empty,
+                sink_baseline=0.0,
+                query_position=max(total_tokens - 1, 0),
+            )
+
+        layer_count = len(attentions)
+        use_layers = attentions[max(layer_count - max(attention_layers, 1), 0) :]
+        token_weights = np.zeros(total_tokens, dtype=np.float64)
+        query_position = total_tokens - 1
+        for layer_attention in use_layers:
+            # shape: [batch, heads, seq, seq]
+            matrix = layer_attention[0, :, query_position, :].detach().to(self.torch.float32).cpu().numpy()
+            token_weights += matrix.mean(axis=0)
+        token_weights /= max(len(use_layers), 1)
+
+        raw_turn_weights = np.zeros(cumulative_turn_token_counts.size, dtype=np.float32)
+        sink_corrected = np.zeros(cumulative_turn_token_counts.size, dtype=np.float32)
+        sink_window = min(max(sink_token_count, 0), total_tokens)
+        sink_baseline = float(np.mean(token_weights[:sink_window])) if sink_window > 0 else 0.0
+
+        prev_end = 0
+        for idx, raw_end in enumerate(cumulative_turn_token_counts.tolist()):
+            end = min(max(int(raw_end), 0), total_tokens)
+            start = min(max(prev_end, 0), total_tokens)
+            if end <= start:
+                prev_end = end
+                continue
+            turn_mass = float(np.sum(token_weights[start:end]))
+            turn_len = end - start
+            raw_turn_weights[idx] = turn_mass
+            sink_corrected[idx] = max(turn_mass - sink_baseline * float(turn_len), 0.0)
+            prev_end = end
+
+        return TurnAttentionSummary(
+            raw_turn_weights=raw_turn_weights,
+            sink_corrected_turn_weights=sink_corrected,
+            sink_baseline=sink_baseline,
+            query_position=query_position,
         )
 
     def project_logits(self, states: np.ndarray) -> np.ndarray:

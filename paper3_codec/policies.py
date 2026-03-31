@@ -102,6 +102,23 @@ def _support_aware_candidates(
     return sorted(set(retained))
 
 
+def support_aware_segment_retained_indices(
+    *,
+    start: int,
+    end: int,
+    risk_scores: np.ndarray,
+    support_scores: np.ndarray | None = None,
+    candidate_mask: np.ndarray | None = None,
+) -> list[int]:
+    return _support_aware_candidates(
+        start,
+        end,
+        risk_scores,
+        support_scores=support_scores,
+        candidate_mask=candidate_mask,
+    )
+
+
 def semantic_shortlist_mask(
     *,
     semantic_scores: np.ndarray,
@@ -308,6 +325,28 @@ def select_sparse_segment_memory(
     )
 
 
+def select_masked_sparse_segment_memory(
+    *,
+    risk_scores: np.ndarray,
+    turn_costs: np.ndarray,
+    prefix_turn_count: int,
+    budget_fraction: float,
+    recent_window: int,
+    segment_span: int = 2,
+    candidate_mask: np.ndarray | None = None,
+) -> CodecSelection:
+    return _select_sparse_segment_memory_core(
+        risk_scores=risk_scores,
+        turn_costs=turn_costs,
+        prefix_turn_count=prefix_turn_count,
+        budget_fraction=budget_fraction,
+        recent_window=recent_window,
+        segment_span=segment_span,
+        support_scores=None,
+        candidate_mask=candidate_mask,
+    )
+
+
 def select_support_aware_sparse_segment_memory(
     *,
     risk_scores: np.ndarray,
@@ -317,6 +356,7 @@ def select_support_aware_sparse_segment_memory(
     budget_fraction: float,
     recent_window: int,
     segment_span: int = 3,
+    candidate_mask: np.ndarray | None = None,
 ) -> CodecSelection:
     return _select_sparse_segment_memory_core(
         risk_scores=_normalize(risk_scores + 0.75 * support_scores),
@@ -326,7 +366,7 @@ def select_support_aware_sparse_segment_memory(
         recent_window=recent_window,
         segment_span=segment_span,
         support_scores=support_scores,
-        candidate_mask=None,
+        candidate_mask=candidate_mask,
     )
 
 

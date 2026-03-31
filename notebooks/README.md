@@ -12,6 +12,9 @@ Current notebook:
 - [`rt_paper3_low_budget_kcd_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_low_budget_kcd_runner.ipynb)
 - [`rt_paper3_semantic_kcd_optimization_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_semantic_kcd_optimization_runner.ipynb)
 - [`rt_paper3_query_conditioned_geometry_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_query_conditioned_geometry_runner.ipynb)
+- [`rt_paper3_harm_oracle_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_harm_oracle_runner.ipynb)
+- [`rt_paper3_semantic_query_geom_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_semantic_query_geom_runner.ipynb)
+- [`rt_paper3_harm_predictor_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_harm_predictor_runner.ipynb)
 
 Purpose:
 
@@ -33,4 +36,7 @@ Purpose:
 - run the new support-aware and semantic-filtered low-budget KCD variants on `MSC` and `LoCoMo`
 - run the semantic-led codec optimization pass with support-aware and budget-aware semantic-KCD variants on `MSC`, `LoCoMo`, and `LongMemEval`
 - run the tangent-space query-conditioned geometry comparison on `MSC` and `LoCoMo`
+- run the Gate 1 oracle-harm headroom probe before promoting geometry refinement
+- run the Gate 2 semantic-first query-geometry hybrid comparison
+- run the Gate 3 learned-harm deployment comparison after a positive oracle result
 - publish tracked artifacts back into the repository after a Colab run

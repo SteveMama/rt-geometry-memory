@@ -8,6 +8,8 @@ from typing import Any
 
 import numpy as np
 
+from .stats import bootstrap_mean_ci, collapse_rows_by_keys, paired_signflip_test
+
 
 DEFAULT_PAIRS: tuple[tuple[str, str], ...] = (
     ("geometry_keep_compress_drop", "geometry"),
@@ -29,50 +31,20 @@ DEFAULT_PAIRS: tuple[tuple[str, str], ...] = (
     ("semantic_filtered_geometry_keep_compress_drop", "support_aware_geometry_keep_compress_drop"),
     ("semantic_filtered_geometry_keep_compress_drop", "semantic"),
     ("semantic_filtered_geometry_keep_compress_drop", "semantic_keep_compress_drop"),
+    ("query_conditioned_geometry_v2", "query_conditioned_geometry"),
+    ("query_conditioned_geometry_keep_compress_drop_v2", "query_conditioned_geometry_keep_compress_drop"),
+    ("semantic_query_conditioned_geometry_keep_compress_drop", "budget_aware_semantic_keep_compress_drop"),
+    ("semantic_query_conditioned_geometry_keep_compress_drop", "semantic_keep_compress_drop"),
+    ("semantic_query_conditioned_geometry_keep_compress_drop_no_query", "semantic_query_conditioned_geometry_keep_compress_drop"),
+    ("semantic_query_conditioned_geometry_keep_compress_drop_no_support", "semantic_query_conditioned_geometry_keep_compress_drop"),
+    ("semantic_harm_keep_compress_drop", "semantic_query_conditioned_geometry_keep_compress_drop"),
+    ("semantic_harm_keep_compress_drop", "budget_aware_semantic_keep_compress_drop"),
 )
 
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
     with path.open("r", encoding="utf-8", newline="") as handle:
         return list(csv.DictReader(handle))
-
-
-def _bootstrap_mean_ci(
-    values: list[float],
-    *,
-    rng: np.random.Generator,
-    num_bootstrap: int = 2000,
-) -> dict[str, float]:
-    if not values:
-        return {"mean": 0.0, "std": 0.0, "ci_low": 0.0, "ci_high": 0.0}
-    array = np.asarray(values, dtype=np.float64)
-    if array.size == 1:
-        value = float(array[0])
-        return {"mean": value, "std": 0.0, "ci_low": value, "ci_high": value}
-    samples = rng.choice(array, size=(num_bootstrap, array.size), replace=True)
-    means = samples.mean(axis=1)
-    return {
-        "mean": float(array.mean()),
-        "std": float(array.std(ddof=0)),
-        "ci_low": float(np.percentile(means, 2.5)),
-        "ci_high": float(np.percentile(means, 97.5)),
-    }
-
-
-def _paired_signflip_test(
-    deltas: np.ndarray,
-    *,
-    rng: np.random.Generator,
-    num_samples: int = 4000,
-) -> float:
-    if deltas.size == 0:
-        return 1.0
-    observed = float(abs(np.mean(deltas)))
-    if observed < 1e-12:
-        return 1.0
-    signs = rng.choice(np.asarray([-1.0, 1.0], dtype=np.float64), size=(num_samples, deltas.size), replace=True)
-    null_means = np.abs((signs * deltas[None, :]).mean(axis=1))
-    return float(np.mean(null_means >= observed))
 
 
 def _pairwise_metric_summary(
@@ -103,11 +75,30 @@ def _pairwise_metric_summary(
                     continue
                 keys = sorted(set(key_maps[left]) & set(key_maps[right]))
                 deltas = np.asarray([key_maps[left][key] - key_maps[right][key] for key in keys], dtype=np.float64)
+                conversation_rows = [
+                    {"conversation_id": str(key[0]), metric_key: float(key_maps[left][key] - key_maps[right][key])}
+                    for key in keys
+                ]
+                conversation_deltas = [
+                    float(item[metric_key])
+                    for item in collapse_rows_by_keys(
+                        conversation_rows,
+                        metric_keys=[metric_key],
+                        group_keys=["conversation_id"],
+                    )
+                ]
+                conversation_delta_array = np.asarray(conversation_deltas, dtype=np.float64)
                 pair_payload[f"{left}__vs__{right}"] = {
                     "num_pairs": int(deltas.size),
                     f"delta_{metric_key}": {
-                        **_bootstrap_mean_ci(deltas.tolist(), rng=rng),
-                        "p_value": _paired_signflip_test(deltas, rng=rng),
+                        "row_level": {
+                            **bootstrap_mean_ci(deltas.tolist(), rng=rng),
+                            "p_value": paired_signflip_test(deltas, rng=rng),
+                        },
+                        "conversation_level": {
+                            **bootstrap_mean_ci(conversation_deltas, rng=rng),
+                            "p_value": paired_signflip_test(conversation_delta_array, rng=rng),
+                        },
                     },
                 }
             budget_payload[f"{budget:.2f}"] = pair_payload
@@ -131,18 +122,24 @@ def _format_report(
         for budget_key in sorted(logit_summary[model_key], key=float):
             lines.append(f"- budget {budget_key}:")
             for pair_name, payload in logit_summary[model_key][budget_key].items():
-                delta = payload["delta_logit_l2"]
+                row_delta = payload["delta_logit_l2"]["row_level"]
+                conv_delta = payload["delta_logit_l2"]["conversation_level"]
                 lines.append(
-                    f"  {pair_name}: Δ logit L2 {delta['mean']:.3f} "
-                    f"[{delta['ci_low']:.3f}, {delta['ci_high']:.3f}], p={delta['p_value']:.4f}"
+                    f"  {pair_name}: row Δ logit L2 {row_delta['mean']:.3f} "
+                    f"[{row_delta['ci_low']:.3f}, {row_delta['ci_high']:.3f}], p={row_delta['p_value']:.4f}; "
+                    f"conversation Δ {conv_delta['mean']:.3f} "
+                    f"[{conv_delta['ci_low']:.3f}, {conv_delta['ci_high']:.3f}], p={conv_delta['p_value']:.4f}"
                 )
             if behavior_summary.get(model_key, {}).get(budget_key):
                 lines.append("  behavior:")
                 for pair_name, payload in behavior_summary[model_key][budget_key].items():
-                    delta = payload["delta_answer_avg_neg_logprob"]
+                    row_delta = payload["delta_answer_avg_neg_logprob"]["row_level"]
+                    conv_delta = payload["delta_answer_avg_neg_logprob"]["conversation_level"]
                     lines.append(
-                        f"    {pair_name}: Δ answer NLL {delta['mean']:.4f} "
-                        f"[{delta['ci_low']:.4f}, {delta['ci_high']:.4f}], p={delta['p_value']:.4f}"
+                        f"    {pair_name}: row Δ answer NLL {row_delta['mean']:.4f} "
+                        f"[{row_delta['ci_low']:.4f}, {row_delta['ci_high']:.4f}], p={row_delta['p_value']:.4f}; "
+                        f"conversation Δ {conv_delta['mean']:.4f} "
+                        f"[{conv_delta['ci_low']:.4f}, {conv_delta['ci_high']:.4f}], p={conv_delta['p_value']:.4f}"
                     )
         lines.append("")
     return "\n".join(lines).rstrip() + "\n"

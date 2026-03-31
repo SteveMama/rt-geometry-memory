@@ -17,6 +17,7 @@ from .run_paper3 import (
     _parse_policies,
     run_codec_pilot,
 )
+from .stats import bootstrap_mean_ci, collapse_rows_by_keys, paired_signflip_test
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -48,42 +49,17 @@ def _study_summary(model_results: list[dict[str, Any]]) -> dict[str, Any]:
     return payload
 
 
-def _bootstrap_mean_ci(
-    values: list[float],
+def _conversation_metric_values(
+    rows: list[dict[str, Any]],
     *,
-    rng: np.random.Generator,
-    num_bootstrap: int = 2000,
-) -> dict[str, float]:
-    if not values:
-        return {"mean": 0.0, "std": 0.0, "ci_low": 0.0, "ci_high": 0.0}
-    array = np.asarray(values, dtype=np.float64)
-    if array.size == 1:
-        value = float(array[0])
-        return {"mean": value, "std": 0.0, "ci_low": value, "ci_high": value}
-    samples = rng.choice(array, size=(num_bootstrap, array.size), replace=True)
-    means = samples.mean(axis=1)
-    return {
-        "mean": float(array.mean()),
-        "std": float(array.std(ddof=0)),
-        "ci_low": float(np.percentile(means, 2.5)),
-        "ci_high": float(np.percentile(means, 97.5)),
-    }
-
-
-def _paired_signflip_test(
-    deltas: np.ndarray,
-    *,
-    rng: np.random.Generator,
-    num_samples: int = 4000,
-) -> float:
-    if deltas.size == 0:
-        return 1.0
-    observed = float(abs(np.mean(deltas)))
-    if observed < 1e-12:
-        return 1.0
-    signs = rng.choice(np.asarray([-1.0, 1.0], dtype=np.float64), size=(num_samples, deltas.size), replace=True)
-    null_means = np.abs((signs * deltas[None, :]).mean(axis=1))
-    return float(np.mean(null_means >= observed))
+    metric_key: str,
+) -> list[float]:
+    collapsed = collapse_rows_by_keys(
+        rows,
+        metric_keys=[metric_key],
+        group_keys=["conversation_id"],
+    )
+    return [float(row[metric_key]) for row in collapsed]
 
 
 def _confidence_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -98,9 +74,27 @@ def _confidence_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             for policy_name in sorted({str(row["policy_name"]) for row in budget_rows}):
                 policy_rows = [row for row in budget_rows if str(row["policy_name"]) == policy_name]
                 policy_payload[policy_name] = {
-                    "logit_l2": _bootstrap_mean_ci([float(row["logit_l2"]) for row in policy_rows], rng=rng),
-                    "kl": _bootstrap_mean_ci([float(row["kl"]) for row in policy_rows], rng=rng),
-                    "token_fraction": _bootstrap_mean_ci([float(row["token_fraction"]) for row in policy_rows], rng=rng),
+                    "logit_l2": {
+                        "row_level": bootstrap_mean_ci([float(row["logit_l2"]) for row in policy_rows], rng=rng),
+                        "conversation_level": bootstrap_mean_ci(
+                            _conversation_metric_values(policy_rows, metric_key="logit_l2"),
+                            rng=rng,
+                        ),
+                    },
+                    "kl": {
+                        "row_level": bootstrap_mean_ci([float(row["kl"]) for row in policy_rows], rng=rng),
+                        "conversation_level": bootstrap_mean_ci(
+                            _conversation_metric_values(policy_rows, metric_key="kl"),
+                            rng=rng,
+                        ),
+                    },
+                    "token_fraction": {
+                        "row_level": bootstrap_mean_ci([float(row["token_fraction"]) for row in policy_rows], rng=rng),
+                        "conversation_level": bootstrap_mean_ci(
+                            _conversation_metric_values(policy_rows, metric_key="token_fraction"),
+                            rng=rng,
+                        ),
+                    },
                 }
             budget_payload[f"{budget:.2f}"] = policy_payload
         summary[model_key] = budget_payload
@@ -119,14 +113,26 @@ def _behavior_confidence_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             for policy_name in sorted({str(row["policy_name"]) for row in budget_rows}):
                 policy_rows = [row for row in budget_rows if str(row["policy_name"]) == policy_name]
                 policy_payload[policy_name] = {
-                    "answer_avg_neg_logprob": _bootstrap_mean_ci(
-                        [float(row["answer_avg_neg_logprob"]) for row in policy_rows],
-                        rng=rng,
-                    ),
-                    "answer_avg_neg_logprob_delta": _bootstrap_mean_ci(
-                        [float(row["answer_avg_neg_logprob_delta"]) for row in policy_rows],
-                        rng=rng,
-                    ),
+                    "answer_avg_neg_logprob": {
+                        "row_level": bootstrap_mean_ci(
+                            [float(row["answer_avg_neg_logprob"]) for row in policy_rows],
+                            rng=rng,
+                        ),
+                        "conversation_level": bootstrap_mean_ci(
+                            _conversation_metric_values(policy_rows, metric_key="answer_avg_neg_logprob"),
+                            rng=rng,
+                        ),
+                    },
+                    "answer_avg_neg_logprob_delta": {
+                        "row_level": bootstrap_mean_ci(
+                            [float(row["answer_avg_neg_logprob_delta"]) for row in policy_rows],
+                            rng=rng,
+                        ),
+                        "conversation_level": bootstrap_mean_ci(
+                            _conversation_metric_values(policy_rows, metric_key="answer_avg_neg_logprob_delta"),
+                            rng=rng,
+                        ),
+                    },
                 }
             budget_payload[f"{budget:.2f}"] = policy_payload
         summary[model_key] = budget_payload
@@ -152,6 +158,7 @@ def _paired_delta_summary(rows: list[dict[str, Any]], metric_key: str) -> dict[s
             comparison_payload: dict[str, Any] = {}
             for policy_name in comparison_policies:
                 deltas: list[float] = []
+                delta_rows: list[dict[str, Any]] = []
                 for row in budget_rows:
                     if str(row["policy_name"]) != policy_name:
                         continue
@@ -159,13 +166,28 @@ def _paired_delta_summary(rows: list[dict[str, Any]], metric_key: str) -> dict[s
                     baseline = uniform_map.get(key)
                     if baseline is None:
                         continue
-                    deltas.append(float(row[metric_key]) - float(baseline[metric_key]))
+                    delta_value = float(row[metric_key]) - float(baseline[metric_key])
+                    deltas.append(delta_value)
+                    delta_rows.append(
+                        {
+                            "conversation_id": str(row["conversation_id"]),
+                            metric_key: delta_value,
+                        }
+                    )
                 delta_array = np.asarray(deltas, dtype=np.float64)
+                conversation_deltas = _conversation_metric_values(delta_rows, metric_key=metric_key)
+                conversation_delta_array = np.asarray(conversation_deltas, dtype=np.float64)
                 comparison_payload[policy_name] = {
                     "num_pairs": int(delta_array.size),
                     f"delta_{metric_key}": {
-                        **_bootstrap_mean_ci(deltas, rng=rng),
-                        "p_value": _paired_signflip_test(delta_array, rng=rng),
+                        "row_level": {
+                            **bootstrap_mean_ci(deltas, rng=rng),
+                            "p_value": paired_signflip_test(delta_array, rng=rng),
+                        },
+                        "conversation_level": {
+                            **bootstrap_mean_ci(conversation_deltas, rng=rng),
+                            "p_value": paired_signflip_test(conversation_delta_array, rng=rng),
+                        },
                     },
                 }
             budget_payload[f"{budget:.2f}"] = comparison_payload
@@ -225,20 +247,26 @@ def _format_report(
         for budget_key, budget_payload in significance_summary.get(model_key, {}).items():
             lines.append(f"  budget {budget_key}:")
             for policy_name, metrics in budget_payload.items():
-                delta_payload = metrics["delta_logit_l2"]
+                row_delta = metrics["delta_logit_l2"]["row_level"]
+                conv_delta = metrics["delta_logit_l2"]["conversation_level"]
                 lines.append(
-                    f"    {policy_name}: mean delta logit L2 {delta_payload['mean']:.3f} "
-                    f"[{delta_payload['ci_low']:.3f}, {delta_payload['ci_high']:.3f}], p={delta_payload['p_value']:.4f}"
+                    f"    {policy_name}: row Δ logit L2 {row_delta['mean']:.3f} "
+                    f"[{row_delta['ci_low']:.3f}, {row_delta['ci_high']:.3f}], p={row_delta['p_value']:.4f}; "
+                    f"conversation Δ {conv_delta['mean']:.3f} "
+                    f"[{conv_delta['ci_low']:.3f}, {conv_delta['ci_high']:.3f}], p={conv_delta['p_value']:.4f}"
                 )
         if behavior_significance_summary.get(model_key):
             lines.append("  behavior:")
             for budget_key, budget_payload in behavior_significance_summary[model_key].items():
                 lines.append(f"    budget {budget_key}:")
                 for policy_name, metrics in budget_payload.items():
-                    delta_payload = metrics["delta_answer_avg_neg_logprob"]
+                    row_delta = metrics["delta_answer_avg_neg_logprob"]["row_level"]
+                    conv_delta = metrics["delta_answer_avg_neg_logprob"]["conversation_level"]
                     lines.append(
-                        f"      {policy_name}: mean delta answer avg NLL {delta_payload['mean']:.4f} "
-                        f"[{delta_payload['ci_low']:.4f}, {delta_payload['ci_high']:.4f}], p={delta_payload['p_value']:.4f}"
+                        f"      {policy_name}: row Δ answer avg NLL {row_delta['mean']:.4f} "
+                        f"[{row_delta['ci_low']:.4f}, {row_delta['ci_high']:.4f}], p={row_delta['p_value']:.4f}; "
+                        f"conversation Δ {conv_delta['mean']:.4f} "
+                        f"[{conv_delta['ci_low']:.4f}, {conv_delta['ci_high']:.4f}], p={conv_delta['p_value']:.4f}"
                     )
         lines.append("")
     return "\n".join(lines).rstrip() + "\n"
@@ -263,6 +291,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--segment-span", type=int, default=2)
     parser.add_argument("--target-turn-stride", type=int, default=1)
     parser.add_argument("--max-target-turns", type=int, default=None)
+    parser.add_argument("--harm-predictor-path", type=Path, default=None)
     parser.add_argument(
         "--policies",
         default="uniform,semantic,geometry,geometry_segment_actions,geometry_keep_compress_drop",
@@ -310,6 +339,7 @@ def main() -> None:
             policies=policies,
             target_turn_stride=args.target_turn_stride,
             max_target_turns=args.max_target_turns,
+            harm_predictor_path=args.harm_predictor_path,
         )
         model_results.append(result)
         combined_rows.extend(result["rows"])

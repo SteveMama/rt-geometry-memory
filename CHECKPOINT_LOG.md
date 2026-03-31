@@ -313,3 +313,41 @@ This file is the cumulative log of the RT research program checkpointed in this 
   - the repository now has a canonical math-to-code-to-artifact companion for the full RT program
   - all major branches are explicitly classified as `frozen`, `stable`, `provisional`, or `failed`
   - the appendix bridge keeps the manuscript concise while making the deeper derivation and falsification history easy to audit
+
+## Phase 16: Semantic-Gap Program Surface
+
+- Added a new oracle-harm probe layer for Gate 1:
+  - [`paper3_codec/harm_oracle_study.py`](/Users/pranav/Documents/RT/paper3_codec/harm_oracle_study.py)
+  - [`scripts/run_paper3_harm_oracle_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_harm_oracle_probe.sh)
+  - [`notebooks/rt_paper3_harm_oracle_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_harm_oracle_runner.ipynb)
+  - [`papers/paper3_oracle_harm_headroom_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_oracle_harm_headroom_checkpoint.md)
+- Added query-conditioned geometry v2 and semantic-first hybrid deployment policies for Gate 2:
+  - [`paper3_codec/query_geometry.py`](/Users/pranav/Documents/RT/paper3_codec/query_geometry.py)
+  - [`paper3_codec/run_paper3.py`](/Users/pranav/Documents/RT/paper3_codec/run_paper3.py)
+  - [`paper3_codec/policies.py`](/Users/pranav/Documents/RT/paper3_codec/policies.py)
+  - [`scripts/run_paper3_semantic_query_geom_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_semantic_query_geom_probe.sh)
+  - [`notebooks/rt_paper3_semantic_query_geom_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_semantic_query_geom_runner.ipynb)
+  - [`papers/paper3_semantic_query_geom_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_semantic_query_geom_checkpoint.md)
+- Added the learned harm predictor surface for Gate 3:
+  - [`paper3_codec/harm_predictor.py`](/Users/pranav/Documents/RT/paper3_codec/harm_predictor.py)
+  - [`scripts/run_paper3_harm_predictor_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_harm_predictor_probe.sh)
+  - [`notebooks/rt_paper3_harm_predictor_runner.ipynb`](/Users/pranav/Documents/RT/notebooks/rt_paper3_harm_predictor_runner.ipynb)
+  - [`papers/paper3_harm_predictor_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_harm_predictor_checkpoint.md)
+- Upgraded the Paper 3 study and pairwise surfaces to emit row-level and conversation-level significance:
+  - [`paper3_codec/study.py`](/Users/pranav/Documents/RT/paper3_codec/study.py)
+  - [`paper3_codec/pairwise_analysis.py`](/Users/pranav/Documents/RT/paper3_codec/pairwise_analysis.py)
+  - [`paper3_codec/stats.py`](/Users/pranav/Documents/RT/paper3_codec/stats.py)
+- Extended the model scoring path with optional prompt-attention summaries for oracle features and learned-harm deployment:
+  - [`paper1_geometry/modeling.py`](/Users/pranav/Documents/RT/paper1_geometry/modeling.py)
+- Local execution validation:
+  - Gate 1 oracle smoke ran on a tiny hard-stress slice:
+    - `results/paper3/harm_oracle/paper3_oracle_hardset_smoke`
+  - Gate 2 semantic-first hybrid smoke ran on the same tiny slice:
+    - `results/paper3/studies/paper3_semantic_query_geom_hardset_smoke`
+  - Gate 3 harm-predictor smoke trained and ran on the same tiny slice:
+    - `results/paper3/harm_predictor_models/paper3_harm_predictor_hardset_smoke`
+    - `results/paper3/studies/paper3_harm_predictor_hardset_smoke`
+- Main result:
+  - the semantic-gap program is now implemented as an additive three-stage surface with explicit promotion gates
+  - historical Paper 3 policy names and study outputs were left intact
+  - public-benchmark promotion is still intentionally gated on oracle headroom and public-benchmark wins; the hard-stress smoke was used only to validate execution

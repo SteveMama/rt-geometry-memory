@@ -50,6 +50,12 @@ Included:
   - run the semantic-led Paper 3 optimization set with support-aware and budget-aware semantic-KCD variants
 - [`run_paper3_query_conditioned_geometry_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_query_conditioned_geometry_probe.sh)
   - run the tangent-space query-conditioned geometry comparison against semantic and sparse-codec baselines
+- [`run_paper3_harm_oracle_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_harm_oracle_probe.sh)
+  - run the Gate 1 oracle-harm headroom probe on a normalized benchmark JSONL
+- [`run_paper3_semantic_query_geom_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_semantic_query_geom_probe.sh)
+  - run the Gate 2 semantic-first query-geometry hybrid comparison
+- [`run_paper3_harm_predictor_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_harm_predictor_probe.sh)
+  - train the learned harm predictor from an oracle study and run the Gate 3 deployment comparison
 - [`run_geometry_regime_atlas.sh`](/Users/pranav/Documents/RT/scripts/run_geometry_regime_atlas.sh)
   - build a segment-level geometric regime atlas over one or more conversation JSONL files and emit cluster reports
 - [`run_msc_persona_curvature_check.py`](/Users/pranav/Documents/RT/scripts/run_msc_persona_curvature_check.py)
@@ -82,5 +88,7 @@ Recommended usage:
 - use the notebook in [`notebooks`](/Users/pranav/Documents/RT/notebooks) on Colab
 - use these scripts directly when you want a reproducible command-line rerun
 - normalize public benchmarks into one JSONL before using the new public-benchmark runners
+- run the oracle-harm headroom probe before promoting geometry refinement on semantic-memory benchmarks
+- run the semantic-first hybrid and learned-harm surfaces only after Gate 1 is positive
 - generate manuscript assets before building the checkpoint PDF in [`manuscript`](/Users/pranav/Documents/RT/manuscript)
 - generate the research-ledger inventories before sharing the deep-dive companion in [`papers/rt_derivation_ledger.md`](/Users/pranav/Documents/RT/papers/rt_derivation_ledger.md)

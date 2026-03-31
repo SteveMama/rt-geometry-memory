@@ -24,11 +24,14 @@ from paper2_memory.policies import (
 from .policies import (
     CodecSelection,
     SparseSegmentMemory,
+    select_masked_sparse_segment_memory,
     select_semantic_filtered_sparse_segment_memory,
     select_sparse_segment_memory,
     select_support_aware_sparse_segment_memory,
+    semantic_shortlist_mask,
 )
-from .query_geometry import query_conditioned_turn_risk
+from .query_geometry import query_conditioned_turn_risk, query_conditioned_turn_risk_v2
+from .harm_predictor import HarmPredictorBundle
 
 
 DEFAULT_OUTPUT = Path(__file__).resolve().parents[1] / "results" / "paper3"
@@ -132,6 +135,13 @@ def _normalize(values: np.ndarray) -> np.ndarray:
     return ((values - minimum) / (maximum - minimum)).astype(np.float32)
 
 
+def _topk_indices(values: np.ndarray, k: int) -> list[int]:
+    if values.size == 0 or k <= 0:
+        return []
+    order = np.argsort(-np.asarray(values, dtype=np.float32), kind="stable")
+    return [int(item) for item in order[: min(k, order.size)].tolist()]
+
+
 def _constraint_marker_score(text: str) -> float:
     lowered = text.lower()
     marker_hits = sum(1.0 for marker in CONSTRAINT_MARKERS if marker in lowered)
@@ -220,6 +230,46 @@ def _budget_aware_semantic_params(budget_fraction: float) -> dict[str, float | i
     return {"expansion_factor": 2.10, "segment_span": 4}
 
 
+def _requires_attention_features(feature_names: tuple[str, ...]) -> bool:
+    return "attention_raw" in feature_names or "attention_sink_corrected" in feature_names
+
+
+def _semantic_shortlist_candidate_mask(
+    *,
+    semantic_scores: np.ndarray,
+    turn_costs: np.ndarray,
+    budget_fraction: float,
+    latest_user_index: int | None,
+    expansion_factor: float,
+) -> np.ndarray:
+    return semantic_shortlist_mask(
+        semantic_scores=semantic_scores,
+        turn_costs=turn_costs,
+        budget_fraction=budget_fraction,
+        expansion_factor=expansion_factor,
+        latest_user_index=latest_user_index,
+    )
+
+
+def _hybrid_query_support_semantic_scores(
+    *,
+    query_scores: np.ndarray,
+    support_scores: np.ndarray,
+    semantic_scores: np.ndarray,
+    prefix_turn_count: int,
+    include_query: bool = True,
+    include_support: bool = True,
+) -> np.ndarray:
+    query_weight = 0.60 if include_query else 0.0
+    support_weight = 0.25 if include_support else 0.0
+    semantic_weight = 0.15
+    return _normalize(
+        query_weight * _normalize(query_scores[:prefix_turn_count])
+        + support_weight * _normalize(support_scores[:prefix_turn_count])
+        + semantic_weight * _normalize(semantic_scores[:prefix_turn_count])
+    )
+
+
 def _prefix_turn_costs(prefix_token_counts: np.ndarray) -> np.ndarray:
     if prefix_token_counts.size == 0:
         return np.zeros(0, dtype=np.int32)
@@ -227,6 +277,62 @@ def _prefix_turn_costs(prefix_token_counts: np.ndarray) -> np.ndarray:
     costs[1:] = np.maximum(prefix_token_counts[1:] - prefix_token_counts[:-1], 1)
     costs[0] = max(int(prefix_token_counts[0]), 1)
     return costs
+
+
+def _turn_attention_vectors(
+    attention_summary: Any | None,
+    *,
+    prefix_turn_count: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    if attention_summary is None:
+        zeros = np.zeros(prefix_turn_count, dtype=np.float32)
+        return zeros, zeros
+    return (
+        np.asarray(attention_summary.raw_turn_weights[:prefix_turn_count], dtype=np.float32),
+        np.asarray(attention_summary.sink_corrected_turn_weights[:prefix_turn_count], dtype=np.float32),
+    )
+
+
+def _harm_predictor_feature_rows(
+    *,
+    conversation: ConversationRecord,
+    prefix_turn_count: int,
+    semantic_scores: np.ndarray,
+    geometry_scores: np.ndarray,
+    support_scores: np.ndarray,
+    query_v2: Any,
+    turn_costs: np.ndarray,
+    latest_user_index: int | None,
+    attention_raw: np.ndarray,
+    attention_sink: np.ndarray,
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for idx in range(prefix_turn_count):
+        rows.append(
+            {
+                "candidate_type": "turn",
+                "conversation_id": conversation.conversation_id,
+                "semantic_score": float(semantic_scores[idx]),
+                "geometry_score": float(geometry_scores[idx]),
+                "support_score": float(support_scores[idx]),
+                "query_geom_v2_risk": float(query_v2.risk[idx]),
+                "query_geom_v2_curvature": float(query_v2.projected_curvature[idx]),
+                "query_geom_v2_energy": float(query_v2.projected_subspace_energy[idx]),
+                "query_geom_v2_alignment": float(query_v2.query_alignment[idx]),
+                "query_geom_v2_local_projection": float(query_v2.local_projection[idx]),
+                "segment_rank95": float(query_v2.segment_rank95[idx]),
+                "segment_mean_step_norm": float(query_v2.segment_mean_step_norm[idx]),
+                "segment_mean_stabilized_curvature": float(query_v2.segment_mean_stabilized_curvature[idx]),
+                "role_user": float(conversation.turns[idx].role == "user"),
+                "is_latest_user": float(latest_user_index is not None and idx == latest_user_index),
+                "recency": float(idx / max(prefix_turn_count - 1, 1)),
+                "token_cost": int(turn_costs[idx]),
+                "constraint_score": float(_constraint_marker_score(conversation.turns[idx].content)),
+                "attention_raw": float(attention_raw[idx]) if attention_raw.size else 0.0,
+                "attention_sink_corrected": float(attention_sink[idx]) if attention_sink.size else 0.0,
+            }
+        )
+    return rows
 
 
 def _policy_messages(
@@ -368,6 +474,7 @@ def run_codec_pilot(
     policies: tuple[str, ...] = DEFAULT_POLICIES,
     target_turn_stride: int = 1,
     max_target_turns: int | None = None,
+    harm_predictor_path: Path | None = None,
 ) -> dict[str, Any]:
     spec = resolve_model_spec(model_key)
     if spec is None:
@@ -380,6 +487,14 @@ def run_codec_pilot(
         conversations = conversations[:limit_conversations]
     if not conversations:
         raise RuntimeError("No conversations selected for Paper 3.")
+
+    harm_predictor_bundle: HarmPredictorBundle | None = None
+    harm_predictor_uses_attention = False
+    if "semantic_harm_keep_compress_drop" in policies:
+        if harm_predictor_path is None:
+            raise RuntimeError("semantic_harm_keep_compress_drop requires --harm-predictor-path.")
+        harm_predictor_bundle = HarmPredictorBundle.load(harm_predictor_path)
+        harm_predictor_uses_attention = _requires_attention_features(harm_predictor_bundle.feature_names)
 
     extractor = ConversationStateExtractor(
         model_name=spec.model_name,
@@ -458,6 +573,13 @@ def run_codec_pilot(
                 ambient_geometry=geometry_risk,
             )
             query_geometry_risk = query_conditioned.risk[:prefix_turn_count]
+            query_conditioned_v2 = query_conditioned_turn_risk_v2(
+                full_batch.states,
+                target_turn,
+                segment_span=max(segment_span, 3),
+                ambient_geometry=geometry_risk,
+            )
+            query_geometry_risk_v2 = query_conditioned_v2.risk[:prefix_turn_count]
             support_scores = _support_scores(
                 conversation=conversation,
                 prefix_turn_count=prefix_turn_count,
@@ -477,6 +599,38 @@ def run_codec_pilot(
                 prefix_turn_count=prefix_turn_count,
             )
             latest_user_index = _latest_user_index(conversation, prefix_turn_count)
+            full_messages = _policy_messages(
+                conversation=conversation,
+                target_turn=target_turn,
+                retained_prior_indices=list(range(prefix_turn_count)),
+            )
+            attention_raw = np.zeros(prefix_turn_count, dtype=np.float32)
+            attention_sink = np.zeros(prefix_turn_count, dtype=np.float32)
+            predictor_turn_rows: list[dict[str, Any]] | None = None
+            if harm_predictor_bundle is not None and harm_predictor_uses_attention:
+                full_prompt_score = extractor.score_messages(
+                    full_messages,
+                    max_input_tokens=max_input_tokens,
+                    return_attention_summary=True,
+                    cumulative_turn_token_counts=full_batch.token_counts[:prefix_turn_count],
+                )
+                attention_raw, attention_sink = _turn_attention_vectors(
+                    full_prompt_score.attention_summary,
+                    prefix_turn_count=prefix_turn_count,
+                )
+            if harm_predictor_bundle is not None:
+                predictor_turn_rows = _harm_predictor_feature_rows(
+                    conversation=conversation,
+                    prefix_turn_count=prefix_turn_count,
+                    semantic_scores=semantic_risk,
+                    geometry_scores=geometry_risk[:prefix_turn_count],
+                    support_scores=support_scores,
+                    query_v2=query_conditioned_v2,
+                    turn_costs=prefix_turn_costs,
+                    latest_user_index=latest_user_index,
+                    attention_raw=attention_raw,
+                    attention_sink=attention_sink,
+                )
             is_behavior_turn = (
                 conversation.turns[target_turn].role == "user"
                 and target_turn + 1 < len(conversation.turns)
@@ -484,17 +638,47 @@ def run_codec_pilot(
             )
             full_behavior_score = None
             if is_behavior_turn:
-                full_messages = _policy_messages(
-                    conversation=conversation,
-                    target_turn=target_turn,
-                    retained_prior_indices=list(range(prefix_turn_count)),
-                )
                 full_behavior_score = extractor.score_assistant_response(
                     full_messages,
                     conversation.turns[target_turn + 1].content,
                     max_input_tokens=max_input_tokens,
                 )
             for budget in budgets:
+                semantic_budget_params = _budget_aware_semantic_params(budget)
+                shortlist_mask = _semantic_shortlist_candidate_mask(
+                    semantic_scores=semantic_risk,
+                    turn_costs=prefix_turn_costs,
+                    budget_fraction=budget,
+                    latest_user_index=latest_user_index,
+                    expansion_factor=float(semantic_budget_params["expansion_factor"]),
+                )
+                hybrid_query_support = _hybrid_query_support_semantic_scores(
+                    query_scores=query_geometry_risk_v2,
+                    support_scores=support_scores,
+                    semantic_scores=semantic_risk,
+                    prefix_turn_count=prefix_turn_count,
+                    include_query=True,
+                    include_support=True,
+                )
+                hybrid_no_query = _hybrid_query_support_semantic_scores(
+                    query_scores=query_geometry_risk_v2,
+                    support_scores=support_scores,
+                    semantic_scores=semantic_risk,
+                    prefix_turn_count=prefix_turn_count,
+                    include_query=False,
+                    include_support=True,
+                )
+                hybrid_no_support = _hybrid_query_support_semantic_scores(
+                    query_scores=query_geometry_risk_v2,
+                    support_scores=support_scores,
+                    semantic_scores=semantic_risk,
+                    prefix_turn_count=prefix_turn_count,
+                    include_query=True,
+                    include_support=False,
+                )
+                predicted_harm_scores = None
+                if harm_predictor_bundle is not None and predictor_turn_rows is not None:
+                    predicted_harm_scores = harm_predictor_bundle.predict_rows(predictor_turn_rows)
                 for policy_name in policies:
                     memory_objects: list[SparseSegmentMemory] = []
                     if policy_name == "uniform":
@@ -533,6 +717,15 @@ def run_codec_pilot(
                             budget_fraction=budget,
                             recent_window=recent_window,
                         )
+                    elif policy_name == "query_conditioned_geometry_v2":
+                        selection = select_turns(
+                            policy_name=policy_name,
+                            risk_scores=query_geometry_risk_v2,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                        )
                     elif policy_name == "geometry_segment_actions":
                         selection = select_segment_actions(
                             policy_name=policy_name,
@@ -563,6 +756,17 @@ def run_codec_pilot(
                             segment_span=max(segment_span, 3),
                         )
                         memory_objects = selection.memory_objects
+                    elif policy_name == "query_conditioned_geometry_keep_compress_drop_v2":
+                        selection = select_support_aware_sparse_segment_memory(
+                            risk_scores=query_geometry_risk_v2,
+                            support_scores=support_scores,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=int(semantic_budget_params["segment_span"]),
+                        )
+                        memory_objects = selection.memory_objects
                     elif policy_name == "semantic_keep_compress_drop":
                         selection = select_sparse_segment_memory(
                             risk_scores=semantic_risk,
@@ -585,7 +789,6 @@ def run_codec_pilot(
                         )
                         memory_objects = selection.memory_objects
                     elif policy_name == "budget_aware_semantic_keep_compress_drop":
-                        semantic_budget_params = _budget_aware_semantic_params(budget)
                         selection = select_semantic_filtered_sparse_segment_memory(
                             geometry_like_scores=semantic_support_proxy,
                             support_scores=support_scores,
@@ -597,6 +800,55 @@ def run_codec_pilot(
                             segment_span=int(semantic_budget_params["segment_span"]),
                             latest_user_index=latest_user_index,
                             expansion_factor=float(semantic_budget_params["expansion_factor"]),
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "semantic_query_conditioned_geometry_keep_compress_drop":
+                        selection = select_support_aware_sparse_segment_memory(
+                            risk_scores=hybrid_query_support,
+                            support_scores=support_scores,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=int(semantic_budget_params["segment_span"]),
+                            candidate_mask=shortlist_mask,
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "semantic_query_conditioned_geometry_keep_compress_drop_no_query":
+                        selection = select_support_aware_sparse_segment_memory(
+                            risk_scores=hybrid_no_query,
+                            support_scores=support_scores,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=int(semantic_budget_params["segment_span"]),
+                            candidate_mask=shortlist_mask,
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "semantic_query_conditioned_geometry_keep_compress_drop_no_support":
+                        selection = select_masked_sparse_segment_memory(
+                            risk_scores=hybrid_no_support,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=int(semantic_budget_params["segment_span"]),
+                            candidate_mask=shortlist_mask,
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "semantic_harm_keep_compress_drop":
+                        if predicted_harm_scores is None:
+                            raise RuntimeError("semantic_harm_keep_compress_drop requires a loaded harm predictor.")
+                        selection = select_support_aware_sparse_segment_memory(
+                            risk_scores=predicted_harm_scores[:prefix_turn_count],
+                            support_scores=support_scores,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                            segment_span=int(semantic_budget_params["segment_span"]),
+                            candidate_mask=shortlist_mask,
                         )
                         memory_objects = selection.memory_objects
                     elif policy_name == "support_aware_geometry_keep_compress_drop":
@@ -807,6 +1059,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--segment-span", type=int, default=2)
     parser.add_argument("--target-turn-stride", type=int, default=1)
     parser.add_argument("--max-target-turns", type=int, default=None)
+    parser.add_argument("--harm-predictor-path", type=Path, default=None)
     parser.add_argument(
         "--policies",
         default=",".join(DEFAULT_POLICIES),
@@ -837,6 +1090,7 @@ def main() -> None:
         policies=_parse_policies(args.policies),
         target_turn_stride=args.target_turn_stride,
         max_target_turns=args.max_target_turns,
+        harm_predictor_path=args.harm_predictor_path,
     )
     print(f"Wrote Paper 3 outputs to {args.output_root / args.run_name}")
     print(
