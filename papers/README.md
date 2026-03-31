@@ -10,6 +10,7 @@ For the current manuscript-grade checkpoint paper, see:
 For the canonical math-to-code-to-artifact synthesis, see:
 
 - [`rt_derivation_ledger.md`](/Users/pranav/Documents/RT/papers/rt_derivation_ledger.md)
+- [`rt_full_program_findings.md`](/Users/pranav/Documents/RT/papers/rt_full_program_findings.md)
 - [`generated/rt_experiment_matrix.csv`](/Users/pranav/Documents/RT/papers/generated/rt_experiment_matrix.csv)
 - [`generated/rt_negative_result_matrix.csv`](/Users/pranav/Documents/RT/papers/generated/rt_negative_result_matrix.csv)
 
