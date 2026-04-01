@@ -18,6 +18,7 @@ from paper1_geometry.modeling import ConversationStateExtractor, resolve_model_s
 from paper2_memory.policies import turn_geometry_risk, turn_semantic_risk
 
 from .harm_predictor import scalarize_harm
+from .memory_objects import build_semantic_object_bundle
 from .policies import support_aware_segment_retained_indices, semantic_shortlist_mask
 from .query_geometry import query_conditioned_turn_risk_v2
 from .run_paper3 import (
@@ -55,6 +56,7 @@ DEFAULT_FEATURE_KEYS: tuple[str, ...] = (
     "support_score",
     "query_geom_v2_risk",
     "combined_structural_score",
+    "object_memory_score",
 )
 SEGMENT_SPANS: tuple[int, ...] = (2, 3, 4)
 
@@ -143,6 +145,7 @@ def _candidate_feature_payload(
     attention_sink: np.ndarray,
     latest_user_index: int | None,
     shortlist_flags: dict[str, set[int]],
+    object_feature_rows: list[dict[str, float]],
 ) -> dict[str, Any]:
     turn_slice = slice(candidate_start, candidate_end + 1)
     is_turn = candidate_type == "turn"
@@ -152,7 +155,7 @@ def _candidate_feature_payload(
     )
     token_cost = int(np.sum(turn_costs[turn_slice]))
     recency = float(candidate_end / max(prefix_turn_count - 1, 1))
-    return {
+    payload = {
         "role": role,
         "role_user": role_user,
         "is_latest_user": float(
@@ -189,6 +192,25 @@ def _candidate_feature_payload(
             + 0.15 * _segment_feature_mean(semantic_risk, candidate_start, candidate_end)
         ),
     }
+    for feature_key in (
+        "object_size",
+        "object_recency",
+        "object_memory_score",
+        "is_object_anchor",
+        "is_object_freshest",
+        "object_type_persona",
+        "object_type_event",
+        "object_type_constraint",
+        "object_type_update",
+        "object_type_generic",
+    ):
+        feature_values = [
+            float(object_feature_rows[idx].get(feature_key, 0.0))
+            for idx in range(candidate_start, candidate_end + 1)
+            if idx < len(object_feature_rows)
+        ]
+        payload[feature_key] = float(np.mean(feature_values)) if feature_values else 0.0
+    return payload
 
 
 def _oracle_ablation_rows_for_target(
@@ -239,6 +261,28 @@ def _oracle_ablation_rows_for_target(
         "support": set(top_support),
         "query": set(top_query),
     }
+    shortlist_mask = semantic_shortlist_mask(
+        semantic_scores=semantic_risk[:prefix_turn_count],
+        turn_costs=turn_costs,
+        budget_fraction=budget_fraction,
+        expansion_factor=2.0,
+        latest_user_index=latest_user_index,
+    )
+    constraint_scores = np.asarray(
+        [_constraint_marker_score(conversation.turns[idx].content) for idx in range(prefix_turn_count)],
+        dtype=np.float32,
+    )
+    object_bundle = build_semantic_object_bundle(
+        conversation=conversation,
+        prefix_turn_count=prefix_turn_count,
+        semantic_scores=semantic_risk,
+        support_scores=support_scores,
+        query_scores=query_v2.risk[:prefix_turn_count],
+        candidate_mask=shortlist_mask,
+        constraint_scores=constraint_scores,
+        gap_tolerance=1,
+    )
+    object_feature_rows = object_bundle.per_turn_feature_rows(prefix_turn_count)
 
     rows: list[dict[str, Any]] = []
     for turn_index in turn_candidates:
@@ -273,6 +317,7 @@ def _oracle_ablation_rows_for_target(
             attention_sink=attention_sink,
             latest_user_index=latest_user_index,
             shortlist_flags=shortlist_flags,
+            object_feature_rows=object_feature_rows,
         )
         rows.append(
             {
@@ -320,6 +365,7 @@ def _oracle_ablation_rows_for_target(
                 attention_sink=attention_sink,
                 latest_user_index=latest_user_index,
                 shortlist_flags=shortlist_flags,
+                object_feature_rows=object_feature_rows,
             )
 
             for action in ("evict_segment", "compress_segment"):

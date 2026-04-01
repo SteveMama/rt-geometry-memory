@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .memory_objects import SemanticObjectBundle
+
 
 @dataclass(frozen=True, slots=True)
 class SparseSegmentMemory:
@@ -399,4 +401,140 @@ def select_semantic_filtered_sparse_segment_memory(
         segment_span=segment_span,
         support_scores=support_scores,
         candidate_mask=candidate_mask,
+    )
+
+
+def select_semantic_object_sparse_memory(
+    *,
+    bundle: SemanticObjectBundle,
+    risk_scores: np.ndarray,
+    turn_costs: np.ndarray,
+    prefix_turn_count: int,
+    budget_fraction: float,
+    recent_window: int,
+) -> CodecSelection:
+    if prefix_turn_count <= 1:
+        retained = list(range(prefix_turn_count))
+        return CodecSelection(
+            retained_turn_indices=retained,
+            retained_fraction=1.0,
+            retained_cost_fraction=1.0,
+            kept_segment_count=0,
+            compressed_segment_count=0,
+            evicted_segment_count=0,
+            memory_objects=[],
+        )
+
+    recent_start = max(prefix_turn_count - recent_window, 0)
+    older_count = recent_start
+    recent_indices = list(range(recent_start, prefix_turn_count))
+    total_cost = int(np.sum(turn_costs[:prefix_turn_count])) if prefix_turn_count > 0 else 0
+    recent_cost = int(np.sum(turn_costs[recent_start:prefix_turn_count])) if prefix_turn_count > 0 else 0
+    if older_count <= 0:
+        return CodecSelection(
+            retained_turn_indices=recent_indices,
+            retained_fraction=1.0,
+            retained_cost_fraction=float(recent_cost / max(total_cost, 1)),
+            kept_segment_count=0,
+            compressed_segment_count=0,
+            evicted_segment_count=0,
+            memory_objects=[],
+        )
+
+    budget_cost = int(np.ceil(budget_fraction * float(np.sum(turn_costs[:older_count]))))
+    states: dict[int, tuple[float, list[tuple[str, SparseSegmentMemory]]]] = {0: (0.0, [])}
+
+    for item in bundle.objects:
+        full_indices = [idx for idx in item.turn_indices if idx < older_count]
+        if not full_indices:
+            continue
+        compressed_indices = [idx for idx in item.compressed_turn_indices if idx < older_count]
+        if not compressed_indices:
+            compressed_indices = [full_indices[-1]]
+        full_cost = int(np.sum(turn_costs[full_indices]))
+        compressed_cost = int(np.sum(turn_costs[compressed_indices]))
+        local_risk = np.asarray([risk_scores[idx] for idx in full_indices], dtype=np.float32)
+        object_risk = float(0.65 * np.mean(local_risk) + 0.35 * np.max(local_risk))
+        compression_ratio = float(compressed_cost / max(full_cost, 1))
+        base_preservation = {
+            "constraint": 0.92,
+            "update": 0.89,
+            "event": 0.88,
+            "persona": 0.87,
+            "generic": 0.84,
+        }.get(item.object_type, 0.85)
+        compress_preservation = min(0.98, base_preservation + 0.10 * (1.0 - compression_ratio))
+        anchor_turn_index = compressed_indices[0]
+        memory_stub = SparseSegmentMemory(
+            segment_start=full_indices[0],
+            segment_end=full_indices[-1] + 1,
+            anchor_turn_index=anchor_turn_index,
+            support_turn_indices=[idx for idx in compressed_indices if idx != anchor_turn_index],
+            retained_turn_indices=compressed_indices,
+            risk=object_risk,
+            action="compress",
+        )
+        options = [
+            ("evict", 0, 0.0, memory_stub),
+            ("compress", compressed_cost, compress_preservation * object_risk, memory_stub),
+            (
+                "keep",
+                full_cost,
+                object_risk,
+                SparseSegmentMemory(
+                    segment_start=full_indices[0],
+                    segment_end=full_indices[-1] + 1,
+                    anchor_turn_index=full_indices[0],
+                    support_turn_indices=[idx for idx in full_indices if idx != full_indices[0]],
+                    retained_turn_indices=full_indices,
+                    risk=object_risk,
+                    action="keep",
+                ),
+            ),
+        ]
+
+        next_states: dict[int, tuple[float, list[tuple[str, SparseSegmentMemory]]]] = {}
+        for spent_cost, (utility, actions) in states.items():
+            for action_name, action_cost, action_utility, memory in options:
+                new_cost = spent_cost + action_cost
+                if new_cost > budget_cost:
+                    continue
+                new_utility = utility + action_utility
+                candidate_actions = actions + [(action_name, memory)]
+                current = next_states.get(new_cost)
+                if current is None or new_utility > current[0]:
+                    next_states[new_cost] = (new_utility, candidate_actions)
+        if next_states:
+            states = next_states
+
+    best_cost = max(states, key=lambda cost: (states[cost][0], cost))
+    selected_actions = states[best_cost][1]
+    retained_old: list[int] = []
+    memory_objects: list[SparseSegmentMemory] = []
+    kept = 0
+    compressed = 0
+    evicted = 0
+    for action_name, memory in selected_actions:
+        if action_name == "keep":
+            retained_old.extend(memory.retained_turn_indices)
+            memory_objects.append(memory)
+            kept += 1
+        elif action_name == "compress":
+            retained_old.extend(memory.retained_turn_indices)
+            memory_objects.append(memory)
+            compressed += 1
+        else:
+            evicted += 1
+
+    retained = sorted(set(retained_old + recent_indices))
+    retained_fraction = len(retained) / max(prefix_turn_count, 1)
+    retained_cost = int(np.sum(turn_costs[retained])) if retained else 0
+    return CodecSelection(
+        retained_turn_indices=retained,
+        retained_fraction=float(retained_fraction),
+        retained_cost_fraction=float(retained_cost / max(total_cost, 1)),
+        kept_segment_count=kept,
+        compressed_segment_count=compressed,
+        evicted_segment_count=evicted,
+        memory_objects=memory_objects,
     )

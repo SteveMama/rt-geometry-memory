@@ -25,6 +25,7 @@ from .policies import (
     CodecSelection,
     SparseSegmentMemory,
     select_masked_sparse_segment_memory,
+    select_semantic_object_sparse_memory,
     select_semantic_filtered_sparse_segment_memory,
     select_sparse_segment_memory,
     select_support_aware_sparse_segment_memory,
@@ -32,6 +33,7 @@ from .policies import (
 )
 from .query_geometry import query_conditioned_turn_risk, query_conditioned_turn_risk_v2
 from .harm_predictor import HarmPredictorBundle
+from .memory_objects import build_semantic_object_bundle
 
 
 DEFAULT_OUTPUT = Path(__file__).resolve().parents[1] / "results" / "paper3"
@@ -305,33 +307,35 @@ def _harm_predictor_feature_rows(
     latest_user_index: int | None,
     attention_raw: np.ndarray,
     attention_sink: np.ndarray,
+    object_feature_rows: list[dict[str, float]] | None = None,
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for idx in range(prefix_turn_count):
-        rows.append(
-            {
-                "candidate_type": "turn",
-                "conversation_id": conversation.conversation_id,
-                "semantic_score": float(semantic_scores[idx]),
-                "geometry_score": float(geometry_scores[idx]),
-                "support_score": float(support_scores[idx]),
-                "query_geom_v2_risk": float(query_v2.risk[idx]),
-                "query_geom_v2_curvature": float(query_v2.projected_curvature[idx]),
-                "query_geom_v2_energy": float(query_v2.projected_subspace_energy[idx]),
-                "query_geom_v2_alignment": float(query_v2.query_alignment[idx]),
-                "query_geom_v2_local_projection": float(query_v2.local_projection[idx]),
-                "segment_rank95": float(query_v2.segment_rank95[idx]),
-                "segment_mean_step_norm": float(query_v2.segment_mean_step_norm[idx]),
-                "segment_mean_stabilized_curvature": float(query_v2.segment_mean_stabilized_curvature[idx]),
-                "role_user": float(conversation.turns[idx].role == "user"),
-                "is_latest_user": float(latest_user_index is not None and idx == latest_user_index),
-                "recency": float(idx / max(prefix_turn_count - 1, 1)),
-                "token_cost": int(turn_costs[idx]),
-                "constraint_score": float(_constraint_marker_score(conversation.turns[idx].content)),
-                "attention_raw": float(attention_raw[idx]) if attention_raw.size else 0.0,
-                "attention_sink_corrected": float(attention_sink[idx]) if attention_sink.size else 0.0,
-            }
-        )
+        row = {
+            "candidate_type": "turn",
+            "conversation_id": conversation.conversation_id,
+            "semantic_score": float(semantic_scores[idx]),
+            "geometry_score": float(geometry_scores[idx]),
+            "support_score": float(support_scores[idx]),
+            "query_geom_v2_risk": float(query_v2.risk[idx]),
+            "query_geom_v2_curvature": float(query_v2.projected_curvature[idx]),
+            "query_geom_v2_energy": float(query_v2.projected_subspace_energy[idx]),
+            "query_geom_v2_alignment": float(query_v2.query_alignment[idx]),
+            "query_geom_v2_local_projection": float(query_v2.local_projection[idx]),
+            "segment_rank95": float(query_v2.segment_rank95[idx]),
+            "segment_mean_step_norm": float(query_v2.segment_mean_step_norm[idx]),
+            "segment_mean_stabilized_curvature": float(query_v2.segment_mean_stabilized_curvature[idx]),
+            "role_user": float(conversation.turns[idx].role == "user"),
+            "is_latest_user": float(latest_user_index is not None and idx == latest_user_index),
+            "recency": float(idx / max(prefix_turn_count - 1, 1)),
+            "token_cost": int(turn_costs[idx]),
+            "constraint_score": float(_constraint_marker_score(conversation.turns[idx].content)),
+            "attention_raw": float(attention_raw[idx]) if attention_raw.size else 0.0,
+            "attention_sink_corrected": float(attention_sink[idx]) if attention_sink.size else 0.0,
+        }
+        if object_feature_rows is not None and idx < len(object_feature_rows):
+            row.update(object_feature_rows[idx])
+        rows.append(row)
     return rows
 
 
@@ -490,9 +494,11 @@ def run_codec_pilot(
 
     harm_predictor_bundle: HarmPredictorBundle | None = None
     harm_predictor_uses_attention = False
-    if "semantic_harm_keep_compress_drop" in policies:
+    if "semantic_harm_keep_compress_drop" in policies or "semantic_object_harm_keep_compress_drop" in policies:
         if harm_predictor_path is None:
-            raise RuntimeError("semantic_harm_keep_compress_drop requires --harm-predictor-path.")
+            raise RuntimeError(
+                "semantic_harm_keep_compress_drop and semantic_object_harm_keep_compress_drop require --harm-predictor-path."
+            )
         harm_predictor_bundle = HarmPredictorBundle.load(harm_predictor_path)
         harm_predictor_uses_attention = _requires_attention_features(harm_predictor_bundle.feature_names)
 
@@ -599,6 +605,10 @@ def run_codec_pilot(
                 prefix_turn_count=prefix_turn_count,
             )
             latest_user_index = _latest_user_index(conversation, prefix_turn_count)
+            constraint_scores = np.asarray(
+                [_constraint_marker_score(conversation.turns[idx].content) for idx in range(prefix_turn_count)],
+                dtype=np.float32,
+            )
             full_messages = _policy_messages(
                 conversation=conversation,
                 target_turn=target_turn,
@@ -606,7 +616,6 @@ def run_codec_pilot(
             )
             attention_raw = np.zeros(prefix_turn_count, dtype=np.float32)
             attention_sink = np.zeros(prefix_turn_count, dtype=np.float32)
-            predictor_turn_rows: list[dict[str, Any]] | None = None
             if harm_predictor_bundle is not None and harm_predictor_uses_attention:
                 full_prompt_score = extractor.score_messages(
                     full_messages,
@@ -617,19 +626,6 @@ def run_codec_pilot(
                 attention_raw, attention_sink = _turn_attention_vectors(
                     full_prompt_score.attention_summary,
                     prefix_turn_count=prefix_turn_count,
-                )
-            if harm_predictor_bundle is not None:
-                predictor_turn_rows = _harm_predictor_feature_rows(
-                    conversation=conversation,
-                    prefix_turn_count=prefix_turn_count,
-                    semantic_scores=semantic_risk,
-                    geometry_scores=geometry_risk[:prefix_turn_count],
-                    support_scores=support_scores,
-                    query_v2=query_conditioned_v2,
-                    turn_costs=prefix_turn_costs,
-                    latest_user_index=latest_user_index,
-                    attention_raw=attention_raw,
-                    attention_sink=attention_sink,
                 )
             is_behavior_turn = (
                 conversation.turns[target_turn].role == "user"
@@ -684,7 +680,33 @@ def run_codec_pilot(
                     include_query=True,
                     include_support=False,
                 )
+                object_bundle = build_semantic_object_bundle(
+                    conversation=conversation,
+                    prefix_turn_count=prefix_turn_count,
+                    semantic_scores=semantic_risk,
+                    support_scores=support_scores,
+                    query_scores=query_geometry_risk_v2,
+                    candidate_mask=shortlist_mask,
+                    constraint_scores=constraint_scores,
+                    gap_tolerance=1,
+                )
+                predictor_turn_rows: list[dict[str, Any]] | None = None
                 predicted_harm_scores = None
+                if harm_predictor_bundle is not None:
+                    object_feature_rows = object_bundle.per_turn_feature_rows(prefix_turn_count)
+                    predictor_turn_rows = _harm_predictor_feature_rows(
+                        conversation=conversation,
+                        prefix_turn_count=prefix_turn_count,
+                        semantic_scores=semantic_risk,
+                        geometry_scores=geometry_risk[:prefix_turn_count],
+                        support_scores=support_scores,
+                        query_v2=query_conditioned_v2,
+                        turn_costs=prefix_turn_costs,
+                        latest_user_index=latest_user_index,
+                        attention_raw=attention_raw,
+                        attention_sink=attention_sink,
+                        object_feature_rows=object_feature_rows,
+                    )
                 if harm_predictor_bundle is not None and predictor_turn_rows is not None:
                     predicted_harm_scores = harm_predictor_bundle.predict_rows(predictor_turn_rows)
                 for policy_name in policies:
@@ -869,6 +891,28 @@ def run_codec_pilot(
                             recent_window=recent_window,
                             segment_span=int(semantic_budget_params["segment_span"]),
                             candidate_mask=shortlist_mask,
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "semantic_object_keep_compress_drop":
+                        selection = select_semantic_object_sparse_memory(
+                            bundle=object_bundle,
+                            risk_scores=semantic_support_proxy,
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
+                        )
+                        memory_objects = selection.memory_objects
+                    elif policy_name == "semantic_object_harm_keep_compress_drop":
+                        if predicted_harm_scores is None:
+                            raise RuntimeError("semantic_object_harm_keep_compress_drop requires a loaded harm predictor.")
+                        selection = select_semantic_object_sparse_memory(
+                            bundle=object_bundle,
+                            risk_scores=predicted_harm_scores[:prefix_turn_count],
+                            turn_costs=prefix_turn_costs,
+                            prefix_turn_count=prefix_turn_count,
+                            budget_fraction=budget,
+                            recent_window=recent_window,
                         )
                         memory_objects = selection.memory_objects
                     elif policy_name == "support_aware_geometry_keep_compress_drop":

@@ -31,6 +31,7 @@ For the canonical math-to-code-to-artifact synthesis, see:
 13. [`msc_persona_curvature_check.md`](/Users/pranav/Documents/RT/papers/msc_persona_curvature_check.md)
 14. [`state_update_alignment_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/state_update_alignment_smoke_checkpoint.md)
 15. [`paper3_gate1_real_runbook.md`](/Users/pranav/Documents/RT/papers/paper3_gate1_real_runbook.md)
+16. [`paper3_semantic_object_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_semantic_object_checkpoint.md)
 
 ## Logic
 
@@ -46,6 +47,7 @@ For the canonical math-to-code-to-artifact synthesis, see:
 - The master derivation ledger is now the canonical deep-dive companion to the manuscript, covering definitions, code mappings, benchmark structure, experiment history, and failure analysis
 - Paper 3 now also has a semantic-memory checkpoint showing that benchmark family changes the winning policy form
 - Paper 3 now also has a focused Gate 1 runbook that constrains the first real semantic-gap decision to MSC + LongMemEval with only the four relevant semantic-vs-refinement policies
+- Paper 3 now also has a semantic-object codec note that reframes the remaining semantic gap as a memory-object selection problem, with object-aware harm prediction as the next additive surface
 - Paper 3 now has a low-budget upgrade smoke checkpoint showing that support-aware geometry-KCD materially improves over the original geometry-KCD baseline, even though semantic-led policies still dominate semantic-memory benchmarks
 - Paper 3 now has a semantic-KCD optimization checkpoint showing that the next likely gains require a learned harm signal and a denser compressed memory object rather than more heuristic score mixing
 - Paper 3 now has a query-conditioned geometry smoke checkpoint showing that tangent-space query conditioning improves geometry, but still does not displace the strongest semantic codecs on semantic-memory benchmarks

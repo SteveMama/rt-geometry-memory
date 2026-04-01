@@ -60,6 +60,8 @@ Included:
   - run the Gate 2 semantic-first query-geometry hybrid comparison
 - [`run_paper3_harm_predictor_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_harm_predictor_probe.sh)
   - train the learned harm predictor from an oracle study and run the Gate 3 deployment comparison
+- [`run_paper3_semantic_object_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_semantic_object_probe.sh)
+  - run the semantic-object codec comparison, and optionally train/deploy the object-aware harm predictor from an oracle study
 - [`run_geometry_regime_atlas.sh`](/Users/pranav/Documents/RT/scripts/run_geometry_regime_atlas.sh)
   - build a segment-level geometric regime atlas over one or more conversation JSONL files and emit cluster reports
 - [`run_msc_persona_curvature_check.py`](/Users/pranav/Documents/RT/scripts/run_msc_persona_curvature_check.py)
