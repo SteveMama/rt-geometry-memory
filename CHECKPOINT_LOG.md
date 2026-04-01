@@ -351,3 +351,21 @@ This file is the cumulative log of the RT research program checkpointed in this 
   - the semantic-gap program is now implemented as an additive three-stage surface with explicit promotion gates
   - historical Paper 3 policy names and study outputs were left intact
   - public-benchmark promotion is still intentionally gated on oracle headroom and public-benchmark wins; the hard-stress smoke was used only to validate execution
+
+## Phase 17: Focused Gate 1 Decision Surface
+
+- Added a narrow four-policy refinement runner for the first real semantic-gap decision:
+  - [`scripts/run_paper3_gate1_refinement_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_gate1_refinement_probe.sh)
+- Added a wrapper for the first real two-benchmark Gate 1 sequence:
+  - [`scripts/run_paper3_gate1_real.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_gate1_real.sh)
+- Added a runbook that constrains the decision to:
+  - `MSC valid`
+  - `LongMemEval-S cleaned`
+  - `semantic`
+  - `budget_aware_semantic_keep_compress_drop`
+  - `semantic_ambient_geometry_keep_compress_drop`
+  - `semantic_query_conditioned_geometry_keep_compress_drop`
+  - [`papers/paper3_gate1_real_runbook.md`](/Users/pranav/Documents/RT/papers/paper3_gate1_real_runbook.md)
+- Main result:
+  - the project now has a clean first real Gate 1 execution surface that avoids another broad policy-zoo sweep
+  - local benchmark JSONLs for `MSC valid` and `LongMemEval-S cleaned` were not present at implementation time, so no canonical Gate 1 result is logged in this phase yet

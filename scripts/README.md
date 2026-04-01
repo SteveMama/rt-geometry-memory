@@ -52,6 +52,10 @@ Included:
   - run the tangent-space query-conditioned geometry comparison against semantic and sparse-codec baselines
 - [`run_paper3_harm_oracle_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_harm_oracle_probe.sh)
   - run the Gate 1 oracle-harm headroom probe on a normalized benchmark JSONL
+- [`run_paper3_gate1_refinement_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_gate1_refinement_probe.sh)
+  - run the focused four-policy Gate 1 refinement study on one semantic-memory benchmark
+- [`run_paper3_gate1_real.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_gate1_real.sh)
+  - run the first real Gate 1 decision surface across `MSC valid` and `LongMemEval-S cleaned`; exits early if the local normalized JSONLs are missing
 - [`run_paper3_semantic_query_geom_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_semantic_query_geom_probe.sh)
   - run the Gate 2 semantic-first query-geometry hybrid comparison
 - [`run_paper3_harm_predictor_probe.sh`](/Users/pranav/Documents/RT/scripts/run_paper3_harm_predictor_probe.sh)
@@ -89,6 +93,7 @@ Recommended usage:
 - use these scripts directly when you want a reproducible command-line rerun
 - normalize public benchmarks into one JSONL before using the new public-benchmark runners
 - run the oracle-harm headroom probe before promoting geometry refinement on semantic-memory benchmarks
+- use the Gate 1 real wrapper when the goal is a clean semantic-gap decision rather than a broad policy sweep
 - run the semantic-first hybrid and learned-harm surfaces only after Gate 1 is positive
 - generate manuscript assets before building the checkpoint PDF in [`manuscript`](/Users/pranav/Documents/RT/manuscript)
 - generate the research-ledger inventories before sharing the deep-dive companion in [`papers/rt_derivation_ledger.md`](/Users/pranav/Documents/RT/papers/rt_derivation_ledger.md)
