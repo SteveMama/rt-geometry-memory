@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
 if [[ $# -lt 2 ]]; then
-  echo "Usage: run_paper3_gate1_real.sh <msc-input-jsonl> <longmemeval-input-jsonl> [models] [budgets] [msc-limit-conversations] [longmemeval-limit-conversations] [target-turn-stride] [max-target-turns]" >&2
+  echo "Usage: run_paper3_gate1_real.sh <msc-input-jsonl> <longmemeval-input-jsonl> [models] [budgets] [msc-limit-conversations] [longmemeval-limit-conversations] [target-turn-stride] [max-target-turns] [longmemeval-max-turns-per-conversation]" >&2
   exit 1
 fi
 
@@ -17,6 +17,10 @@ MSC_LIMIT="${5:-24}"
 LONGMEM_LIMIT="${6:-24}"
 TARGET_TURN_STRIDE="${7:-4}"
 MAX_TARGET_TURNS="${8:-16}"
+# LongMemEval conversations are 100-300 turns each — without a cap, each
+# conversation takes ~30 min on a T4. Truncate to the first N turns (which
+# contain the relevant memory objects for most target questions).
+LONGMEM_MAX_TURNS="${9:-40}"
 
 if [[ ! -f "$MSC_INPUT" ]]; then
   echo "[run_paper3_gate1_real] missing MSC input: $MSC_INPUT" >&2
@@ -29,7 +33,7 @@ fi
 
 echo "[run_paper3_gate1_real] models=${MODEL_KEYS} budgets=${BUDGETS}" >&2
 echo "[run_paper3_gate1_real] MSC input=${MSC_INPUT} limit=${MSC_LIMIT}" >&2
-echo "[run_paper3_gate1_real] LongMemEval input=${LONGMEM_INPUT} limit=${LONGMEM_LIMIT}" >&2
+echo "[run_paper3_gate1_real] LongMemEval input=${LONGMEM_INPUT} limit=${LONGMEM_LIMIT} max_turns_per_conv=${LONGMEM_MAX_TURNS}" >&2
 
 echo "[run_paper3_gate1_real] Running MSC oracle headroom..." >&2
 bash scripts/run_paper3_harm_oracle_probe.sh \
@@ -61,7 +65,8 @@ bash scripts/run_paper3_harm_oracle_probe.sh \
   "$BUDGETS" \
   "$LONGMEM_LIMIT" \
   "$TARGET_TURN_STRIDE" \
-  "$MAX_TARGET_TURNS"
+  "$MAX_TARGET_TURNS" \
+  "$LONGMEM_MAX_TURNS"
 
 echo "[run_paper3_gate1_real] Running LongMemEval refinement study..." >&2
 bash scripts/run_paper3_gate1_refinement_probe.sh \

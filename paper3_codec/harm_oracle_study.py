@@ -771,6 +771,7 @@ def run_oracle_harm_probe(
     limit_conversations: int | None,
     target_turn_stride: int,
     max_target_turns: int | None,
+    max_turns_per_conversation: int | None,
     output_dir: Path,
 ) -> dict[str, Any]:
     conversations = load_conversations_from_paths(input_paths)
@@ -812,7 +813,7 @@ def run_oracle_harm_probe(
         for conversation_index, conversation in iterator:
             full_batch = extractor.extract_conversation(
                 conversation,
-                max_turns=None,
+                max_turns=max_turns_per_conversation,
                 max_input_tokens=max_input_tokens,
             )
             analysis = analyze_trajectory(
@@ -948,6 +949,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--limit-conversations", type=int, default=None)
     parser.add_argument("--target-turn-stride", type=int, default=4)
     parser.add_argument("--max-target-turns", type=int, default=16)
+    parser.add_argument(
+        "--max-turns-per-conversation",
+        type=int,
+        default=None,
+        help="Truncate each conversation to this many turns before extraction. "
+             "Critical for long-conversation benchmarks like LongMemEval to keep runtime manageable.",
+    )
     return parser
 
 
@@ -974,6 +982,7 @@ def main() -> None:
         limit_conversations=args.limit_conversations,
         target_turn_stride=args.target_turn_stride,
         max_target_turns=args.max_target_turns,
+        max_turns_per_conversation=args.max_turns_per_conversation,
         output_dir=output_dir,
     )
     print(
