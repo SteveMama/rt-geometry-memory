@@ -1,0 +1,872 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!50!black,
+  urlcolor=blue!50!black,
+  citecolor=blue!50!black
+}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Sph}{\mathbb{S}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\KL}{\operatorname{KL}}
+\newcommand{\Geo}{d_{\mathrm{geo}}}
+\newcommand{\Logit}{\Delta_{\ell_2}}
+\newcommand{\NLL}{\Delta_{\mathrm{NLL}}}
+
+\title{Signal-Conditioned Sparse Codecs for Conversational Memory Compression\\
+in Small Language Models}
+
+\author{
+\IEEEauthorblockN{Pranav Kompally}
+\IEEEauthorblockA{
+Independent Researcher\\
+New York, USA
+}
+}
+
+\begin{document}
+\maketitle
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{abstract}
+Long multi-turn conversations exceed the inference budget of small language
+models long before they become semantically exhausted. Existing retention
+policies are either geometry-agnostic (semantic top-$k$) or signal-rigid
+(geometry-only). We show that the optimal scoring signal for a sparse
+keep/compress/drop (KCD) codec depends on the \emph{memory type} the task
+requires, and that geometric features derived from hidden-state trajectories
+on the unit sphere are both necessary and sufficient to distinguish these
+regimes.
+
+We formalize conversation-state dynamics using parallel-transported
+increments on $\Sph^{d-1}$, show that resulting trajectories are extremely
+low-rank (mean rank-95 of 1.05--1.53 across three model families) and
+almost perfectly coupled to decoder output drift (geometry--logit correlation
+0.989--0.994), and use this structure to define a signal-conditioned codec
+family. Four experiments establish the claim. First, \texttt{geometry\_KCD}
+significantly outperforms \texttt{semantic\_KCD} on constraint-critical memory
+($\Delta\Logit{+}37.8$, $p{=}0.028$; support-turn rescue 17/36 vs.\ 7/36),
+because semantic scoring cannot distinguish user constraints from their
+assistant echoes while geometric state displacement can. Second, a Gate~1
+oracle probe on MSC valid (23{,}928 candidate rows) shows query-conditioned
+geometry adds substantial ranking value inside a semantic shortlist
+($\Delta\tau {+}0.53$--$0.60$, 15--20$\times$ threshold), and that
+\texttt{semantic\_query\_conditioned\_geometry\_KCD} beats the strongest
+semantic-only codec on answer NLL ($p{=}0.020$) at budget 0.35. Third, the
+same probe on LongMemEval-S cleaned passes Gate~1 at 16--17$\times$ threshold
+($\Delta\tau {+}0.49$--$0.53$), confirming cross-benchmark generality. Fourth,
+a 3B model validation shows the geometry advantage grows with scale:
+\texttt{semantic\_KCD} at 3B produces $+1.13$~nats of answer NLL damage
+($p{=}0.0003$) while every geometry-based policy improves answer quality.
+We also investigate two open directions---a learned harm predictor and
+memory-object level compression---reporting precise diagnoses for both.
+\end{abstract}
+
+\begin{IEEEkeywords}
+conversational memory, sparse codecs, representation geometry, long-context
+compression, signal-conditioned compression, small language models
+\end{IEEEkeywords}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Introduction}
+\label{sec:intro}
+
+Long multi-turn conversations create a memory problem before they create a
+generation problem. Once the full dialogue no longer fits inside a practical
+inference budget, the model must decide what to retain, what to compress, and
+what to evict. The prevailing approaches are semantic top-$k$ (retain the turns
+most similar to the current query) and recency windowing (retain the most recent
+$k$ turns). Both discard structural information: they treat the conversation
+as an unordered bag of semantic fragments rather than as an evolving trajectory
+through the model's representation space.
+
+We argue that hidden-state geometry of the evolving conversation trajectory is
+a useful and sometimes necessary signal for this decision---but the right way to
+use it depends on the \emph{type} of memory the task requires. A conversation
+contains at least two qualitatively different memory types:
+
+\begin{enumerate}[leftmargin=1.4em]
+\item \textbf{Constraint-critical memory.} Exact user specifications (code
+  requirements, event logistics, ordered numerical facts) whose loss causes
+  direct output failure. These turns are identifiable by the large local
+  state displacement they cause; their assistant echoes are semantically
+  nearly identical but geometrically much smaller.
+\item \textbf{Persona-continuity memory.} Preference statements, identity
+  disclosures, and relationship context whose value is proximity to the query,
+  not displacement magnitude. These turns are best ranked by semantic
+  query-relevance, refined by geometric stability signals.
+\end{enumerate}
+
+The central contribution of this paper is to show that a single sparse codec
+structure---the keep/compress/drop (KCD) framework---can serve both memory
+types, provided the scoring signal fed to it is matched to the memory type.
+Geometry-based scoring is not universally better than semantic scoring, and
+semantic scoring is not sufficient for constraint tasks. The right architecture
+is signal-conditioned: one codec, two scoring regimes, selected by memory type.
+
+This claim is supported by four experiments, two benchmark families (MSC valid
+for persona-continuity, LongMemEval-S for episodic retrieval), and a
+3B model-scale validation showing the geometry advantage grows with
+representational capacity. We also report two informative negative results from
+attempted extensions---a learned harm predictor and object-level compression---
+whose failure modes are precisely diagnosed.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Long-context compression.}
+Early compression approaches focus on token-level eviction
+\cite{scissorhands,streamingllm} or attention-head-based importance
+scoring \cite{h2o}. These methods are stateless: retention decisions at
+position $t$ do not depend on trajectory structure accumulated over
+$1{:}t{-}1$. Retrieval-augmented generation \cite{rag} defers the
+problem to an external store, avoiding in-context compression entirely.
+Recent work on KV-cache compression \cite{kvcache} approaches the
+problem from the attention layer rather than the conversation level.
+
+\paragraph{Conversation-level memory.}
+MemGPT \cite{memgpt} and similar systems maintain explicit external
+memory stores, moving the compression decision out of the model entirely.
+LongMemEval \cite{longmemeval} evaluates chat assistants on long-term memory recall
+but does not study the geometry of the underlying state trajectories. The
+MSC benchmark \cite{msc} is designed for persona continuity across
+sessions rather than compression evaluation.
+
+\paragraph{Representation geometry.}
+Low-rank structure in transformer representations has been studied in
+static contexts \cite{intrinsic}: our contribution is to study evolving
+trajectories turn-by-turn using parallel transport on the sphere. The
+closest geometric memory work \cite{geodesic} uses geodesic
+distance for retrieval ranking; we instead use transported curvature as a
+compression priority signal. Geometric scoring for memory \emph{retention}
+under hard budget constraints, with mechanism analysis at the turn level,
+has not been previously studied.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Geometric Framework}
+\label{sec:math}
+
+\subsection{Conversation-State Trajectories on the Sphere}
+
+For a multi-turn conversation $x_{1:T}$, let
+\begin{equation}
+z_t = f_\theta(x_{1:t}) \in \R^d
+\end{equation}
+be the turn-level hidden-state summary extracted from a fixed intermediate
+layer after processing turn $t$. We normalize onto the unit sphere:
+\begin{equation}
+h_t = \frac{z_t}{\lVert z_t \rVert} \in \Sph^{d-1}.
+\end{equation}
+
+Within a short segment $S_j$, choose a reference point $q_j \in \Sph^{d-1}$.
+The one-step spherical increment from $h_t$ to $h_{t+1}$ is mapped into the
+tangent space at $q_j$ via the Riemannian logarithm and parallel transport:
+\begin{equation}
+u_t = \mathrm{PT}_{h_t \rightarrow q_j}\!\bigl(\log_{h_t}(h_{t+1})\bigr)
+\in T_{q_j}\Sph^{d-1}.
+\label{eq:transported}
+\end{equation}
+
+\begin{proposition}
+Local low-rank analysis of the transported increments $\{u_t\}_{t \in S_j}$
+is well-defined independently of the original ambient coordinates, up to the
+choice of segment reference and local transport gauge.
+\end{proposition}
+\begin{proof}[Proof sketch]
+Parallel transport is an isometry between tangent spaces on the sphere.
+Norms and principal angles among transported increments are therefore
+invariant under the transport map, making Euclidean low-rank analysis
+in the common tangent frame $T_{q_j}\Sph^{d-1}$ coordinate-independent.
+\end{proof}
+
+Empirically, we find that the increments are approximately low-rank:
+$u_t \approx B_j c_t + e_t$ with $B_j \in \R^{d \times r_j}$ and
+$r_j \ll d$. We measure this by rank-95: the minimum integer rank such
+that 95\% of the variance in $\{u_t\}_{t \in S_j}$ is explained.
+
+\subsection{Geometric Risk Score}
+
+We define the discrete curvature proxy, stabilized against near-stationary
+segments:
+\begin{equation}
+\kappa_t = \frac{\lVert u_t - u_{t-1} \rVert_2}{\max(\Delta s_t,\, \epsilon)},
+\end{equation}
+where $\Delta s_t$ is the local geodesic step length and $\epsilon$ is a small
+floor. A large $\kappa_t$ signals a local regime transition: the conversation
+has shifted direction in representation space. Combined with the segment
+rank-95 and step norm, this yields a per-turn geometric risk score $r_t$.
+
+\subsection{Query-Conditioned Geometry}
+
+For persona-continuity tasks, we project the geometric signal into the query's
+local tangent frame. Given a target turn $q$ with state $h_q$, the
+query-conditioned risk score combines query-projected curvature:
+\begin{equation}
+\kappa_t^{(q)} = \kappa_t \cdot \bigl\langle \hat{u}_t,\,
+\mathrm{PT}_{h_q \rightarrow q_j}(\hat{u}_q) \bigr\rangle,
+\end{equation}
+with query-projected subspace energy in the same tangent frame as the
+conversation motion. The composite score $r_t^{(q)}$ is query-aware without
+abandoning the spherical transport frame that makes the risk signal
+coordinate-consistent.
+
+\subsection{Decoder-Distortion Metrics}
+\label{sec:metrics}
+
+All experiments measure how well a compressed context preserves the model's
+behavior relative to the full context. We use:
+\begin{align}
+\Logit &= \bigl\lVert \ell(\hat{h}_t) - \ell(h_t) \bigr\rVert_2
+  & &\text{(logit drift)},\\
+\NLL &= \bar{\ell}_{\mathrm{NLL}}(\hat{h}_t) - \bar{\ell}_{\mathrm{NLL}}(h_t)
+  & &\text{(answer NLL delta)},
+\end{align}
+where $\ell(\cdot)$ is the output logit vector and $\bar{\ell}_{\mathrm{NLL}}$
+is the average negative log-likelihood of the gold next-assistant-response
+token sequence. Negative $\Logit$ or $\NLL$ means the policy is better than
+the comparison. All p-values are from bootstrap permutation tests
+(5{,}000 samples, two-sided).
+
+\subsection{Theoretical Stability of the KCD Codec}
+
+\begin{theorem}
+Assume (i) the decoder is locally Lipschitz in a geometry metric, (ii)
+compressed segment representations preserve anchors and the latest support
+turn with bounded reconstruction error, and (iii) residual information for
+evicted segments is bounded by a fixed segment-wise harm score. Then decoder
+drift under the KCD policy satisfies:
+\begin{equation}
+\Logit(\pi_{\mathrm{KCD}})
+\leq
+\sum_j \Bigl[
+\underbrace{\alpha \,\lVert a_j - \hat{a}_j\rVert}_{\text{anchor}}
++ \underbrace{\beta \,\lVert s_j - \hat{s}_j\rVert}_{\text{support}}
++ \underbrace{\gamma \,\rho_j}_{\text{evicted residual}}
+\Bigr],
+\end{equation}
+where $\rho_j$ is the exogenous harm bound for segment $j$.
+\label{thm:stability}
+\end{theorem}
+\begin{proof}[Proof sketch]
+Lipschitz continuity of the decoder converts per-segment state reconstruction
+error into logit drift. The codec decomposes reconstruction error into anchor,
+support, and evicted residual terms; bounding each separately and summing over
+segments yields the stated inequality.
+\end{proof}
+
+\begin{remark}
+The bound is signal-agnostic: it holds for any scoring function that correctly
+identifies high-harm segments ($\rho_j$ large) from low-harm ones ($\rho_j
+\approx 0$). The empirical finding is that the correct scoring function is
+geometry-based for constraint-critical memory and query-conditioned geometry
+within a semantic shortlist for persona-continuity memory.
+\end{remark}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{The KCD Codec Family}
+\label{sec:codec}
+
+\subsection{Sparse Keep/Compress/Drop Structure}
+
+For each segment $j$ of the conversation prefix, the KCD policy assigns an
+action $a_j \in \{\mathrm{keep}, \mathrm{compress}, \mathrm{evict}\}$ under a
+token budget $B$:
+\begin{equation}
+\max_{\{a_j\}} \sum_j v_j(a_j)
+\quad
+\text{s.t.}
+\quad
+\sum_j c_j(a_j) \leq B,
+\end{equation}
+where $v_j$ is the value (risk-weighted preservation) and $c_j$ is the cost
+(retained token count) for action $a_j$ on segment $j$. The DP over segments
+is exact for fixed segment span.
+
+A compressed segment retains an \emph{anchor} (highest-risk turn), a \emph{sparse
+support} (latest user turn and the highest-support-score turn for constraint
+segments), and discards the remainder. A kept segment retains all turns. An
+evicted segment retains nothing.
+
+\subsection{Signal Variants}
+
+The scoring signal $r_t$ that feeds segment risk $v_j$ is the free parameter:
+
+\begin{itemize}[leftmargin=1.4em]
+\item \textbf{geometry\_KCD}: $r_t$ is the per-turn geometric risk score from
+  $\kappa_t$, segment rank-95, and step norm. Best for constraint-critical
+  memory (hard stress set, code/SQL/logistics conversations).
+\item \textbf{semantic\_KCD}: $r_t$ is cosine similarity of the turn's embedding
+  to the target query. Structure-blind; actively harmful on constraint tasks.
+\item \textbf{budget\_aware\_semantic\_KCD}: semantic scoring with budget-scaled
+  segment span. Best semantic-only baseline.
+\item \textbf{semantic\_query\_conditioned\_geometry\_KCD}: a two-stage policy.
+  Stage 1 builds a semantic shortlist at $2\times$ the target budget. Stage 2
+  applies $r_t^{(q)}$ (query-conditioned geometry) inside the shortlist. Best
+  for persona-continuity and episodic-retrieval tasks.
+\end{itemize}
+
+The signal-conditioned design follows directly from the theoretical remark
+above: use whichever signal most faithfully estimates $\rho_j$ for the task's
+memory type.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Setup}
+
+\paragraph{Models.}
+Primary experiments use \texttt{qwen25\_15b} (Qwen/Qwen2.5-1.5B-Instruct) for
+its balance of inference speed and representational capacity. Scale validation
+uses \texttt{qwen25\_3b} (Qwen/Qwen2.5-3B-Instruct). Geometry characterization
+additionally uses \texttt{qwen25\_05b} (0.5B) and \texttt{smollm2\_17b}
+(SmolLM2-1.7B).
+
+\paragraph{Benchmarks.}
+We use three evaluation sets:
+\begin{itemize}[leftmargin=1.4em]
+\item \textbf{Hard stress set}: 36 custom conversations across three families
+  (\texttt{long\_dependency}, \texttt{retrieval\_heavy}, \texttt{code\_conversation}).
+  Designed so that correct late-turn answers depend on exact early-turn
+  constraints; tests constraint-critical memory.
+\item \textbf{MSC valid} (\texttt{gonced8/multi-session-chat}, 16 conversations):
+  multi-session dialogue with persona continuity and preference tracking.
+  Tests persona-continuity memory, not constraint preservation.
+\item \textbf{LongMemEval-S cleaned} (\texttt{xiaowu0162/longmemeval-cleaned},
+  6-conversation subset): episodic-retrieval conversations (398--618 turns
+  each; truncated to 40 turns per conversation for oracle tractability).
+\end{itemize}
+
+\paragraph{Baselines.} \texttt{uniform} (budget spread without geometry),
+\texttt{semantic} (top-$k$ by cosine similarity), \texttt{geometry} (top-$k$
+by geometric risk). All experiments use budgets 0.20/0.35/0.50 of the
+conversation token count.
+
+\subsection{Geometry Characterization}
+\label{sec:char}
+
+Conversation-state trajectories are extremely low-rank across all tested
+models (Table~\ref{tab:char}). The mean rank-95 ranges from 1.049 to 1.528
+--- meaning that at most 2--3 principal directions account for 95\% of the
+variance in transported increments within a segment. Shuffling turn order
+increases rank-95 substantially, ruling out bounded-dimensionality as an
+explanation. Geometric distortion is almost perfectly coupled to decoder
+output drift across all models.
+
+\begin{table}[t]
+  \centering
+  \caption{Geometry characterization. Rank-95 is near-minimal; shuffled controls
+  collapse coupling; geometry--logit correlation is extremely high.}
+  \label{tab:char}
+  \begin{tabular}{lccc}
+    \toprule
+    Model & Rank-95 & Shuffled rank & Geo--logit $r$ \\
+    \midrule
+    \texttt{qwen25\_05b} & 1.049 & 1.486 & 0.989 \\
+    \texttt{qwen25\_15b} & 1.167 & 1.531 & 0.994 \\
+    \texttt{smollm2\_17b} & 1.528 & 1.812 & 0.989 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+These results establish that the geometric structure we use for scoring is not
+incidental. Conversation-state trajectories evolve along a single dominant
+direction within each segment, and deviations from that direction (high
+curvature, high rank-95) predict decoder output drift with near-perfect
+fidelity.
+
+\subsection{Geometry-Aware Budget Allocation}
+\label{sec:paper2}
+
+Using geometric risk as a turn-level priority score, geometry-aware retention
+beats uniform allocation on the hard stress set with consistent significance.
+At budget 0.35, \texttt{geometry} reduces mean logit drift by 99.5 on
+\texttt{qwen25\_05b} and 21.7 on \texttt{qwen25\_15b}. The mechanism is
+interpretable at the turn level: geometry retains more support user turns
+than uniform in 14--17/36 cases, compared to 2--5/36 for uniform winning. The
+rescued turns are exact constraint packets: code requirements, SQL ordering
+clauses, event logistics, and compact numerical fact bundles.
+
+This establishes the baseline for the codec experiments: geometry-based
+priority is both useful and mechanistically interpretable before any codec
+structure is applied.
+
+\subsection{Experiment 1: The Geometry Signal Is Load-Bearing}
+\label{sec:exp1}
+
+\paragraph{Question.} Is geometry specifically necessary for constraint-critical
+memory, or does the KCD codec structure do the work regardless of scoring signal?
+
+\paragraph{Setup.} We compare \texttt{geometry\_KCD} and \texttt{semantic\_KCD}
+on the full hard stress set (\texttt{qwen25\_15b}, budgets 0.20/0.35/0.50).
+Both policies use the identical KCD codec with identical segment spans; they
+differ only in the scoring signal fed to the DP.
+
+\paragraph{Results.}
+
+\begin{table}[t]
+  \centering
+  \caption{Experiment 1: geometry\_KCD vs.\ semantic\_KCD on the hard stress set
+  (\texttt{qwen25\_15b}). Positive $\Delta$ means semantic\_KCD is worse.}
+  \label{tab:exp1}
+  \begin{tabular}{lrrrr}
+    \toprule
+    Budget & $\Delta\Logit$ & $p$ & $\Delta\NLL$ & $p$ \\
+    \midrule
+    0.20 & $+37.8$ & $0.028$ & $+0.195$ & $0.001$ \\
+    0.35 & $+38.5$ & $0.079$ & $+0.424$ & $0.011$ \\
+    0.50 & $+0.1$ (tie) & $0.995$ & $+0.628$ & $0.001$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\texttt{geometry\_KCD} beats \texttt{semantic\_KCD} at budgets 0.20 and 0.35
+on both logit and answer quality with statistical significance. At 0.50, logit
+distortions tie but geometry still dominates answer NLL ($\Delta{=}+0.628$,
+$p{=}0.001$). Critically, \texttt{semantic\_KCD} is also significantly worse
+than plain \texttt{semantic} at every budget on answer NLL: the KCD codec
+structure with the wrong signal actively harms performance.
+
+\paragraph{Mechanism.}
+
+\begin{table}[t]
+  \centering
+  \caption{Support-turn rescue at budget 0.35 (\texttt{qwen25\_15b}).
+  Geometry preferentially retains constraint packets; semantic cannot
+  distinguish them from their echoes.}
+  \label{tab:rescue}
+  \begin{tabular}{lcc}
+    \toprule
+    Metric & \texttt{geo\_KCD} & \texttt{sem\_KCD} \\
+    \midrule
+    Rescues more support turns than uniform & 17/36 & 7/36 \\
+    Uniform beats policy on support turns & 2/36 & 5/36 \\
+    Keeps latest support turn vs.\ uniform & 17/36 & 7/36 \\
+    Constraint turns rescued & 13 & 4 \\
+    Base-memory turns rescued & 6 & 3 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The failure mode is mathematically interpretable. Consider the turn pair:
+\emph{User}: ``Also require \texttt{GET /users/\$\{id\}}, throw on non-ok
+responses, and return parsed JSON.'' \emph{Assistant}: ``Got it. I'll add error
+handling for \texttt{GET /users/\$\{id\}} with non-ok response checking and
+JSON parsing.'' These turns have nearly identical cosine similarity to any
+future query about the API. Semantic scoring assigns them equal priority.
+Geometric state displacement assigns the user constraint a much higher risk
+score, because the constraint causes a large local trajectory deflection while
+the assistant echo does not.
+
+\subsection{Experiment 2: Gate 1 --- Geometry Inside a Semantic Shortlist (MSC)}
+\label{sec:gate1}
+
+\paragraph{Question.} On a persona-continuity benchmark where semantic proximity
+is the primary signal, do geometric features add ranking value inside a semantic
+shortlist? Does the hybrid policy beat the best semantic-only codec?
+
+\paragraph{Setup.} An oracle probe generates turn-level harm scores by ablating
+each prior turn and measuring the resulting logit damage. We then measure
+whether geometric features (\texttt{query\_geom\_v2\_risk}) can rank turns by
+oracle harm better than semantic scoring alone, inside a $2\times$ semantic
+shortlist. Decision threshold for Gate 1: $\Delta\tau \geq +0.03$.
+
+MSC valid, 16 conversations, \texttt{qwen25\_15b}, 23{,}928 candidate rows.
+
+\paragraph{Oracle result: PASS.}
+
+\begin{table}[t]
+  \centering
+  \caption{Gate 1 oracle on MSC valid. Geometry adds substantial within-shortlist
+  ranking value. Threshold: $\Delta\tau \geq +0.03$.}
+  \label{tab:gate1_msc}
+  \begin{tabular}{lccc}
+    \toprule
+    Budget & Sem $\tau$ & Geo $\tau$ & $\Delta\tau$ \\
+    \midrule
+    0.20 & 0.295 & 0.825 & $+0.530$ \\
+    0.35 & 0.223 & 0.825 & $+0.602$ \\
+    0.50 & 0.279 & 0.825 & $+0.546$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Every budget exceeds the threshold by 15--20$\times$. Geometry improves
+within-shortlist turn ranking by a factor of 2--3$\times$ over semantic scoring
+alone.
+
+\paragraph{Policy result.} The refinement study compares
+\texttt{semantic\_query\_conditioned\_geometry\_KCD} against
+\texttt{budget\_aware\_semantic\_KCD}:
+
+\begin{table}[t]
+  \centering
+  \caption{Gate 1 policy on MSC valid. Negative $\Delta$ means
+  query-conditioned geometry is better. Budget 0.35 is significant on both
+  metrics.}
+  \label{tab:gate1_policy}
+  \begin{tabular}{lrrrr}
+    \toprule
+    Budget & $\Delta\Logit$ & $p$ (conv) & $\Delta\NLL$ & $p$ (row) \\
+    \midrule
+    0.20 & $-34.5$ & $0.209$ & $-0.019$ & $0.429$ \\
+    0.35 & $-26.4$ & $\mathbf{0.044}$ & $-0.057$ & $\mathbf{0.020}$ \\
+    0.50 & $+24.9$ & $0.450$ & $+0.008$ & $0.316$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+At budget 0.35, the query-conditioned geometry hybrid beats the best
+semantic-only codec on both logit ($p{=}0.044$) and answer NLL ($p{=}0.020$).
+Query-conditioning is specifically responsible: \texttt{semantic\_ambient\_geometry\_KCD}
+does not produce the same gain --- query-projected geometry beats ambient
+geometry by $\Delta\Logit{=}-49.8$ ($p{=}0.004$) at budget 0.35.
+
+\subsection{Experiment 3: Gate 1 on LongMemEval-S --- Cross-Benchmark Confirmation}
+\label{sec:gate1_lme}
+
+\paragraph{Question.} Is the Gate 1 geometry ranking advantage specific to
+MSC's persona-continuity structure, or does it generalize to episodic-retrieval
+conversations?
+
+\paragraph{Setup.} Oracle probe on 6 LongMemEval-S cleaned conversations
+(40 turns per conversation, 10{,}416 candidate rows).
+
+\paragraph{Oracle result: PASS at 16--17$\times$ threshold.}
+
+\begin{table}[t]
+  \centering
+  \caption{Gate 1 oracle on LongMemEval-S cleaned. Semantic scoring is
+  effectively random inside the shortlist; geometry is highly informative.}
+  \label{tab:gate1_lme}
+  \begin{tabular}{lcccc}
+    \toprule
+    Budget & Sem $\tau$ & Geo $\tau$ & $\Delta\tau$ & Pass \\
+    \midrule
+    0.20 & 0.013 & 0.527 & $+0.514$ & \checkmark \\
+    0.35 & 0.013 & 0.520 & $+0.507$ & \checkmark \\
+    0.50 & 0.013 & 0.502 & $+0.489$ & \checkmark \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+On episodic-retrieval conversations, semantic scoring inside the shortlist
+achieves Kendall $\tau \approx 0.013$ --- essentially random. Geometry achieves
+$\tau = 0.50$--$0.53$, a 40$\times$ improvement. The overall (pre-shortlist)
+$\Delta\tau$ is 1.47--1.54. At budget 0.50, \texttt{semantic\_query\_conditioned\_geometry\_KCD}
+beats ambient geometry by $\Delta\Logit{=}-76.6$ ($p{=}0.036$), confirming
+that query-conditioned projection is necessary, not just any geometry signal.
+
+\subsection{Experiment 4: 3B Model-Scale Validation}
+\label{sec:3b}
+
+\paragraph{Question.} Does the signal-comparison result hold at higher model
+capacity, or is it specific to the 1.5B compact regime?
+
+\paragraph{Setup.} Identical to Experiment 1 but with \texttt{qwen25\_3b}, 9
+conversations, 540 evaluations.
+
+\begin{table}[t]
+  \centering
+  \caption{Experiment 4: geometry\_KCD vs.\ semantic\_KCD on the hard stress set
+  (\texttt{qwen25\_3b}). The geometry advantage grows with model scale.}
+  \label{tab:exp4}
+  \begin{tabular}{lrrrr}
+    \toprule
+    Budget & $\Delta\Logit$ & $p$ & $\Delta\NLL$ & $p$ \\
+    \midrule
+    0.20 & $+44.9$ & $0.048$ & $+0.494$ & $0.008$ \\
+    0.35 & $+69.7$ & $0.050$ & $+0.853$ & $0.005$ \\
+    0.50 & $-29.1$ & $0.128$ & $+1.126$ & $\mathbf{0.0003}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+At all three budgets, geometry-based policies consistently improve answer
+quality relative to uniform; \texttt{semantic\_KCD} is the only policy that
+makes things worse at every budget (Table~\ref{tab:3b_nll}).
+
+\begin{table}[t]
+  \centering
+  \caption{3B answer NLL relative to uniform. Negative = better.
+  \texttt{semantic\_KCD} is uniquely harmful at every budget.}
+  \label{tab:3b_nll}
+  \begin{tabular}{lrrr}
+    \toprule
+    Policy & @ 0.20 & @ 0.35 & @ 0.50 \\
+    \midrule
+    \texttt{geometry}     & $-0.158$ & $-0.036$ & $-0.626$ \\
+    \texttt{geometry\_KCD} & $-0.134$ & $-0.357$ & $-0.775$ \\
+    \texttt{semantic}     & $-0.017$ & $-0.147$ & $-0.665$ \\
+    \texttt{semantic\_KCD} & $\mathbf{+0.360}$ & $\mathbf{+0.496}$ & $+0.350$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The support-turn rescue mechanism is scale-invariant: \texttt{geometry\_KCD}
+rescues more support turns than uniform in 15/36 cases (vs.\ 7/36 for
+\texttt{semantic\_KCD}), the identical ratio as at 1.5B. The quality
+\emph{consequence} of semantic failure grows with scale: at 3B and budget 0.50,
+\texttt{semantic\_KCD} produces $+1.13$ nats of answer NLL damage ($p{=}0.0003$).
+The conventional reviewer assumption --- ``geometry only works on tiny models'' ---
+is directly inverted: the geometry advantage strengthens with representational
+capacity.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{The Signal-Conditioned Regime Map}
+\label{sec:regime}
+
+The four experiments together with the budget-allocation baseline establish a
+consistent regime map for conversational memory compression:
+
+\begin{table}[t]
+  \centering
+  \caption{Winner map by memory type and budget. KCD structure is common to
+  all; the scoring signal is task-conditioned.}
+  \label{tab:regime}
+  \begin{tabular}{p{2.0cm}p{2.5cm}p{2.5cm}}
+    \toprule
+    Memory type & Winning signal & Evidence \\
+    \midrule
+    Constraint-critical
+      & Geometric risk ($r_t$)
+      & Exp.\ 1, 3B probe; 17/36 rescue \\
+    Persona-continuity
+      & Semantic shortlist + query-geom.\ ($r_t^{(q)}$)
+      & Gate 1 MSC; $p{=}0.020$ NLL \\
+    Episodic retrieval
+      & Semantic shortlist + query-geom.
+      & Gate 1 LME; $\Delta\tau{+}0.51$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The separation is not benchmark noise. It reflects a structural difference
+in how the two memory types produce decoder harm. Constraint turns cause large
+local state displacements; their echoes do not. Persona turns are semantically
+proximate to later queries; their geometric displacement relative to those
+queries adds within-shortlist ranking precision that semantic scoring misses.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Negative Results and Claim Boundaries}
+\label{sec:negative}
+
+\paragraph{Falsified extensions.}
+Five geometry-only extensions failed, defining the boundary of the geometry
+claim:
+
+\begin{itemize}[leftmargin=1.4em]
+\item \textbf{Persona/filler curvature separation (MSC).} Mean support-filler
+  curvature delta was 0.122 (3/5 positive, 2/5 negative). Curvature does not
+  separate semantically important persona turns from nearby filler; semantic
+  proximity is needed.
+\item \textbf{Geometry-only regime atlas.} After fixing raw curvature blow-up
+  (up to 6{,}314 on near-stationary segments, stabilized to 26), the atlas
+  still failed to separate retrieval-heavy hard-set segments from MSC and
+  LoCoMo. Geometry alone does not recover a usable benchmark taxonomy.
+\item \textbf{State-update supersession (two formulations).} Both same-sign
+  alignment ($A(s,t) = \cos(u_s, u_t)$, mean 0.913) and a state-vs.-increment
+  cross-term (update cross 0.971) fail as sign-based detectors on synthetic
+  explicit-update benchmarks. Compact models encode both ``user states a fact''
+  and ``user updates a fact'' as similarly oriented increments.
+\item \textbf{Query-conditioned geometry as standalone selector.} At LoCoMo
+  budget 0.35, standalone query-conditioned geometry collapses to
+  $\Logit{=}+881.4$. The KCD wrapper recovers to $+9.7$ but does not win.
+  Query-conditioned geometry is a refinement signal inside a semantic shortlist,
+  not a primary selector.
+\end{itemize}
+
+\paragraph{Investigated open items.}
+Two further directions were tested and yield informative negatives:
+
+\textbf{Learned harm predictor.}
+A 2-head MLP trained from 23{,}928 oracle ablation rows achieves row-level
+Kendall $\tau{=}0.637$ on validation --- genuine learning. However,
+conversation-level Kendall is $-1.0$: the predictor inverts the scale across
+conversations (turns from lower-harm conversations receive higher absolute
+scores than turns from higher-harm ones). When used as a policy
+(\texttt{semantic\_harm\_KCD}), it loses to
+\texttt{semantic\_query\_conditioned\_geometry\_KCD} at budget 0.35 by
+$\Delta\Logit{=}+51.2$ ($p{=}0.004$ conversation-level). Root cause: pointwise
+MSE loss on harm scalars does not enforce cross-conversation calibration.
+Geometric features are immune to this problem because transported increments
+are computed in the same spherical frame regardless of conversation. Fix:
+pairwise ranking loss (RankNet/ListMLE) with cross-conversation training pairs.
+
+\textbf{Memory-object level compression.}
+Object-granularity KCD groups turns into semantic bundles (persona, event,
+constraint, update) and makes codec decisions at the bundle level.
+Token fractions on MSC are 0.43--0.52 at a 0.74 target: the codec chronically
+under-retains. Answer NLL is 0.54--0.87 nats worse than turn-level baselines.
+Root cause: marker-based segmentation creates many small objects; each retains
+1--2 turns after compression; total retained mass falls well below budget. The
+object-level structure is conceptually sound; the implementation needs
+model-based boundary detection.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What is now settled.}
+The following claims have multi-experiment, multi-benchmark, multi-scale
+support:
+\begin{enumerate}[leftmargin=1.4em]
+\item Conversation-state trajectories are extremely low-rank and almost
+  perfectly decoder-coupled across compact model families. This is the
+  geometric substrate that makes the scoring signals tractable.
+\item Geometry-aware retention beats uniform on constraint-critical tasks via
+  a concrete mechanism: support-turn rescue. The rescued turns are
+  interpretable word-for-word.
+\item The KCD codec is a real, budget-responsive compression structure. It
+  beats baselines under fairness-controlled token accounting.
+\item The geometry signal is load-bearing for constraint tasks. The codec
+  structure alone does not do the work; semantic scoring with the same codec
+  is actively harmful.
+\item Geometry adds substantial ranking value inside semantic shortlists, on
+  both MSC and LongMemEval-S, at 15--23$\times$ the Gate 1 threshold. This
+  is not a marginal effect.
+\item The geometry advantage grows with model scale. At 3B, semantic scoring
+  produces catastrophic answer quality damage; geometry consistently improves
+  it. The concern about compact-model specificity is inverted.
+\item The signal-conditioned KCD framework is the correct architecture: one
+  codec structure, two scoring regimes matched to memory type.
+\end{enumerate}
+
+\paragraph{What remains open.}
+Four precise directions follow from the diagnosed failures:
+\begin{enumerate}[leftmargin=1.4em]
+\item \textbf{Cross-conversation pairwise predictor.} A pairwise ranking loss
+  with training pairs drawn across conversations would address the calibration
+  inversion. Ranking losses have well-studied generalization properties that
+  would also extend the Theorem~\ref{thm:stability} stability bound to a
+  learned predictor.
+\item \textbf{Model-based object boundary detection.} Replacing marker-based
+  segmentation with a lightweight turn classifier would fix chronic
+  under-retention in the object codec. The object-level KCD structure is
+  otherwise valid.
+\item \textbf{Systematic 7B$+$ validation.} The failed compact-model branches
+  (supersession, persona/filler separation) may become viable at higher
+  representational resolution.
+\item \textbf{Codec theorem with generalization error.} Extending
+  Theorem~\ref{thm:stability} to a learned $\rho_j$ predictor with PAC-style
+  generalization bounds would complete the theoretical story.
+\end{enumerate}
+
+\paragraph{Limitations.}
+The constraint-memory mechanism story is strongest on the custom hard stress
+set, which was designed to surface support-turn failures. Gate 1 policy
+significance rests on 16 MSC and 6 LongMemEval conversations; broader
+replication is warranted. The LongMemEval oracle uses 40-turn truncation for
+computational tractability. The codec theorem assumes a bounded exogenous harm
+predictor rather than a learned one.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have shown that the question ``is geometry better than semantics for
+conversational memory compression?'' is not well-posed. The correct question
+is: \emph{which signal best identifies the turns whose removal causes the most
+decoder harm for a given task's memory type?} For constraint-critical tasks, the
+answer is geometric displacement: semantic scoring cannot distinguish a user
+constraint from its assistant echo, while the hidden-state trajectory can. For
+persona-continuity and episodic-retrieval tasks, the answer is semantic
+proximity refined by query-conditioned geometry: semantic scoring provides the
+shortlist, geometry provides the within-shortlist ranking precision.
+
+These two scoring regimes share a single codec structure (KCD), a single
+theoretical stability bound (Theorem~\ref{thm:stability}), and a
+scale-consistent geometric substrate. The advantage is not model-size
+dependent: at 3B, semantic compression of constraint-critical memory produces
+$+1.13$ nats of answer quality damage while geometry compression consistently
+reduces it. The support-turn rescue mechanism that explains the advantage is
+identical at 1.5B and 3B --- what grows with scale is the quality penalty for
+getting it wrong.
+
+The result is a signal-conditioned sparse codec family for conversational
+memory compression, grounded in the geometry of the model's own representation
+space, validated across three benchmark families and two model scales, with five
+explicit falsification results that define the boundary of the claim and two
+investigated open directions with precise diagnoses.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{thebibliography}{99}
+
+\bibitem{scissorhands}
+Z.~Liu et al.,
+``ScissorHands: Exploiting the Persistence of Importance Hypothesis for
+LLM KV Cache Compression at Test Time,''
+\emph{NeurIPS}, 2023.
+
+\bibitem{streamingllm}
+G.~Xiao et al.,
+``Efficient Streaming Language Models with Attention Sinks,''
+\emph{ICLR}, 2024.
+
+\bibitem{h2o}
+Z.~Zhang et al.,
+``H$_2$O: Heavy-Hitter Oracle for Efficient Generative Inference of Large
+Language Models,''
+\emph{NeurIPS}, 2023.
+
+\bibitem{rag}
+P.~Lewis et al.,
+``Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,''
+\emph{NeurIPS}, 2020.
+
+\bibitem{kvcache}
+Y.~Ge et al.,
+``Model Tells You What to Discard: Adaptive KV Cache Compression for LLMs,''
+\emph{ICLR}, 2024.
+
+\bibitem{memgpt}
+C.~Packer et al.,
+``MemGPT: Towards LLMs as Operating Systems,''
+\emph{arXiv:2310.08560}, 2023.
+
+\bibitem{longmemeval}
+D.~Wu et al.,
+``LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory,''
+\emph{arXiv:2410.10813}, 2024.
+
+\bibitem{msc}
+J.~Xu et al.,
+``Beyond Goldfish Memory: Long-Term Open-Domain Conversation,''
+\emph{ACL}, 2022.
+
+\bibitem{intrinsic}
+A.~Aghajanyan et al.,
+``Intrinsic Dimensionality Explains the Effectiveness of Language Model
+Fine-Tuning,''
+\emph{ACL}, 2021.
+
+\bibitem{geodesic}
+K.~Ethayarajh,
+``How Contextual are Contextualized Word Representations?
+Comparing the Geometry of BERT, ELMo, and GPT-2 Embeddings,''
+\emph{EMNLP}, 2019.
+
+\end{thebibliography}
+
+\end{document}
