@@ -797,7 +797,11 @@ def run_oracle_harm_probe(
         )
         target_turns_by_conversation = {
             conversation.conversation_id: _sample_target_turns(
-                num_turns=len(conversation.turns),
+                num_turns=(
+                    min(len(conversation.turns), max_turns_per_conversation)
+                    if max_turns_per_conversation is not None
+                    else len(conversation.turns)
+                ),
                 min_history=min_history,
                 stride=target_turn_stride,
                 max_target_turns=max_target_turns,
