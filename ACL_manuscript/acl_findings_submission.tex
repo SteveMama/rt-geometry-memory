@@ -136,7 +136,7 @@ The paper's hypothesis is that these regimes favor different scoring signals ins
 \subsection{Benchmarks and Models}
 We use three primary evaluation settings.
 \begin{itemize}[leftmargin=1.25em]
-    \item \textbf{Hard stress set}: 36 synthetic but interpretable conversations across long-dependency, retrieval-heavy, and code-conversation families, designed to expose support-turn failures that are plausible in real conversational memory settings.
+    \item \textbf{Hard stress set}: 36 synthetic but interpretable conversations across long-dependency, retrieval-heavy, and code-conversation families, designed to expose support-turn failures that are plausible in real conversational memory settings. The packets are randomized synthetic instances rather than copied benchmark rows, but they are built from the same conversational memory primitives that recur in public datasets: personal facts, event details, task constraints, and formatting commitments of the kind seen in MSC, LoCoMo, and LongMemEval \cite{msc,locomo,longmemeval}.
     \item \textbf{MSC valid}: 16 conversations from the multi-session persona benchmark \cite{msc}.
     \item \textbf{LongMemEval-S cleaned}: a 6-conversation subset from the cleaned LongMemEval release \cite{longmemeval}, truncated to 40 turns per conversation for oracle tractability.
 \end{itemize}
@@ -235,8 +235,8 @@ The mechanism is not merely that geometry prefers older or less recent turns. Ra
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.98\textwidth,trim=160 1080 120 140,clip]{../manuscript/figures/paper2_checkpoint_overview.png}
-\caption{Mechanism view on the hard stress set. The left panels show hard-set budget curves across compact models; the right panel shows support-turn rescue at budget 0.35. The main point is not merely that geometry improves a scalar metric, but that it does so by preserving memory-critical support turns under real budget pressure.}
+\includegraphics[width=0.98\textwidth]{figures/hardset_mechanism_acl.png}
+\caption{Mechanism view on the hard stress set. The left panel shows hard-set logit budget curves across compact models; the right panel shows support-turn rescue at budget 0.35. The main point is not merely that geometry improves a scalar metric, but that it does so by preserving memory-critical support turns under real budget pressure.}
 \label{fig:hardset_mechanism}
 \end{figure*}
 
@@ -356,7 +356,7 @@ The paper therefore does not advocate a universal geometry-first memory policy. 
 We also tested two extensions that did not improve the main result. A learned harm predictor achieved reasonable row-level oracle ranking, but cross-conversation calibration was poor and it did not beat the hybrid policy at deployment. An object-level compression variant also underperformed because the current object boundaries under-retained the available budget. We do not treat these negatives as evidence against the main result; rather, they help bound which extensions currently work and which do not. These negatives are useful because they suggest that the remaining gap is not solved by simply replacing heuristic signals with any learned predictor or by moving immediately to coarse object compression without better object definitions.
 
 \section{Limitations}
-The strongest mechanistic evidence in the paper comes from a custom hard stress set designed to expose support-turn failures. That makes the result informative, but it also limits external validity. The public-benchmark evidence is currently stronger on shortlist ranking than on broad end-to-end answer-quality coverage, especially on the truncated LongMemEval slice. The 3B validation uses only one model, so it supports only a single-model replication claim rather than a general statement about scaling. Finally, the learned harm predictor and object-level compression results are informative negatives, but their diagnoses are still based on the current implementation choices rather than exhaustive exploration.
+The strongest mechanistic evidence in the paper comes from a custom hard stress set designed to expose support-turn failures. That makes the result informative, but it also limits external validity. Although the hard set uses randomized synthetic packets constructed from memory primitives that also appear in benchmarks such as MSC, LoCoMo, and LongMemEval, it is still a controlled stress test rather than a sampled public benchmark. The public-benchmark evidence is currently stronger on shortlist ranking than on broad end-to-end answer-quality coverage, especially on the truncated LongMemEval slice. The 3B validation uses only one model, so it supports only a single-model replication claim rather than a general statement about scaling. Finally, the learned harm predictor and object-level compression results are informative negatives, but their diagnoses are still based on the current implementation choices rather than exhaustive exploration.
 
 \bibliography{references}
 
