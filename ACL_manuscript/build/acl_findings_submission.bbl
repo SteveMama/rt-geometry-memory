@@ -1,0 +1,78 @@
+\begin{thebibliography}{11}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Chen et~al.(2025)Chen, Li, Chang, Huang, Wang, and Li}]{comedy}
+Ning Chen, Hao Li, Jyun-Yu Chang, Jie Huang, Bowen Wang, and Junnan Li. 2025.
+\newblock Compress to impress: Unleashing the potential of compressive memory
+  in real-world long-term conversations.
+\newblock In \emph{Proceedings of the 31st International Conference on
+  Computational Linguistics}.
+
+\bibitem[{Jiang et~al.(2023)Jiang, Wu, Lin, Yang, and Qiu}]{llmlingua}
+Huiqiang Jiang, Qianhui Wu, Chin-Yew Lin, Yujiu Yang, and Lili Qiu. 2023.
+\newblock Llmlingua: Compressing prompts for accelerated inference of large
+  language models.
+\newblock In \emph{Proceedings of the 2023 Conference on Empirical Methods in
+  Natural Language Processing}.
+
+\bibitem[{Jiang et~al.(2024)Jiang, Wu, Luo, Li, Lin, Yang, and
+  Qiu}]{longllmlingua}
+Huiqiang Jiang, Qianhui Wu, Ximing Luo, Dong Li, Chin-Yew Lin, Yujiu Yang, and
+  Lili Qiu. 2024.
+\newblock Longllmlingua: Accelerating and enhancing llms in long context
+  scenarios via prompt compression.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association
+  for Computational Linguistics}.
+
+\bibitem[{Kim et~al.(2025)Kim, Kundu, Kim, Dixit, and Cho}]{epicache}
+Minseo Kim, Anirban Kundu, Hyeon-Bin Kim, Rohit Dixit, and Minsu Cho. 2025.
+\newblock Epicache: Episodic kv cache management for long conversational
+  question answering.
+\newblock \emph{arXiv preprint arXiv:2509.17396}.
+
+\bibitem[{Maharana et~al.(2024)Maharana, Lee, Tulyakov, Bansal, Barbieri, and
+  Fang}]{locomo}
+Adyasha Maharana, Dong-Ho Lee, Sergey Tulyakov, Mohit Bansal, Francesco
+  Barbieri, and Yuwei Fang. 2024.
+\newblock Evaluating very long-term conversational memory of llm agents.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association
+  for Computational Linguistics}.
+
+\bibitem[{Packer et~al.(2024)Packer, Wooders, Lin, Fang, Patil, Stoica, and
+  Gonzalez}]{memgpt}
+Charles Packer, Sarah Wooders, Kevin Lin, Vivian Fang, Shishir~G. Patil, Ion
+  Stoica, and Joseph~E. Gonzalez. 2024.
+\newblock Memgpt: Towards llms as operating systems.
+\newblock \emph{arXiv preprint arXiv:2310.08560}.
+
+\bibitem[{Wang et~al.(2023)Wang, Dong, Cheng, Liu, Yan, Gao, and Wei}]{longmem}
+Weizhi Wang, Li~Dong, Hao Cheng, Xiaodong Liu, Xifeng Yan, Jianfeng Gao, and
+  Furu Wei. 2023.
+\newblock Augmenting language models with long-term memory.
+\newblock In \emph{Advances in Neural Information Processing Systems}.
+
+\bibitem[{Wang et~al.(2025)Wang, Wang, Zhu, and Liu}]{r3mem}
+Xi~Wang, Shuo Wang, Yufan Zhu, and Bing Liu. 2025.
+\newblock R3mem: Bridging memory retention and retrieval via reversible
+  compression.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  ACL 2025}.
+
+\bibitem[{Wu et~al.(2024)Wu, Wang, Yu, Zhang, Chang, and Yu}]{longmemeval}
+Dingjun Wu, Hongru Wang, Wenhao Yu, Yichi Zhang, Kai-Wei Chang, and Dong Yu.
+  2024.
+\newblock Longmemeval: Benchmarking chat assistants on long-term interactive
+  memory.
+\newblock \emph{arXiv preprint arXiv:2410.10813}.
+
+\bibitem[{Xu et~al.(2021)Xu, Szlam, and Weston}]{msc}
+Jing Xu, Arthur Szlam, and Jason Weston. 2021.
+\newblock Beyond goldfish memory: Long-term open-domain conversation.
+\newblock \emph{arXiv preprint arXiv:2107.07567}.
+
+\bibitem[{Zhong et~al.(2023)Zhong, Guo, Gao, Ye, and Wang}]{memorybank}
+Wanjun Zhong, Liang Guo, Qiqi Gao, Han Ye, and Yanlin Wang. 2023.
+\newblock Memorybank: Enhancing large language models with long-term memory.
+\newblock \emph{arXiv preprint arXiv:2305.10250}.
+
+\end{thebibliography}
