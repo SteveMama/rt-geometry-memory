@@ -233,6 +233,13 @@ Base-memory turns rescued & 6 & 3 \\
 
 The mechanism is not merely that geometry prefers older or less recent turns. Rather, geometry separates user instructions from semantically similar assistant echoes because the user instruction causes a larger local state displacement. The mechanism table shows that this difference is not abstract: the geometry codec rescues more constraint turns, more latest support turns, and more support turns overall than the semantic signal swap.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth,trim=160 1080 120 140,clip]{../manuscript/figures/paper2_checkpoint_overview.png}
+\caption{Mechanism view on the hard stress set. The left panels show hard-set budget curves across compact models; the right panel shows support-turn rescue at budget 0.35. The main point is not merely that geometry improves a scalar metric, but that it does so by preserving memory-critical support turns under real budget pressure.}
+\label{fig:hardset_mechanism}
+\end{figure*}
+
 \section{Public Benchmarks: Geometry Inside Semantic Shortlists}
 \subsection{MSC}
 MSC is the clearest semantic-continuity benchmark in our study. The main question here is not whether geometry should replace semantic relevance. It should not. The question is whether geometry adds value \emph{once semantic relevance has already identified a candidate pool}.
@@ -351,7 +358,6 @@ We also tested two extensions that did not improve the main result. A learned ha
 \section{Limitations}
 The strongest mechanistic evidence in the paper comes from a custom hard stress set designed to expose support-turn failures. That makes the result informative, but it also limits external validity. The public-benchmark evidence is currently stronger on shortlist ranking than on broad end-to-end answer-quality coverage, especially on the truncated LongMemEval slice. The 3B validation uses only one model, so it supports only a single-model replication claim rather than a general statement about scaling. Finally, the learned harm predictor and object-level compression results are informative negatives, but their diagnoses are still based on the current implementation choices rather than exhaustive exploration.
 
-\bibliographystyle{acl_natbib}
 \bibliography{references}
 
 \appendix

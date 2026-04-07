@@ -352,57 +352,56 @@ Package: amsthm 2020/05/29 v2.20.6
 \thm@postskip=\skip57
 \thm@headsep=\skip58
 \dth@everypar=\toks34
-) (graphicx.sty
-Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
- (graphics.sty
-Package: graphics 2021/03/04 v1.4d Standard LaTeX Graphics (DPC,SPQR)
- (trig.sty
-Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
-)
-(graphics.cfg
-File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
-)
-Package graphics Info: Driver file: xetex.def on input line 107.
-)
-\Gin@req@height=\dimen174
-\Gin@req@width=\dimen175
 ) (booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
-\heavyrulewidth=\dimen176
-\lightrulewidth=\dimen177
-\cmidrulewidth=\dimen178
-\belowrulesep=\dimen179
-\belowbottomsep=\dimen180
-\aboverulesep=\dimen181
-\abovetopsep=\dimen182
-\cmidrulesep=\dimen183
-\cmidrulekern=\dimen184
-\defaultaddspace=\dimen185
+\heavyrulewidth=\dimen174
+\lightrulewidth=\dimen175
+\cmidrulewidth=\dimen176
+\belowrulesep=\dimen177
+\belowbottomsep=\dimen178
+\aboverulesep=\dimen179
+\abovetopsep=\dimen180
+\cmidrulesep=\dimen181
+\cmidrulekern=\dimen182
+\defaultaddspace=\dimen183
 \@cmidla=\count299
 \@cmidlb=\count300
-\@aboverulesep=\dimen186
-\@belowrulesep=\dimen187
+\@aboverulesep=\dimen184
+\@belowrulesep=\dimen185
 \@thisruleclass=\count301
 \@lastruleclass=\count302
-\@thisrulewidth=\dimen188
+\@thisrulewidth=\dimen186
 ) (multirow.sty
 Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
 \multirow@colwidth=\skip59
 \multirow@cntb=\count303
 \multirow@dima=\skip60
-\bigstrutjot=\dimen189
+\bigstrutjot=\dimen187
 ) (enumitem.sty
 Package: enumitem 2019/06/20 v3.9 Customized lists
 \labelindent=\skip61
-\enit@outerparindent=\dimen190
+\enit@outerparindent=\dimen188
 \enit@toks=\toks35
 \enit@inbox=\box55
 \enit@count@id=\count304
 \enitdp@description=\count305
 )
+(graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+ (graphics.sty
+Package: graphics 2021/03/04 v1.4d Standard LaTeX Graphics (DPC,SPQR)
+ (trig.sty
+Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
+) (graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: xetex.def on input line 107.
+)
+\Gin@req@height=\dimen189
+\Gin@req@width=\dimen190
+)
 \c@remark=\count306
-
-(l3backend-xetex.def
+ (l3backend-xetex.def
 File: l3backend-xetex.def 2022-02-07 L3 backend support: XeTeX
 \c__kernel_sys_dvipdfmx_version_int=\count307
 \l__color_backend_stack_int=\count308
@@ -412,34 +411,35 @@ File: l3backend-xetex.def 2022-02-07 L3 backend support: XeTeX
 \g__pdf_backend_object_int=\count311
 \g__pdf_backend_annotation_int=\count312
 \g__pdf_backend_link_int=\count313
-) (acl_findings_submission.aux)
+)
+(acl_findings_submission.aux)
 \openout1 = `acl_findings_submission.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 30.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 31.
 LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 3
-0.
+1.
  (ts1cmr.fd
 File: ts1cmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 30.
-LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
@@ -478,7 +478,7 @@ LaTeX Font Info:    ... okay on input line 30.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: hyperref package is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package hyperref Info: Link coloring ON on input line 30.
+Package hyperref Info: Link coloring ON on input line 31.
 (nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
  (refcount.sty
@@ -488,18 +488,18 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count314
 )
-LaTeX Info: Redefining \ref on input line 30.
-LaTeX Info: Redefining \pageref on input line 30.
-LaTeX Info: Redefining \nameref on input line 30.
+LaTeX Info: Redefining \ref on input line 31.
+LaTeX Info: Redefining \pageref on input line 31.
+LaTeX Info: Redefining \nameref on input line 31.
  (acl_findings_submission.out) (acl_findings_submission.out)
 \@outlinefile=\write3
 \openout3 = `acl_findings_submission.out'.
 
-LaTeX Info: Redefining \microtypecontext on input line 30.
-Package microtype Info: Applying patch `item' on input line 30.
-Package microtype Info: Applying patch `toc' on input line 30.
-Package microtype Info: Applying patch `eqnum' on input line 30.
-Package microtype Info: Applying patch `footnote' on input line 30.
+LaTeX Info: Redefining \microtypecontext on input line 31.
+Package microtype Info: Applying patch `item' on input line 31.
+Package microtype Info: Applying patch `toc' on input line 31.
+Package microtype Info: Applying patch `eqnum' on input line 31.
+Package microtype Info: Applying patch `footnote' on input line 31.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
 Package microtype Info: No adjustment of tracking.
@@ -514,164 +514,291 @@ tim
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+lasy on input line 31
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 32
 .
 
 (ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 31.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 32.
 
  (umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 31.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 32.
 
  (umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
-Underfull \hbox (badness 1168) in paragraph at lines 34--35
-[]\T1/ptm/m/n/10 Compressing multi-turn con-ver-sa-tional con-
+Underfull \hbox (badness 1264) in paragraph at lines 35--36
+\T1/ptm/m/n/10 a sparse keep/compress/drop (KCD) codec
  []
 
 
-Underfull \hbox (badness 2005) in paragraph at lines 34--35
-\T1/ptm/m/n/10 study a sparse keep/compress/drop (KCD)
- []
-
-
-Underfull \hbox (badness 1226) in paragraph at lines 34--35
-\T1/ptm/m/n/10 man-tic scor-ing across con-ver-sa-tional mem-
- []
-
-
-Underfull \hbox (badness 1917) in paragraph at lines 34--35
-\T1/ptm/m/n/10 man-tic short-list-ing re-mains im-por-tant, but
- []
-
-
-Underfull \hbox (badness 1635) in paragraph at lines 40--41
+Underfull \hbox (badness 1635) in paragraph at lines 41--42
 []\T1/ptm/m/n/10.95 This pa-per stud-ies that ques-tion through a
  []
 
 
-Underfull \hbox (badness 1178) in paragraph at lines 42--43
-\T1/ptm/m/n/10.95 niz-ing per-sis-tent mem-ory stores ([][]Wang et al.[][],
- []
-
-
-Underfull \hbox (badness 2828) in paragraph at lines 42--43
-\T1/ptm/m/n/10.95 It also dif-fers from prompt-compression and
+Underfull \hbox (badness 1939) in paragraph at lines 43--44
+\T1/ptm/m/it/10.95 mem-ory\T1/ptm/m/n/10.95 , while se-man-tic re-trieval plus 
+query-
  []
 
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 4
-6.
+9.
 (ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)
-Underfull \hbox (badness 1824) in paragraph at lines 47--48
-[]\T1/ptm/m/n/10.95 We show that on pub-lic semantic-memory
- []
-
-
-Underfull \hbox (badness 1067) in paragraph at lines 47--48
-\T1/ptm/m/n/10.95 bench-marks, ge-om-e-try is most use-ful as a
- []
-
-[1
+) [1
 
 
 
 ]
-LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 82
-.
+Underfull \hbox (badness 2111) in paragraph at lines 61--62
+ []\T1/ptm/b/n/10.95 Adaptive and time-aware mem-ory man-age-
+ []
+
+
+Underfull \hbox (badness 7704) in paragraph at lines 64--65
+\T1/ptm/b/n/10.95 pres-sion.[] \T1/ptm/m/n/10.95 LLM-Lin-gua and LongLLM-Lin-gu
+a
+ []
+
+
+Underfull \hbox (badness 2269) in paragraph at lines 64--65
+\T1/ptm/m/n/10.95 sion so that dropped de-tail can later be re-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 67--68
+ []\T1/ptm/b/n/10.95 Budgeted in-fer-ence and re-ten-tion.[] \T1/ptm/m/n/10.95 
+Scis-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 67--68
+\T1/ptm/m/n/10.95 sorhands, H2O, SnapKV, and Pyra-midKV
+ []
+
+
+Underfull \hbox (badness 1412) in paragraph at lines 67--68
+\T1/ptm/m/n/10.95 the re-tained ob-jects are turns, seg-ments, and
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 70--71
+ []\T1/ptm/b/n/10.95 Benchmarks for con-ver-sa-tional mem-ory.[]
+ []
+
+
+Underfull \hbox (badness 4120) in paragraph at lines 70--71
+\T1/ptm/m/n/10.95 broad-ens the eval-u-a-tion tar-get to in-ter-ac-tive
+ []
+
+
+Underfull \hbox (badness 4739) in paragraph at lines 70--71
+\T1/ptm/m/n/10.95 ar-gues that mem-ory eval-u-a-tion should span
+ []
+
+[2]
+LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 10
+4.
  (t1zi4.fd
 File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
 )
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 10.95pt on input line 82.
+(Font)              scaled to size 10.95pt on input line 104.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 9.0pt on input line 82.
+(Font)              scaled to size 9.0pt on input line 104.
 
-Underfull \hbox (badness 6493) in paragraph at lines 84--85
+Underfull \hbox (badness 6493) in paragraph at lines 106--107
 []\T1/zi4/m/n/9 budget_aware_semantic_KCD\T1/ptm/m/n/10.95 : se-man-tic scor-in
 g
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 85--86
+Underfull \hbox (badness 10000) in paragraph at lines 107--108
 []\T1/zi4/m/n/9 semantic_query_conditioned_geometry_KCD\T1/ptm/m/n/10.95 : se-
  []
 
-
-Underfull \hbox (badness 2980) in paragraph at lines 92--93
+[3]
+Underfull \hbox (badness 2980) in paragraph at lines 139--140
 []\T1/ptm/b/n/10.95 Hard stress set\T1/ptm/m/n/10.95 : 36 syn-thetic but in-ter
 -
  []
 
 
-Underfull \hbox (badness 1242) in paragraph at lines 92--93
+Underfull \hbox (badness 1242) in paragraph at lines 139--140
 \T1/ptm/m/n/10.95 retrieval-heavy, and code-conversation fam-i-
  []
 
 
-Underfull \hbox (badness 1303) in paragraph at lines 96--97
-\T1/ptm/m/n/10.95 Primary ex-per-i-ments use \T1/zi4/m/n/9 qwen25_15b\T1/ptm/m/
-n/10.95 ; a single-
+Underfull \hbox (badness 10000) in paragraph at lines 151--152
+[]\T1/ptm/b/n/10.95 Public bench-mark re-fine-ment study:
  []
 
 
-Underfull \hbox (badness 1052) in paragraph at lines 102--103
+Underfull \hbox (badness 10000) in paragraph at lines 151--152
+\T1/zi4/m/n/9 semantic\T1/ptm/m/n/10.95 , \T1/zi4/m/n/9 budget_aware_semantic_K
+CD\T1/ptm/m/n/10.95 ,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 151--152
+\T1/zi4/m/n/9 semantic_ambient_geometry_KCD\T1/ptm/m/n/10.95 , and
+ []
+
+
+Underfull \hbox (badness 1052) in paragraph at lines 160--161
 []\T1/ptm/b/n/10.95 MSC\T1/ptm/m/n/10.95 : pri-mary met-rics are shortlist-rank
 ing
  []
 
-
-Underfull \hbox (badness 6157) in paragraph at lines 105--106
-\T1/ptm/m/n/10.95 the same con-ver-sa-tion are not in-de-pen-dent.
- []
-
-
-Underfull \hbox (badness 1565) in paragraph at lines 105--106
-\T1/ptm/m/n/10.95 level sta-bil-ity; row-level tests pro-vide higher-
- []
-
-[2]
+[4]
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 10.0pt on input line 116.
+(Font)              scaled to size 10.0pt on input line 198.
 
-Underfull \hbox (badness 5696) in paragraph at lines 196--196
-[]\T1/ptm/m/n/10 Table 5: |Gate 1 on LongMemEval-S cleaned
+Underfull \hbox (badness 2050) in paragraph at lines 234--235
+\T1/ptm/m/n/10.95 The mech-a-nism is not merely that ge-om-e-try
  []
 
-[3] (acl_findings_submission.bbl [4])
-Underfull \hbox (badness 1867) in paragraph at lines 249--250
+File: ../manuscript/figures/paper2_checkpoint_overview.png Graphic file (type b
+mp)
+<../manuscript/figures/paper2_checkpoint_overview.png>
+[5]
+Underfull \hbox (badness 1147) in paragraph at lines 281--282
+\T1/ptm/m/n/10.95 is the strongest pol-icy in the com-par-i-son set,
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Underfull \hbox (badness 5696) in paragraph at lines 290--290
+[]\T1/ptm/m/n/10 Table 6: |Gate 1 on LongMemEval-S cleaned
+ []
+
+[6] [7] (acl_findings_submission.bbl
+Underfull \hbox (badness 2698) in paragraph at lines 56--60
+[]\T1/ptm/m/n/10 Yuhang Li, Yichi Huang, Bin Yang, Balara-man
+ []
+
+)
+Underfull \hbox (badness 1867) in paragraph at lines 366--367
 \T1/ptm/m/n/10.95 The ge-o-met-ric char-ac-ter-i-za-tion mo-ti-vat-ing the
  []
 
 
-Underfull \hbox (badness 1642) in paragraph at lines 249--250
+Underfull \hbox (badness 1642) in paragraph at lines 366--367
 \T1/ptm/m/n/10.95 scor-ing sig-nal is sta-ble across three com-pact
  []
 
-
-Underfull \hbox (badness 1057) in paragraph at lines 252--253
-\T1/ptm/m/n/10.95 syn-thetic up-date con-ver-sa-tions. These re-sults
+[8]
+Underfull \hbox (badness 3386) in paragraph at lines 391--392
+\T1/ptm/m/n/10.95 con-cep-tual: the cur-rent marker-based ob-ject
  []
 
-[5
 
-] (acl_findings_submission.aux)
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+[]\T1/ptm/m/n/10.95 No ro-bust
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+\T1/ptm/m/n/10.95 within-topic
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+[]\T1/ptm/m/n/10.95 208 seg-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+[]\T1/ptm/m/n/10.95 Geometry-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+\T1/ptm/m/n/10.95 only regimes
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+\T1/ptm/m/n/10.95 and ca-sual
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+[]\T1/ptm/m/n/10.95 State-update
+ []
+
+
+Underfull \hbox (badness 2050) in paragraph at lines 410--410
+[]\T1/ptm/m/n/10.95 10 syn-thetic
+ []
+
+
+Underfull \hbox (badness 5175) in paragraph at lines 410--410
+[]\T1/ptm/m/n/10.95 Same-sign in-
+ []
+
+
+Underfull \hbox (badness 1147) in paragraph at lines 410--410
+\T1/ptm/m/n/10.95 cre-ment align-
+ []
+
+
+Underfull \hbox (badness 6927) in paragraph at lines 410--410
+\T1/ptm/m/n/10.95 de-tect su-per-s-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+[]\T1/ptm/m/n/10.95 State/increment
+ []
+
+
+Underfull \hbox (badness 2050) in paragraph at lines 410--410
+[]\T1/ptm/m/n/10.95 10 syn-thetic
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+[]\T1/ptm/m/n/10.95 update 0.971 vs
+ []
+
+
+Underfull \hbox (badness 3138) in paragraph at lines 410--410
+[]\T1/ptm/m/n/10.95 Only a weak
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+\T1/ptm/m/n/10.95 rank-ing mar-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+\T1/ptm/m/n/10.95 gin, not a
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+\T1/ptm/m/n/10.95 us-able sign-
+ []
+
+[9] (acl_findings_submission.aux)
 Package rerunfilecheck Info: File `acl_findings_submission.out' has not changed
 .
-(rerunfilecheck)             Checksum: C69CB1F5B2B588071B6E28793F679A45;3001.
+(rerunfilecheck)             Checksum: 36C321A576FC3D6F425ED02C6E325048;5038.
  )
-Output written on acl_findings_submission.xdv (5 pages, 67748 bytes).
+Output written on acl_findings_submission.xdv (9 pages, 130616 bytes).
