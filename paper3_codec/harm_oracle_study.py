@@ -231,20 +231,16 @@ def _candidate_feature_payload(
     return payload
 
 
-def _oracle_ablation_rows_for_target(
+def _oracle_candidate_specs_for_target_budget(
     *,
     conversation: ConversationRecord,
     benchmark_name: str,
     model_key: str,
-    extractor: ConversationStateExtractor,
     full_batch: Any,
-    full_logits: np.ndarray,
-    full_behavior_score: Any | None,
     geometry_risk: np.ndarray,
     target_turn: int,
     budget_fraction: float,
     recent_window: int,
-    max_input_tokens: int,
     semantic_risk: np.ndarray,
     support_scores: np.ndarray,
     semantic_support_proxy: np.ndarray,
@@ -330,6 +326,7 @@ def _oracle_ablation_rows_for_target(
         )
         candidate_specs.append(
             {
+                "retained_prior_key": tuple(retained_prior),
                 "messages": messages,
                 "row": {
                     "benchmark": benchmark_name,
@@ -399,6 +396,7 @@ def _oracle_ablation_rows_for_target(
                 )
                 candidate_specs.append(
                     {
+                        "retained_prior_key": tuple(retained_prior),
                         "messages": messages,
                         "row": {
                             "benchmark": benchmark_name,
@@ -416,17 +414,42 @@ def _oracle_ablation_rows_for_target(
                     }
                 )
 
+    return candidate_specs
+
+
+def _score_oracle_candidate_specs(
+    *,
+    conversation: ConversationRecord,
+    extractor: ConversationStateExtractor,
+    target_turn: int,
+    candidate_specs: list[dict[str, Any]],
+    full_logits: np.ndarray,
+    full_behavior_score: Any | None,
+    max_input_tokens: int,
+) -> list[dict[str, Any]]:
+    if not candidate_specs:
+        return []
+
     batch_size = _oracle_ablation_batch_size()
-    message_batches = [spec["messages"] for spec in candidate_specs]
-    compressed_scores = []
-    behavior_scores = [] if full_behavior_score is not None else None
-    for start_idx in range(0, len(message_batches), batch_size):
-        chunk = message_batches[start_idx : start_idx + batch_size]
-        compressed_scores.extend(
+    unique_prompt_specs: list[dict[str, Any]] = []
+    unique_indices_by_key: dict[tuple[int, ...], int] = {}
+    for spec in candidate_specs:
+        retained_prior_key = tuple(int(idx) for idx in spec["retained_prior_key"])
+        if retained_prior_key in unique_indices_by_key:
+            continue
+        unique_indices_by_key[retained_prior_key] = len(unique_prompt_specs)
+        unique_prompt_specs.append(spec)
+
+    unique_message_batches = [spec["messages"] for spec in unique_prompt_specs]
+    unique_compressed_scores = []
+    unique_behavior_scores = [] if full_behavior_score is not None else None
+    for start_idx in range(0, len(unique_message_batches), batch_size):
+        chunk = unique_message_batches[start_idx : start_idx + batch_size]
+        unique_compressed_scores.extend(
             extractor.score_messages_batch(chunk, max_input_tokens=max_input_tokens)
         )
-        if behavior_scores is not None:
-            behavior_scores.extend(
+        if unique_behavior_scores is not None:
+            unique_behavior_scores.extend(
                 extractor.score_assistant_response_batch(
                     chunk,
                     conversation.turns[target_turn + 1].content,
@@ -435,11 +458,13 @@ def _oracle_ablation_rows_for_target(
             )
 
     rows: list[dict[str, Any]] = []
-    for idx, spec in enumerate(candidate_specs):
-        compressed = compressed_scores[idx]
+    for spec in candidate_specs:
+        retained_prior_key = tuple(int(idx) for idx in spec["retained_prior_key"])
+        unique_index = unique_indices_by_key[retained_prior_key]
+        compressed = unique_compressed_scores[unique_index]
         behavior_delta = None
-        if behavior_scores is not None:
-            behavior_delta = behavior_scores[idx].avg_neg_logprob - full_behavior_score.avg_neg_logprob
+        if unique_behavior_scores is not None:
+            behavior_delta = unique_behavior_scores[unique_index].avg_neg_logprob - full_behavior_score.avg_neg_logprob
         row = dict(spec["row"])
         row.update(
             {
@@ -968,8 +993,9 @@ def run_oracle_harm_probe(
                         max_input_tokens=max_input_tokens,
                     )
 
+                candidate_specs_by_budget: dict[float, list[dict[str, Any]]] = {}
+                expected_rows_by_budget: dict[float, int] = {}
                 for budget_fraction in budgets:
-                    before_count = len(candidate_rows)
                     print(
                         f"[harm_oracle_study] target_turn={target_turn} budget={budget_fraction:.2f} "
                         f"starting ablations",
@@ -982,32 +1008,56 @@ def run_oracle_harm_probe(
                         segment_span=segment_span,
                         ambient_geometry=geometry_risk,
                     )
-                    candidate_rows.extend(
-                        _oracle_ablation_rows_for_target(
-                            conversation=conversation,
-                            benchmark_name=benchmark_name,
-                            model_key=model_key,
-                            extractor=extractor,
-                            full_batch=full_batch,
-                            full_logits=full_logits,
-                            full_behavior_score=full_behavior_score,
-                            geometry_risk=geometry_risk,
-                            target_turn=target_turn,
-                            budget_fraction=budget_fraction,
-                            recent_window=recent_window,
-                            max_input_tokens=max_input_tokens,
-                            semantic_risk=semantic_risk,
-                            support_scores=support_scores,
-                            semantic_support_proxy=semantic_support_proxy,
-                            query_v2=query_v2,
-                            attention_raw=attention_raw,
-                            attention_sink=attention_sink,
-                        )
+                    candidate_specs = _oracle_candidate_specs_for_target_budget(
+                        conversation=conversation,
+                        benchmark_name=benchmark_name,
+                        model_key=model_key,
+                        full_batch=full_batch,
+                        geometry_risk=geometry_risk,
+                        target_turn=target_turn,
+                        budget_fraction=budget_fraction,
+                        recent_window=recent_window,
+                        semantic_risk=semantic_risk,
+                        support_scores=support_scores,
+                        semantic_support_proxy=semantic_support_proxy,
+                        query_v2=query_v2,
+                        attention_raw=attention_raw,
+                        attention_sink=attention_sink,
                     )
-                    added_rows = len(candidate_rows) - before_count
+                    candidate_specs_by_budget[float(budget_fraction)] = candidate_specs
+                    expected_rows_by_budget[float(budget_fraction)] = len(candidate_specs)
+
+                all_candidate_specs = [
+                    spec
+                    for budget_fraction in budgets
+                    for spec in candidate_specs_by_budget[float(budget_fraction)]
+                ]
+                scored_rows = _score_oracle_candidate_specs(
+                    conversation=conversation,
+                    extractor=extractor,
+                    target_turn=target_turn,
+                    candidate_specs=all_candidate_specs,
+                    full_logits=full_logits,
+                    full_behavior_score=full_behavior_score,
+                    max_input_tokens=max_input_tokens,
+                )
+                rows_by_budget: dict[float, list[dict[str, Any]]] = defaultdict(list)
+                for row in scored_rows:
+                    rows_by_budget[float(row["budget_fraction"])].append(row)
+
+                for budget_fraction in budgets:
+                    budget_key = float(budget_fraction)
+                    budget_rows = rows_by_budget.get(budget_key, [])
+                    if len(budget_rows) != expected_rows_by_budget[budget_key]:
+                        raise ValueError(
+                            "Oracle ablation dedup row fan-out mismatch: "
+                            f"target_turn={target_turn} budget={budget_fraction:.2f} "
+                            f"expected={expected_rows_by_budget[budget_key]} actual={len(budget_rows)}"
+                        )
+                    candidate_rows.extend(budget_rows)
                     print(
                         f"[harm_oracle_study] target_turn={target_turn} budget={budget_fraction:.2f} "
-                        f"completed ablations rows_added={added_rows}",
+                        f"completed ablations rows_added={len(budget_rows)}",
                         flush=True,
                     )
                 completed_target_turns_by_conversation.setdefault(conversation.conversation_id, []).append(int(target_turn))
