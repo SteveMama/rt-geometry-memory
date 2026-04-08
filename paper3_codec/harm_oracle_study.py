@@ -816,10 +816,19 @@ def run_oracle_harm_probe(
             desc=f"{model_key} oracle",
         )
         for conversation_index, conversation in iterator:
+            print(
+                f"[harm_oracle_study] starting conversation {conversation_index}/{len(conversations)} "
+                f"id={conversation.conversation_id} turns={len(conversation.turns)} "
+                f"target_turns={len(target_turns_by_conversation[conversation.conversation_id])}",
+                flush=True,
+            )
             full_batch = extractor.extract_conversation(
                 conversation,
                 max_turns=max_turns_per_conversation,
                 max_input_tokens=max_input_tokens,
+                progress_label=(
+                    f"oracle {model_key} {conversation.conversation_id}"
+                ),
             )
             analysis = analyze_trajectory(
                 states=full_batch.states,

@@ -544,10 +544,17 @@ def run_codec_pilot(
         desc=f"{model_key} conversations",
     )
     for conversation_index, conversation in conversation_iterator:
+        print(
+            f"[{model_key}] starting conversation {conversation_index}/{len(conversations)} "
+            f"id={conversation.conversation_id} turns={len(conversation.turns)} "
+            f"sampled_targets={len(conversation_target_turns[conversation.conversation_id])}",
+            flush=True,
+        )
         full_batch = extractor.extract_conversation(
             conversation,
             max_turns=max_turns_per_conversation,
             max_input_tokens=max_input_tokens,
+            progress_label=f"study {model_key} {conversation.conversation_id}",
         )
         target_turns = conversation_target_turns[conversation.conversation_id]
         if hasattr(conversation_iterator, "set_postfix_str"):

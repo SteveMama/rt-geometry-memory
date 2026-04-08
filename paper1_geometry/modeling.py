@@ -213,12 +213,24 @@ class ConversationStateExtractor:
         conversation: ConversationRecord,
         max_turns: int | None = None,
         max_input_tokens: int | None = None,
+        *,
+        progress_label: str | None = None,
+        progress_every: int | None = None,
     ) -> TrajectoryBatch:
         turn_limit = len(conversation.turns) if max_turns is None else min(max_turns, len(conversation.turns))
         states: list[np.ndarray] = []
         logits: list[np.ndarray] = []
         token_counts: list[int] = []
         turn_roles: list[str] = []
+
+        if progress_label:
+            every = progress_every if progress_every is not None else max(1, min(8, turn_limit))
+            print(
+                f"[extract_conversation] start {progress_label} turns={turn_limit}",
+                flush=True,
+            )
+        else:
+            every = None
 
         with self.torch.no_grad():
             for turn_index in range(turn_limit):
@@ -228,13 +240,26 @@ class ConversationStateExtractor:
                 logits.append(score.logits)
                 token_counts.append(score.token_count)
                 turn_roles.append(conversation.turns[turn_index].role)
+                if progress_label and every is not None:
+                    completed = turn_index + 1
+                    if completed == 1 or completed == turn_limit or completed % every == 0:
+                        print(
+                            f"[extract_conversation] {progress_label} turn {completed}/{turn_limit}",
+                            flush=True,
+                        )
 
-        return TrajectoryBatch(
+        batch = TrajectoryBatch(
             states=np.stack(states, axis=0),
             logits=np.stack(logits, axis=0),
             token_counts=np.asarray(token_counts, dtype=np.int32),
             turn_roles=turn_roles,
         )
+        if progress_label:
+            print(
+                f"[extract_conversation] done {progress_label}",
+                flush=True,
+            )
+        return batch
 
     def score_messages(
         self,
