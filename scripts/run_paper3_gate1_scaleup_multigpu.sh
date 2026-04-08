@@ -38,6 +38,8 @@ RUN_PREFIX="${8:-paper3_gate1_scaleup_multigpu}"
 ENABLE_ORACLE_ATTENTION_SUMMARY="${ENABLE_ORACLE_ATTENTION_SUMMARY:-0}"
 GPU_COUNT="${GPU_COUNT:-0}"
 JOB_MULTIPLIER="${JOB_MULTIPLIER:-2}"
+GPU_PREFLIGHT_RETRIES="${GPU_PREFLIGHT_RETRIES:-6}"
+GPU_PREFLIGHT_SLEEP_SECONDS="${GPU_PREFLIGHT_SLEEP_SECONDS:-10}"
 
 MSC_LIMIT=32
 LONGMEM_LIMIT=12
@@ -108,6 +110,36 @@ SHARD_IDS_PATH="$shard_ids_path"
 SHARD_DIR="$shard_dir"
 LOG_PATH="$log_path"
 EOF
+}
+
+gpu_preflight() {
+  local gpu_id="$1"
+  CUDA_VISIBLE_DEVICES="$gpu_id" "$PYTHON_BIN" - <<'PY' >/dev/null 2>&1
+import torch
+if not torch.cuda.is_available():
+    raise SystemExit(1)
+torch.cuda.set_device(0)
+x = torch.zeros(1, device="cuda")
+torch.cuda.synchronize()
+del x
+torch.cuda.empty_cache()
+PY
+}
+
+wait_for_gpu_ready() {
+  local gpu_id="$1"
+  local worker_log="$2"
+  local attempt
+  for ((attempt=1; attempt<=GPU_PREFLIGHT_RETRIES; attempt++)); do
+    if gpu_preflight "$gpu_id"; then
+      echo "[worker][gpu=${gpu_id}] preflight ok on attempt ${attempt}/${GPU_PREFLIGHT_RETRIES}" | tee -a "$worker_log"
+      return 0
+    fi
+    echo "[worker][gpu=${gpu_id}] preflight failed on attempt ${attempt}/${GPU_PREFLIGHT_RETRIES}; sleeping ${GPU_PREFLIGHT_SLEEP_SECONDS}s" | tee -a "$worker_log"
+    sleep "$GPU_PREFLIGHT_SLEEP_SECONDS"
+  done
+  echo "[worker][gpu=${gpu_id}] preflight failed after ${GPU_PREFLIGHT_RETRIES} attempts" | tee -a "$worker_log"
+  return 1
 }
 
 prepare_oracle_jobs() {
@@ -188,6 +220,9 @@ worker_loop() {
   local worker_log="$QUEUE_ROOT/worker_gpu${gpu_id}.log"
   touch "$worker_log"
   while true; do
+    if ! wait_for_gpu_ready "$gpu_id" "$worker_log"; then
+      return 1
+    fi
     local claimed=""
     local pending_path
     for pending_path in "$QUEUE_PENDING"/*.job; do
@@ -207,6 +242,10 @@ worker_loop() {
     # shellcheck source=/dev/null
     source "$claimed"
     echo "[worker][gpu=${gpu_id}] starting kind=${KIND} study=${STUDY_NAME} ids=${SHARD_IDS_PATH}" | tee -a "$worker_log"
+    if ! wait_for_gpu_ready "$gpu_id" "$worker_log"; then
+      mv "$claimed" "$QUEUE_FAILED/$(basename "$claimed")"
+      return 1
+    fi
     local exit_code=0
     if [[ "$KIND" == "oracle" ]]; then
       CUDA_VISIBLE_DEVICES="$gpu_id" bash scripts/run_paper3_harm_oracle_probe.sh \
