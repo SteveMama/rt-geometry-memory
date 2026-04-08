@@ -208,6 +208,30 @@ class ConversationStateExtractor:
         )
         return {name: tensor.to(self.device) for name, tensor in batch.items()}
 
+    def _tokenize_message_batches(
+        self,
+        message_batches: list[list[dict[str, str]]],
+        max_input_tokens: int | None,
+    ) -> tuple[dict[str, Any], list[int]]:
+        rendered = [
+            self.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=False,
+            )
+            for messages in message_batches
+        ]
+        batch = self.tokenizer(
+            rendered,
+            return_tensors="pt",
+            padding=True,
+            truncation=max_input_tokens is not None,
+            max_length=max_input_tokens,
+        )
+        attention_mask = batch["attention_mask"]
+        token_counts = attention_mask.sum(dim=1).detach().cpu().tolist()
+        return {name: tensor.to(self.device) for name, tensor in batch.items()}, [int(item) for item in token_counts]
+
     def extract_conversation(
         self,
         conversation: ConversationRecord,
@@ -297,6 +321,41 @@ class ConversationStateExtractor:
             token_count=int(encoded["input_ids"].shape[1]),
             attention_summary=attention_summary,
         )
+
+    def score_messages_batch(
+        self,
+        message_batches: list[list[dict[str, str]]],
+        max_input_tokens: int | None = None,
+    ) -> list[MessageScore]:
+        if not message_batches:
+            return []
+        with self.torch.no_grad():
+            encoded, token_counts = self._tokenize_message_batches(
+                message_batches,
+                max_input_tokens=max_input_tokens,
+            )
+            outputs = self.model(
+                **encoded,
+                output_hidden_states=True,
+                output_attentions=False,
+                use_cache=False,
+                return_dict=True,
+            )
+            hidden_states = outputs.hidden_states[self.state_layer].detach().to(self.torch.float32).cpu().numpy()
+            logits = outputs.logits.detach().to(self.torch.float32).cpu().numpy()
+            input_ids = encoded["input_ids"]
+            scores: list[MessageScore] = []
+            for idx, token_count in enumerate(token_counts):
+                last_index = max(token_count - 1, 0)
+                scores.append(
+                    MessageScore(
+                        state=hidden_states[idx, last_index].astype(np.float32),
+                        logits=logits[idx, last_index].astype(np.float32),
+                        token_count=int(token_count),
+                        attention_summary=None,
+                    )
+                )
+        return scores
 
     def _summarize_turn_attention(
         self,
@@ -432,6 +491,105 @@ class ConversationStateExtractor:
             total_neg_logprob=-total_logprob,
             avg_neg_logprob=-avg_logprob,
         )
+
+    def score_assistant_response_batch(
+        self,
+        prompt_message_batches: list[list[dict[str, str]]],
+        target_text: str,
+        max_input_tokens: int | None = None,
+    ) -> list[CompletionScore]:
+        if not prompt_message_batches:
+            return []
+
+        prompt_rendered = [
+            self.tokenizer.apply_chat_template(
+                prompt_messages,
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            for prompt_messages in prompt_message_batches
+        ]
+        full_rendered = [
+            self.tokenizer.apply_chat_template(
+                prompt_messages + [{"role": "assistant", "content": target_text}],
+                tokenize=False,
+                add_generation_prompt=False,
+            )
+            for prompt_messages in prompt_message_batches
+        ]
+
+        prompt_batch = self.tokenizer(
+            prompt_rendered,
+            return_tensors="pt",
+            padding=True,
+            truncation=max_input_tokens is not None,
+            max_length=max_input_tokens,
+        )
+        full_batch = self.tokenizer(
+            full_rendered,
+            return_tensors="pt",
+            padding=True,
+            truncation=max_input_tokens is not None,
+            max_length=max_input_tokens,
+        )
+        prompt_lengths = prompt_batch["attention_mask"].sum(dim=1).detach().cpu().tolist()
+        full_lengths = full_batch["attention_mask"].sum(dim=1).detach().cpu().tolist()
+        encoded = {name: tensor.to(self.device) for name, tensor in full_batch.items()}
+
+        with self.torch.no_grad():
+            outputs = self.model(
+                **encoded,
+                output_hidden_states=False,
+                use_cache=False,
+                return_dict=True,
+            )
+            log_probs = self.torch.log_softmax(outputs.logits[:, :-1, :], dim=-1)
+            target_ids = encoded["input_ids"][:, 1:]
+
+        scores: list[CompletionScore] = []
+        for idx, (prompt_len, full_len) in enumerate(zip(prompt_lengths, full_lengths, strict=False)):
+            prompt_len = int(prompt_len)
+            full_len = int(full_len)
+            if full_len <= prompt_len:
+                scores.append(
+                    CompletionScore(
+                        token_count=0,
+                        total_logprob=0.0,
+                        avg_logprob=0.0,
+                        total_neg_logprob=0.0,
+                        avg_neg_logprob=0.0,
+                    )
+                )
+                continue
+            target_start = max(prompt_len - 1, 0)
+            target_end = max(full_len - 1, target_start)
+            suffix_log_probs = log_probs[idx, target_start:target_end, :]
+            suffix_target_ids = target_ids[idx, target_start:target_end]
+            if suffix_target_ids.numel() == 0:
+                scores.append(
+                    CompletionScore(
+                        token_count=0,
+                        total_logprob=0.0,
+                        avg_logprob=0.0,
+                        total_neg_logprob=0.0,
+                        avg_neg_logprob=0.0,
+                    )
+                )
+                continue
+            gathered = suffix_log_probs.gather(1, suffix_target_ids.unsqueeze(-1)).squeeze(-1)
+            total_logprob = float(gathered.sum().detach().to(self.torch.float32).cpu().item())
+            token_count = int(suffix_target_ids.shape[0])
+            avg_logprob = total_logprob / max(token_count, 1)
+            scores.append(
+                CompletionScore(
+                    token_count=token_count,
+                    total_logprob=total_logprob,
+                    avg_logprob=avg_logprob,
+                    total_neg_logprob=-total_logprob,
+                    avg_neg_logprob=-avg_logprob,
+                )
+            )
+        return scores
 
     def save_local_metadata(self, output_path: str | Path) -> None:
         payload = {

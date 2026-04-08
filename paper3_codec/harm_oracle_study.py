@@ -284,7 +284,7 @@ def _oracle_ablation_rows_for_target(
     )
     object_feature_rows = object_bundle.per_turn_feature_rows(prefix_turn_count)
 
-    rows: list[dict[str, Any]] = []
+    candidate_specs: list[dict[str, Any]] = []
     for turn_index in turn_candidates:
         retained_prior = [idx for idx in range(prefix_turn_count) if idx != turn_index]
         messages = _policy_messages(
@@ -292,15 +292,6 @@ def _oracle_ablation_rows_for_target(
             target_turn=target_turn,
             retained_prior_indices=retained_prior,
         )
-        compressed = extractor.score_messages(messages, max_input_tokens=max_input_tokens)
-        behavior_delta = None
-        if full_behavior_score is not None:
-            behavior_score = extractor.score_assistant_response(
-                messages,
-                conversation.turns[target_turn + 1].content,
-                max_input_tokens=max_input_tokens,
-            )
-            behavior_delta = behavior_score.avg_neg_logprob - full_behavior_score.avg_neg_logprob
         feature_payload = _candidate_feature_payload(
             conversation=conversation,
             prefix_turn_count=prefix_turn_count,
@@ -319,22 +310,22 @@ def _oracle_ablation_rows_for_target(
             shortlist_flags=shortlist_flags,
             object_feature_rows=object_feature_rows,
         )
-        rows.append(
+        candidate_specs.append(
             {
-                "benchmark": benchmark_name,
-                "family": conversation.family,
-                "model_key": model_key,
-                "conversation_id": conversation.conversation_id,
-                "target_turn": target_turn,
-                "budget_fraction": float(budget_fraction),
-                "candidate_type": "turn",
-                "candidate_start": turn_index,
-                "candidate_end": turn_index,
-                "action": "drop_turn",
-                **feature_payload,
-                "delta_logit_l2": float(np.linalg.norm(full_logits - compressed.logits)),
-                "delta_answer_avg_neg_logprob_delta": float(behavior_delta) if behavior_delta is not None else 0.0,
-                "has_behavior_label": 1 if behavior_delta is not None else 0,
+                "messages": messages,
+                "row": {
+                    "benchmark": benchmark_name,
+                    "family": conversation.family,
+                    "model_key": model_key,
+                    "conversation_id": conversation.conversation_id,
+                    "target_turn": target_turn,
+                    "budget_fraction": float(budget_fraction),
+                    "candidate_type": "turn",
+                    "candidate_start": turn_index,
+                    "candidate_end": turn_index,
+                    "action": "drop_turn",
+                    **feature_payload,
+                },
             }
         )
 
@@ -388,33 +379,50 @@ def _oracle_ablation_rows_for_target(
                     target_turn=target_turn,
                     retained_prior_indices=retained_prior,
                 )
-                compressed = extractor.score_messages(messages, max_input_tokens=max_input_tokens)
-                behavior_delta = None
-                if full_behavior_score is not None:
-                    behavior_score = extractor.score_assistant_response(
-                        messages,
-                        conversation.turns[target_turn + 1].content,
-                        max_input_tokens=max_input_tokens,
-                    )
-                    behavior_delta = behavior_score.avg_neg_logprob - full_behavior_score.avg_neg_logprob
-                rows.append(
+                candidate_specs.append(
                     {
-                        "benchmark": benchmark_name,
-                        "family": conversation.family,
-                        "model_key": model_key,
-                        "conversation_id": conversation.conversation_id,
-                        "target_turn": target_turn,
-                        "budget_fraction": float(budget_fraction),
-                        "candidate_type": "segment",
-                        "candidate_start": start,
-                        "candidate_end": end,
-                        "action": action,
-                        **feature_payload,
-                        "delta_logit_l2": float(np.linalg.norm(full_logits - compressed.logits)),
-                        "delta_answer_avg_neg_logprob_delta": float(behavior_delta) if behavior_delta is not None else 0.0,
-                        "has_behavior_label": 1 if behavior_delta is not None else 0,
+                        "messages": messages,
+                        "row": {
+                            "benchmark": benchmark_name,
+                            "family": conversation.family,
+                            "model_key": model_key,
+                            "conversation_id": conversation.conversation_id,
+                            "target_turn": target_turn,
+                            "budget_fraction": float(budget_fraction),
+                            "candidate_type": "segment",
+                            "candidate_start": start,
+                            "candidate_end": end,
+                            "action": action,
+                            **feature_payload,
+                        },
                     }
                 )
+
+    message_batches = [spec["messages"] for spec in candidate_specs]
+    compressed_scores = extractor.score_messages_batch(message_batches, max_input_tokens=max_input_tokens)
+    behavior_scores = None
+    if full_behavior_score is not None:
+        behavior_scores = extractor.score_assistant_response_batch(
+            message_batches,
+            conversation.turns[target_turn + 1].content,
+            max_input_tokens=max_input_tokens,
+        )
+
+    rows: list[dict[str, Any]] = []
+    for idx, spec in enumerate(candidate_specs):
+        compressed = compressed_scores[idx]
+        behavior_delta = None
+        if behavior_scores is not None:
+            behavior_delta = behavior_scores[idx].avg_neg_logprob - full_behavior_score.avg_neg_logprob
+        row = dict(spec["row"])
+        row.update(
+            {
+                "delta_logit_l2": float(np.linalg.norm(full_logits - compressed.logits)),
+                "delta_answer_avg_neg_logprob_delta": float(behavior_delta) if behavior_delta is not None else 0.0,
+                "has_behavior_label": 1 if behavior_delta is not None else 0,
+            }
+        )
+        rows.append(row)
 
     return rows
 
@@ -841,10 +849,15 @@ def run_oracle_harm_probe(
             turn_costs = _prefix_turn_costs(full_batch.token_counts)
             target_turns = target_turns_by_conversation[conversation.conversation_id]
 
-            for target_turn in target_turns:
+            for target_index, target_turn in enumerate(target_turns, start=1):
                 prefix_turn_count = target_turn
                 if prefix_turn_count <= 0:
                     continue
+                print(
+                    f"[harm_oracle_study] conversation {conversation_index}/{len(conversations)} "
+                    f"target {target_index}/{len(target_turns)} turn={target_turn}",
+                    flush=True,
+                )
                 full_logits = full_batch.logits[target_turn]
                 semantic_risk = turn_semantic_risk(full_batch.states, target_turn)[:prefix_turn_count]
                 support_scores = _support_scores(
@@ -887,6 +900,12 @@ def run_oracle_harm_probe(
                     )
 
                 for budget_fraction in budgets:
+                    before_count = len(candidate_rows)
+                    print(
+                        f"[harm_oracle_study] target_turn={target_turn} budget={budget_fraction:.2f} "
+                        f"starting ablations",
+                        flush=True,
+                    )
                     segment_span = _budget_segment_span(budget_fraction)
                     query_v2 = query_conditioned_turn_risk_v2(
                         full_batch.states,
@@ -915,6 +934,12 @@ def run_oracle_harm_probe(
                             attention_raw=attention_raw,
                             attention_sink=attention_sink,
                         )
+                    )
+                    added_rows = len(candidate_rows) - before_count
+                    print(
+                        f"[harm_oracle_study] target_turn={target_turn} budget={budget_fraction:.2f} "
+                        f"completed ablations rows_added={added_rows}",
+                        flush=True,
                     )
 
             print(
