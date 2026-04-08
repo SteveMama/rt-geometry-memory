@@ -473,6 +473,7 @@ def run_codec_pilot(
     state_layer: int,
     device: str | None,
     limit_conversations: int | None,
+    skip_conversations: int = 0,
     output_dir: Path | None,
     segment_span: int = 2,
     policies: tuple[str, ...] = DEFAULT_POLICIES,
@@ -488,6 +489,8 @@ def run_codec_pilot(
     conversations = load_conversations_from_paths(input_paths)
     if families is not None:
         conversations = [conversation for conversation in conversations if conversation.family in families]
+    if skip_conversations > 0:
+        conversations = conversations[skip_conversations:]
     if limit_conversations is not None:
         conversations = conversations[:limit_conversations]
     if not conversations:
@@ -532,7 +535,8 @@ def run_codec_pilot(
         f"[{model_key}] Model={spec.model_name} device={extractor.device} "
         f"max_input_tokens={max_input_tokens} segment_span={segment_span} "
         f"target_turn_stride={target_turn_stride} max_target_turns={max_target_turns} "
-        f"max_turns_per_conversation={max_turns_per_conversation}",
+        f"max_turns_per_conversation={max_turns_per_conversation} "
+        f"skip_conversations={skip_conversations}",
         flush=True,
     )
 
@@ -1025,6 +1029,7 @@ def run_codec_pilot(
         "target_turn_stride": target_turn_stride,
         "max_target_turns": max_target_turns,
         "max_turns_per_conversation": max_turns_per_conversation,
+        "skip_conversations": skip_conversations,
         "num_conversations": len(conversations),
         "num_evaluations": len(evaluation_rows),
         "num_behavior_evaluations": len(behavior_rows),
@@ -1133,6 +1138,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--state-layer", type=int, default=-1)
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
+    parser.add_argument("--skip-conversations", type=int, default=0)
     parser.add_argument("--segment-span", type=int, default=2)
     parser.add_argument("--target-turn-stride", type=int, default=1)
     parser.add_argument("--max-target-turns", type=int, default=None)
@@ -1163,6 +1169,7 @@ def main() -> None:
         state_layer=args.state_layer,
         device=args.device,
         limit_conversations=args.limit_conversations,
+        skip_conversations=args.skip_conversations,
         output_dir=args.output_root / args.run_name,
         segment_span=args.segment_span,
         policies=_parse_policies(args.policies),

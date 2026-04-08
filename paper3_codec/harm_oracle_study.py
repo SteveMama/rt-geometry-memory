@@ -777,6 +777,7 @@ def run_oracle_harm_probe(
     state_layer: int,
     device: str | None,
     limit_conversations: int | None,
+    skip_conversations: int,
     target_turn_stride: int,
     max_target_turns: int | None,
     max_turns_per_conversation: int | None,
@@ -786,6 +787,8 @@ def run_oracle_harm_probe(
     conversations = load_conversations_from_paths(input_paths)
     if families is not None:
         conversations = [conversation for conversation in conversations if conversation.family in families]
+    if skip_conversations > 0:
+        conversations = conversations[skip_conversations:]
     if limit_conversations is not None:
         conversations = conversations[:limit_conversations]
     if not conversations:
@@ -961,6 +964,7 @@ def run_oracle_harm_probe(
         "model_keys": model_keys,
         "budgets": budgets,
         "families": families,
+        "skip_conversations": skip_conversations,
         "num_conversations": len(conversations),
         "num_candidate_rows": len(candidate_rows),
         "models": model_payloads,
@@ -992,6 +996,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--state-layer", type=int, default=-1)
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
+    parser.add_argument("--skip-conversations", type=int, default=0)
     parser.add_argument("--target-turn-stride", type=int, default=4)
     parser.add_argument("--max-target-turns", type=int, default=16)
     parser.add_argument(
@@ -1030,6 +1035,7 @@ def main() -> None:
         state_layer=args.state_layer,
         device=args.device,
         limit_conversations=args.limit_conversations,
+        skip_conversations=args.skip_conversations,
         target_turn_stride=args.target_turn_stride,
         max_target_turns=args.max_target_turns,
         max_turns_per_conversation=args.max_turns_per_conversation,

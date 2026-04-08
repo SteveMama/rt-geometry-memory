@@ -290,6 +290,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--state-layer", type=int, default=-1)
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
+    parser.add_argument("--skip-conversations", type=int, default=0)
     parser.add_argument("--segment-span", type=int, default=2)
     parser.add_argument("--target-turn-stride", type=int, default=1)
     parser.add_argument("--max-target-turns", type=int, default=None)
@@ -337,6 +338,7 @@ def main() -> None:
             state_layer=args.state_layer,
             device=args.device,
             limit_conversations=args.limit_conversations,
+            skip_conversations=args.skip_conversations,
             output_dir=study_dir / model_key,
             segment_span=args.segment_span,
             policies=policies,
@@ -365,6 +367,7 @@ def main() -> None:
         "target_turn_stride": args.target_turn_stride,
         "max_target_turns": args.max_target_turns,
         "max_turns_per_conversation": args.max_turns_per_conversation,
+        "skip_conversations": args.skip_conversations,
         "models": _study_summary(model_results),
     }
 

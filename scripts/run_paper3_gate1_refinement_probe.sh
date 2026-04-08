@@ -24,7 +24,7 @@ fi
 export PYTHON_BIN
 
 if [[ $# -lt 2 ]]; then
-  echo "Usage: run_paper3_gate1_refinement_probe.sh <study-name> <input-jsonl> [models] [budgets] [limit-conversations] [target-turn-stride] [max-target-turns] [max-turns-per-conversation]" >&2
+  echo "Usage: run_paper3_gate1_refinement_probe.sh <study-name> <input-jsonl> [models] [budgets] [limit-conversations] [target-turn-stride] [max-target-turns] [max-turns-per-conversation] [skip-conversations]" >&2
   exit 1
 fi
 
@@ -36,12 +36,13 @@ LIMIT_CONVERSATIONS="${5:-24}"
 TARGET_TURN_STRIDE="${6:-4}"
 MAX_TARGET_TURNS="${7:-16}"
 MAX_TURNS_PER_CONVERSATION="${8:-}"
+SKIP_CONVERSATIONS="${9:-0}"
 POLICIES="semantic,budget_aware_semantic_keep_compress_drop,semantic_ambient_geometry_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop"
 
 echo "[run_paper3_gate1_refinement_probe] study=${RUN_NAME} models=${MODEL_KEYS} budgets=${BUDGETS}" >&2
 echo "[run_paper3_gate1_refinement_probe] input=${INPUT_PATH}" >&2
 echo "[run_paper3_gate1_refinement_probe] policies=${POLICIES}" >&2
-echo "[run_paper3_gate1_refinement_probe] max_turns_per_conversation=${MAX_TURNS_PER_CONVERSATION:-none}" >&2
+echo "[run_paper3_gate1_refinement_probe] max_turns_per_conversation=${MAX_TURNS_PER_CONVERSATION:-none} skip_conversations=${SKIP_CONVERSATIONS}" >&2
 
 MAX_TURNS_ARG=""
 if [[ -n "$MAX_TURNS_PER_CONVERSATION" ]]; then
@@ -60,6 +61,7 @@ PYTHONUNBUFFERED=1 "$PYTHON_BIN" -u -m paper3_codec.study \
   --max-input-tokens 768 \
   --segment-span 3 \
   --limit-conversations "$LIMIT_CONVERSATIONS" \
+  --skip-conversations "$SKIP_CONVERSATIONS" \
   --target-turn-stride "$TARGET_TURN_STRIDE" \
   --max-target-turns "$MAX_TARGET_TURNS" \
   $MAX_TURNS_ARG

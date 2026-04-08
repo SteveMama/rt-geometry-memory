@@ -24,7 +24,7 @@ fi
 export PYTHON_BIN
 
 if [[ $# -lt 3 ]]; then
-  echo "Usage: run_paper3_harm_oracle_probe.sh <study-name> <benchmark-name> <input-jsonl> [models] [budgets] [limit-conversations] [target-turn-stride] [max-target-turns] [max-turns-per-conversation] [enable-attention-summary]" >&2
+  echo "Usage: run_paper3_harm_oracle_probe.sh <study-name> <benchmark-name> <input-jsonl> [models] [budgets] [limit-conversations] [target-turn-stride] [max-target-turns] [max-turns-per-conversation] [enable-attention-summary] [skip-conversations]" >&2
   exit 1
 fi
 
@@ -41,10 +41,11 @@ MAX_TARGET_TURNS="${8:-16}"
 # Default: no cap (None). Pass an integer to truncate (e.g. 40).
 MAX_TURNS_PER_CONVERSATION="${9:-}"
 ENABLE_ATTENTION_SUMMARY="${10:-0}"
+SKIP_CONVERSATIONS="${11:-0}"
 
 echo "[run_paper3_harm_oracle_probe] study=${RUN_NAME} benchmark=${BENCHMARK_NAME} models=${MODEL_KEYS} budgets=${BUDGETS}" >&2
 echo "[run_paper3_harm_oracle_probe] input=${INPUT_PATH}" >&2
-echo "[run_paper3_harm_oracle_probe] limit_conversations=${LIMIT_CONVERSATIONS} target_turn_stride=${TARGET_TURN_STRIDE} max_target_turns=${MAX_TARGET_TURNS} max_turns_per_conversation=${MAX_TURNS_PER_CONVERSATION:-none} enable_attention_summary=${ENABLE_ATTENTION_SUMMARY}" >&2
+echo "[run_paper3_harm_oracle_probe] limit_conversations=${LIMIT_CONVERSATIONS} skip_conversations=${SKIP_CONVERSATIONS} target_turn_stride=${TARGET_TURN_STRIDE} max_target_turns=${MAX_TARGET_TURNS} max_turns_per_conversation=${MAX_TURNS_PER_CONVERSATION:-none} enable_attention_summary=${ENABLE_ATTENTION_SUMMARY}" >&2
 
 MAX_TURNS_ARG=""
 if [[ -n "$MAX_TURNS_PER_CONVERSATION" ]]; then
@@ -65,6 +66,7 @@ PYTHONUNBUFFERED=1 "$PYTHON_BIN" -u -m paper3_codec.harm_oracle_study \
   --min-history 4 \
   --max-input-tokens 768 \
   --limit-conversations "$LIMIT_CONVERSATIONS" \
+  --skip-conversations "$SKIP_CONVERSATIONS" \
   --target-turn-stride "$TARGET_TURN_STRIDE" \
   --max-target-turns "$MAX_TARGET_TURNS" \
   $MAX_TURNS_ARG \
