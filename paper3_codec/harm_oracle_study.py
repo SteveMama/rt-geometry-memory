@@ -939,6 +939,66 @@ def run_oracle_harm_probe(
             if completed_target_turns:
                 target_turns = [target_turn for target_turn in target_turns if target_turn not in completed_target_turns]
 
+            # Pre-compute full-prompt messages for all target turns so we can batch
+            # baseline scoring across the whole conversation in one GPU call.
+            valid_target_turns = [t for t in target_turns if t > 0]
+            full_messages_by_turn: dict[int, list[dict[str, Any]]] = {
+                target_turn: _policy_messages(
+                    conversation=conversation,
+                    target_turn=target_turn,
+                    retained_prior_indices=list(range(target_turn)),
+                )
+                for target_turn in valid_target_turns
+            }
+            behavior_turn_set: set[int] = {
+                target_turn
+                for target_turn in valid_target_turns
+                if (
+                    conversation.turns[target_turn].role == "user"
+                    and target_turn + 1 < len(conversation.turns)
+                    and conversation.turns[target_turn + 1].role == "assistant"
+                )
+            }
+
+            # Batch full-prompt baseline scoring across all target turns.
+            # Attention requires a serial call (score_messages_batch does not support
+            # return_attention_summary), so fall back to serial only in that case.
+            if enable_attention_summary:
+                full_prompt_scores: dict[int, Any] = {
+                    target_turn: extractor.score_messages(
+                        full_messages_by_turn[target_turn],
+                        max_input_tokens=max_input_tokens,
+                        return_attention_summary=True,
+                        cumulative_turn_token_counts=full_batch.token_counts[:target_turn],
+                    )
+                    for target_turn in valid_target_turns
+                }
+            else:
+                batched_scores = extractor.score_messages_batch(
+                    [full_messages_by_turn[t] for t in valid_target_turns],
+                    max_input_tokens=max_input_tokens,
+                )
+                full_prompt_scores = dict(zip(valid_target_turns, batched_scores))
+
+            # Behavior scoring: each turn has a distinct assistant response text so
+            # score_assistant_response_batch (single shared target_text) cannot be used.
+            # Score individually — these are already fewer calls than before because
+            # we only score behavior turns, not all target turns.
+            full_behavior_scores: dict[int, Any] = {
+                t: extractor.score_assistant_response(
+                    full_messages_by_turn[t],
+                    conversation.turns[t + 1].content,
+                    max_input_tokens=max_input_tokens,
+                )
+                for t in behavior_turn_set
+            }
+
+            print(
+                f"[harm_oracle_study] conversation {conversation_index}/{len(conversations)} "
+                f"batched baseline scoring: turns={len(valid_target_turns)} behavior_turns={len(behavior_turn_set)}",
+                flush=True,
+            )
+
             for target_index, target_turn in enumerate(target_turns, start=1):
                 prefix_turn_count = target_turn
                 if prefix_turn_count <= 0:
@@ -962,18 +1022,9 @@ def run_oracle_harm_probe(
                     support_scores=support_scores,
                     prefix_turn_count=prefix_turn_count,
                 )
-                full_messages = _policy_messages(
-                    conversation=conversation,
-                    target_turn=target_turn,
-                    retained_prior_indices=list(range(prefix_turn_count)),
-                )
+                full_messages = full_messages_by_turn[target_turn]
+                full_prompt_score = full_prompt_scores[target_turn]
                 if enable_attention_summary:
-                    full_prompt_score = extractor.score_messages(
-                        full_messages,
-                        max_input_tokens=max_input_tokens,
-                        return_attention_summary=True,
-                        cumulative_turn_token_counts=full_batch.token_counts[:prefix_turn_count],
-                    )
                     attention_raw, attention_sink = _turn_attention_features(
                         full_prompt_score.attention_summary,
                         prefix_turn_count=prefix_turn_count,
@@ -981,17 +1032,7 @@ def run_oracle_harm_probe(
                 else:
                     attention_raw = np.zeros(prefix_turn_count, dtype=np.float32)
                     attention_sink = np.zeros(prefix_turn_count, dtype=np.float32)
-                full_behavior_score = None
-                if (
-                    conversation.turns[target_turn].role == "user"
-                    and target_turn + 1 < len(conversation.turns)
-                    and conversation.turns[target_turn + 1].role == "assistant"
-                ):
-                    full_behavior_score = extractor.score_assistant_response(
-                        full_messages,
-                        conversation.turns[target_turn + 1].content,
-                        max_input_tokens=max_input_tokens,
-                    )
+                full_behavior_score = full_behavior_scores.get(target_turn)
 
                 candidate_specs_by_budget: dict[float, list[dict[str, Any]]] = {}
                 expected_rows_by_budget: dict[float, int] = {}
