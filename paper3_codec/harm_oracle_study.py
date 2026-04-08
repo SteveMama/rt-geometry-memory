@@ -4,6 +4,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -59,6 +60,7 @@ DEFAULT_FEATURE_KEYS: tuple[str, ...] = (
     "object_memory_score",
 )
 SEGMENT_SPANS: tuple[int, ...] = (2, 3, 4)
+DEFAULT_ORACLE_ABLATION_BATCH_SIZE = 4
 
 
 def _budget_segment_span(budget_fraction: float) -> int:
@@ -102,6 +104,17 @@ def _random_indices(
         return candidates
     sampled = rng.choice(np.asarray(candidates, dtype=np.int32), size=count, replace=False)
     return [int(item) for item in sampled.tolist()]
+
+
+def _oracle_ablation_batch_size() -> int:
+    raw = os.environ.get("ORACLE_ABLATION_BATCH_SIZE", "").strip()
+    if not raw:
+        return DEFAULT_ORACLE_ABLATION_BATCH_SIZE
+    try:
+        value = int(raw)
+    except ValueError:
+        return DEFAULT_ORACLE_ABLATION_BATCH_SIZE
+    return max(value, 1)
 
 
 def _turn_attention_features(
@@ -398,15 +411,23 @@ def _oracle_ablation_rows_for_target(
                     }
                 )
 
+    batch_size = _oracle_ablation_batch_size()
     message_batches = [spec["messages"] for spec in candidate_specs]
-    compressed_scores = extractor.score_messages_batch(message_batches, max_input_tokens=max_input_tokens)
-    behavior_scores = None
-    if full_behavior_score is not None:
-        behavior_scores = extractor.score_assistant_response_batch(
-            message_batches,
-            conversation.turns[target_turn + 1].content,
-            max_input_tokens=max_input_tokens,
+    compressed_scores = []
+    behavior_scores = [] if full_behavior_score is not None else None
+    for start_idx in range(0, len(message_batches), batch_size):
+        chunk = message_batches[start_idx : start_idx + batch_size]
+        compressed_scores.extend(
+            extractor.score_messages_batch(chunk, max_input_tokens=max_input_tokens)
         )
+        if behavior_scores is not None:
+            behavior_scores.extend(
+                extractor.score_assistant_response_batch(
+                    chunk,
+                    conversation.turns[target_turn + 1].content,
+                    max_input_tokens=max_input_tokens,
+                )
+            )
 
     rows: list[dict[str, Any]] = []
     for idx, spec in enumerate(candidate_specs):
