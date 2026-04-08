@@ -4,6 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+PYTHON_BIN="${PYTHON_BIN:-$(command -v python3 || command -v python || true)}"
+if [[ -z "$PYTHON_BIN" ]]; then
+  echo "[run_paper3_gate1_refinement_probe] could not find python3 or python on PATH" >&2
+  exit 1
+fi
+
 if [[ $# -lt 2 ]]; then
   echo "Usage: run_paper3_gate1_refinement_probe.sh <study-name> <input-jsonl> [models] [budgets] [limit-conversations] [target-turn-stride] [max-target-turns] [max-turns-per-conversation]" >&2
   exit 1
@@ -29,7 +35,7 @@ if [[ -n "$MAX_TURNS_PER_CONVERSATION" ]]; then
   MAX_TURNS_ARG="--max-turns-per-conversation $MAX_TURNS_PER_CONVERSATION"
 fi
 
-PYTHONUNBUFFERED=1 python -u -m paper3_codec.study \
+PYTHONUNBUFFERED=1 "$PYTHON_BIN" -u -m paper3_codec.study \
   --study-name "$RUN_NAME" \
   --model-keys "$MODEL_KEYS" \
   --input-path "$INPUT_PATH" \
