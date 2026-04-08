@@ -79,6 +79,18 @@ def main() -> None:
 
     output_dir = args.output_root / args.study_name
     output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "merge_progress.json").write_text(
+        json.dumps(
+            {
+                "status": "running",
+                "updated_at": datetime.now().isoformat(timespec="seconds"),
+                "study_name": args.study_name,
+                "shard_dirs": [str(item) for item in shard_dirs],
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     summary = {
         "study_name": args.study_name,
         "created_at": datetime.now().isoformat(timespec="seconds"),
@@ -97,6 +109,20 @@ def main() -> None:
     _write_csv(output_dir / "candidate_rows.csv", candidate_rows)
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     (output_dir / "report.md").write_text(_format_report(summary), encoding="utf-8")
+    (output_dir / "merge_progress.json").write_text(
+        json.dumps(
+            {
+                "status": "complete",
+                "updated_at": datetime.now().isoformat(timespec="seconds"),
+                "study_name": args.study_name,
+                "shard_dirs": [str(item) for item in shard_dirs],
+                "summary_path": str(output_dir / "summary.json"),
+                "report_path": str(output_dir / "report.md"),
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     print(f"Wrote merged oracle study to {output_dir}", flush=True)
 
 

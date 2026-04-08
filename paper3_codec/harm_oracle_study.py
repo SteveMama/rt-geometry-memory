@@ -23,7 +23,9 @@ from .memory_objects import build_semantic_object_bundle
 from .policies import support_aware_segment_retained_indices, semantic_shortlist_mask
 from .query_geometry import query_conditioned_turn_risk_v2
 from .run_paper3 import (
+    _build_extractor_with_retry,
     _constraint_marker_score,
+    _extract_or_load_conversation_batch,
     _harm_proxy_scores,
     _latest_user_index,
     _parse_families,
@@ -823,6 +825,7 @@ def run_oracle_harm_probe(
     model_payloads: dict[str, Any] = {}
     candidate_rows: list[dict[str, Any]] = []
     completed_conversation_ids: list[str] = []
+    completed_target_turns_by_conversation: dict[str, list[int]] = {}
     progress_path = output_dir / "progress.json"
     if progress_path.exists():
         progress_payload = json.loads(progress_path.read_text(encoding="utf-8"))
@@ -831,6 +834,10 @@ def run_oracle_harm_probe(
         completed_conversation_ids = [
             str(item) for item in progress_payload.get("completed_conversation_ids", []) if str(item)
         ]
+        completed_target_turns_by_conversation = {
+            str(conversation_id): [int(item) for item in turns]
+            for conversation_id, turns in progress_payload.get("completed_target_turns_by_conversation", {}).items()
+        }
         candidate_rows = _read_csv(output_dir / "candidate_rows.partial.csv")
         model_payloads = {
             str(model_key): payload for model_key, payload in progress_payload.get("models", {}).items()
@@ -852,7 +859,7 @@ def run_oracle_harm_probe(
         spec = resolve_model_spec(model_key)
         if spec is None:
             raise RuntimeError(f"Unknown model key: {model_key}")
-        extractor = ConversationStateExtractor(
+        extractor = _build_extractor_with_retry(
             model_name=spec.model_name,
             device=device,
             dtype=dtype,
@@ -884,8 +891,9 @@ def run_oracle_harm_probe(
                 f"target_turns={len(target_turns_by_conversation[conversation.conversation_id])}",
                 flush=True,
             )
-            full_batch = extractor.extract_conversation(
-                conversation,
+            full_batch = _extract_or_load_conversation_batch(
+                extractor=extractor,
+                conversation=conversation,
                 max_turns=max_turns_per_conversation,
                 max_input_tokens=max_input_tokens,
                 progress_label=(
@@ -902,6 +910,9 @@ def run_oracle_harm_probe(
             geometry_risk = turn_geometry_risk(analysis)
             turn_costs = _prefix_turn_costs(full_batch.token_counts)
             target_turns = target_turns_by_conversation[conversation.conversation_id]
+            completed_target_turns = set(completed_target_turns_by_conversation.get(conversation.conversation_id, []))
+            if completed_target_turns:
+                target_turns = [target_turn for target_turn in target_turns if target_turn not in completed_target_turns]
 
             for target_index, target_turn in enumerate(target_turns, start=1):
                 prefix_turn_count = target_turn
@@ -931,16 +942,20 @@ def run_oracle_harm_probe(
                     target_turn=target_turn,
                     retained_prior_indices=list(range(prefix_turn_count)),
                 )
-                full_prompt_score = extractor.score_messages(
-                    full_messages,
-                    max_input_tokens=max_input_tokens,
-                    return_attention_summary=enable_attention_summary,
-                    cumulative_turn_token_counts=full_batch.token_counts[:prefix_turn_count],
-                )
-                attention_raw, attention_sink = _turn_attention_features(
-                    full_prompt_score.attention_summary,
-                    prefix_turn_count=prefix_turn_count,
-                )
+                if enable_attention_summary:
+                    full_prompt_score = extractor.score_messages(
+                        full_messages,
+                        max_input_tokens=max_input_tokens,
+                        return_attention_summary=True,
+                        cumulative_turn_token_counts=full_batch.token_counts[:prefix_turn_count],
+                    )
+                    attention_raw, attention_sink = _turn_attention_features(
+                        full_prompt_score.attention_summary,
+                        prefix_turn_count=prefix_turn_count,
+                    )
+                else:
+                    attention_raw = np.zeros(prefix_turn_count, dtype=np.float32)
+                    attention_sink = np.zeros(prefix_turn_count, dtype=np.float32)
                 full_behavior_score = None
                 if (
                     conversation.turns[target_turn].role == "user"
@@ -995,6 +1010,30 @@ def run_oracle_harm_probe(
                         f"completed ablations rows_added={added_rows}",
                         flush=True,
                     )
+                completed_target_turns_by_conversation.setdefault(conversation.conversation_id, []).append(int(target_turn))
+                completed_target_turns_by_conversation[conversation.conversation_id] = sorted(
+                    set(completed_target_turns_by_conversation[conversation.conversation_id])
+                )
+                _write_csv(output_dir / "candidate_rows.partial.csv", candidate_rows)
+                _write_json(
+                    output_dir / "progress.json",
+                    {
+                        "status": "running",
+                        "updated_at": datetime.now().isoformat(timespec="seconds"),
+                        "study_name": study_name,
+                        "benchmark_name": benchmark_name,
+                        "model_keys": model_keys,
+                        "current_model_key": model_key,
+                        "num_conversations_total": len(conversations) + len(completed_conversation_ids),
+                        "num_conversations_completed": len(completed_conversation_ids),
+                        "completed_conversation_ids": completed_conversation_ids,
+                        "completed_target_turns_by_conversation": completed_target_turns_by_conversation,
+                        "num_candidate_rows": len(candidate_rows),
+                        "skip_conversations": skip_conversations,
+                        "conversation_ids_path": str(conversation_ids_path) if conversation_ids_path is not None else None,
+                        "models": model_payloads,
+                    },
+                )
 
             print(
                 f"[harm_oracle_study] completed conversation {conversation_index}/{len(conversations)} "
@@ -1002,6 +1041,7 @@ def run_oracle_harm_probe(
                 flush=True,
             )
             completed_conversation_ids.append(conversation.conversation_id)
+            completed_target_turns_by_conversation.pop(conversation.conversation_id, None)
             _write_csv(output_dir / "candidate_rows.partial.csv", candidate_rows)
             _write_json(
                 output_dir / "progress.json",
@@ -1015,6 +1055,7 @@ def run_oracle_harm_probe(
                     "num_conversations_total": len(conversations),
                     "num_conversations_completed": len(completed_conversation_ids),
                     "completed_conversation_ids": completed_conversation_ids,
+                    "completed_target_turns_by_conversation": completed_target_turns_by_conversation,
                     "num_candidate_rows": len(candidate_rows),
                     "skip_conversations": skip_conversations,
                     "conversation_ids_path": str(conversation_ids_path) if conversation_ids_path is not None else None,
@@ -1059,6 +1100,7 @@ def run_oracle_harm_probe(
             "num_conversations_total": len(conversations),
             "num_conversations_completed": len(completed_conversation_ids),
             "completed_conversation_ids": completed_conversation_ids,
+            "completed_target_turns_by_conversation": completed_target_turns_by_conversation,
             "num_candidate_rows": len(candidate_rows),
             "summary_path": str(output_dir / "summary.json"),
             "report_path": str(output_dir / "report.md"),

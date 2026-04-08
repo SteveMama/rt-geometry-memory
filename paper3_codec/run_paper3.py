@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
+import os
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -50,6 +53,10 @@ DEFAULT_POLICIES = (
     "query_conditioned_geometry_keep_compress_drop",
     "semantic_keep_compress_drop",
 )
+
+DEFAULT_EXTRACTOR_INIT_RETRIES = 4
+DEFAULT_EXTRACTOR_INIT_RETRY_SLEEP_SECONDS = 10.0
+DEFAULT_EXTRACT_CACHE_ROOT = DEFAULT_OUTPUT / "extract_cache"
 
 CONSTRAINT_MARKERS: tuple[str, ...] = (
     "must",
@@ -162,6 +169,159 @@ def _read_csv(path: Path) -> list[dict[str, Any]]:
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def _extractor_init_retries() -> int:
+    raw = os.environ.get("EXTRACTOR_INIT_RETRIES", "").strip()
+    if not raw:
+        return DEFAULT_EXTRACTOR_INIT_RETRIES
+    try:
+        return max(int(raw), 1)
+    except ValueError:
+        return DEFAULT_EXTRACTOR_INIT_RETRIES
+
+
+def _extractor_init_retry_sleep_seconds() -> float:
+    raw = os.environ.get("EXTRACTOR_INIT_RETRY_SLEEP_SECONDS", "").strip()
+    if not raw:
+        return DEFAULT_EXTRACTOR_INIT_RETRY_SLEEP_SECONDS
+    try:
+        return max(float(raw), 0.0)
+    except ValueError:
+        return DEFAULT_EXTRACTOR_INIT_RETRY_SLEEP_SECONDS
+
+
+def _is_cuda_device_busy_error(exc: BaseException) -> bool:
+    message = str(exc).lower()
+    return (
+        "device(s) is/are busy or unavailable" in message
+        or "cuda-capable device" in message and "busy or unavailable" in message
+        or "cudaerrordevicesunavailable" in message
+    )
+
+
+def _extract_cache_root() -> Path:
+    raw = os.environ.get("EXTRACT_CACHE_ROOT", "").strip()
+    if raw:
+        return Path(raw)
+    return DEFAULT_EXTRACT_CACHE_ROOT
+
+
+def _extract_cache_path(
+    *,
+    model_name: str,
+    conversation_id: str,
+    max_turns: int | None,
+    max_input_tokens: int | None,
+    state_layer: int,
+) -> Path:
+    model_slug = re.sub(r"[^A-Za-z0-9._-]+", "_", model_name)
+    key = f"{conversation_id}|{max_turns}|{max_input_tokens}|{state_layer}"
+    digest = hashlib.sha256(key.encode("utf-8")).hexdigest()[:16]
+    return _extract_cache_root() / model_slug / f"{conversation_id}_{digest}.npz"
+
+
+def _save_trajectory_batch(path: Path, batch: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        path,
+        states=batch.states,
+        logits=batch.logits,
+        token_counts=batch.token_counts,
+        turn_roles=np.asarray(batch.turn_roles, dtype="<U16"),
+    )
+
+
+def _load_trajectory_batch(path: Path) -> Any:
+    from paper1_geometry.modeling import TrajectoryBatch
+
+    payload = np.load(path, allow_pickle=False)
+    return TrajectoryBatch(
+        states=np.asarray(payload["states"], dtype=np.float32),
+        logits=np.asarray(payload["logits"], dtype=np.float32),
+        token_counts=np.asarray(payload["token_counts"], dtype=np.int32),
+        turn_roles=[str(item) for item in payload["turn_roles"].tolist()],
+    )
+
+
+def _extract_or_load_conversation_batch(
+    *,
+    extractor: ConversationStateExtractor,
+    conversation: ConversationRecord,
+    max_turns: int | None,
+    max_input_tokens: int | None,
+    progress_label: str | None = None,
+    progress_every: int | None = None,
+) -> Any:
+    cache_path = _extract_cache_path(
+        model_name=extractor.model_name,
+        conversation_id=conversation.conversation_id,
+        max_turns=max_turns,
+        max_input_tokens=max_input_tokens,
+        state_layer=extractor.state_layer,
+    )
+    if cache_path.exists():
+        try:
+            batch = _load_trajectory_batch(cache_path)
+            if progress_label:
+                print(f"[extract_cache] hit {progress_label} path={cache_path}", flush=True)
+            return batch
+        except Exception:
+            try:
+                cache_path.unlink()
+            except FileNotFoundError:
+                pass
+    batch = extractor.extract_conversation(
+        conversation,
+        max_turns=max_turns,
+        max_input_tokens=max_input_tokens,
+        progress_label=progress_label,
+        progress_every=progress_every,
+    )
+    _save_trajectory_batch(cache_path, batch)
+    if progress_label:
+        print(f"[extract_cache] stored {progress_label} path={cache_path}", flush=True)
+    return batch
+
+
+def _build_extractor_with_retry(
+    *,
+    model_name: str,
+    device: str | None,
+    dtype: str,
+    state_layer: int,
+) -> ConversationStateExtractor:
+    last_exc: BaseException | None = None
+    max_attempts = _extractor_init_retries()
+    sleep_seconds = _extractor_init_retry_sleep_seconds()
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return ConversationStateExtractor(
+                model_name=model_name,
+                device=device,
+                dtype=dtype,
+                state_layer=state_layer,
+            )
+        except Exception as exc:
+            last_exc = exc
+            if not _is_cuda_device_busy_error(exc) or attempt == max_attempts:
+                raise
+            print(
+                f"[extractor-init] CUDA device busy/unavailable while loading {model_name}; "
+                f"retry {attempt}/{max_attempts} after {sleep_seconds:.1f}s",
+                flush=True,
+            )
+            try:
+                import torch
+
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                    torch.cuda.synchronize()
+            except Exception:
+                pass
+            time.sleep(sleep_seconds)
+    assert last_exc is not None
+    raise last_exc
 
 
 def _sample_target_turns(
@@ -565,7 +725,7 @@ def run_codec_pilot(
         harm_predictor_bundle = HarmPredictorBundle.load(harm_predictor_path)
         harm_predictor_uses_attention = _requires_attention_features(harm_predictor_bundle.feature_names)
 
-    extractor = ConversationStateExtractor(
+    extractor = _build_extractor_with_retry(
         model_name=spec.model_name,
         device=device,
         dtype=dtype,
@@ -686,8 +846,9 @@ def run_codec_pilot(
             f"sampled_targets={len(conversation_target_turns[conversation.conversation_id])}",
             flush=True,
         )
-        full_batch = extractor.extract_conversation(
-            conversation,
+        full_batch = _extract_or_load_conversation_batch(
+            extractor=extractor,
+            conversation=conversation,
             max_turns=max_turns_per_conversation,
             max_input_tokens=max_input_tokens,
             progress_label=f"study {model_key} {conversation.conversation_id}",

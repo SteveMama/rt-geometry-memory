@@ -23,7 +23,7 @@ fi
 export PYTHON_BIN
 
 if [[ $# -lt 2 ]]; then
-  echo "Usage: run_paper3_gate1_scaleup_multigpu.sh <msc-input-jsonl> <longmemeval-input-jsonl> [model-key] [budgets] [target-turn-stride] [max-target-turns] [longmemeval-max-turns-per-conversation] [run-prefix]" >&2
+  echo "Usage: run_paper3_gate1_scaleup_multigpu.sh <msc-input-jsonl> <longmemeval-input-jsonl> [model-key] [budgets] [target-turn-stride] [max-target-turns] [longmemeval-max-turns-per-conversation] [run-prefix] [msc-limit] [longmemeval-limit]" >&2
   exit 1
 fi
 
@@ -35,14 +35,13 @@ TARGET_TURN_STRIDE="${5:-4}"
 MAX_TARGET_TURNS="${6:-16}"
 LONGMEM_MAX_TURNS="${7:-40}"
 RUN_PREFIX="${8:-paper3_gate1_scaleup_multigpu}"
+MSC_LIMIT="${9:-${MSC_LIMIT:-32}}"
+LONGMEM_LIMIT="${10:-${LONGMEM_LIMIT:-12}}"
 ENABLE_ORACLE_ATTENTION_SUMMARY="${ENABLE_ORACLE_ATTENTION_SUMMARY:-0}"
 GPU_COUNT="${GPU_COUNT:-0}"
 JOB_MULTIPLIER="${JOB_MULTIPLIER:-2}"
 GPU_PREFLIGHT_RETRIES="${GPU_PREFLIGHT_RETRIES:-6}"
 GPU_PREFLIGHT_SLEEP_SECONDS="${GPU_PREFLIGHT_SLEEP_SECONDS:-10}"
-
-MSC_LIMIT=32
-LONGMEM_LIMIT=12
 
 if [[ ! -f "$MSC_INPUT" || ! -f "$LONGMEM_INPUT" ]]; then
   echo "[run_paper3_gate1_scaleup_multigpu] missing input benchmark file" >&2
@@ -59,6 +58,7 @@ if [[ "$GPU_COUNT" -le 0 || "$GPU_COUNT" -gt ${#GPU_INDICES[@]} ]]; then
 fi
 
 echo "[run_paper3_gate1_scaleup_multigpu] GPUs=${GPU_INDICES[*]} using=$GPU_COUNT model=${MODEL_KEY}" >&2
+echo "[run_paper3_gate1_scaleup_multigpu] msc_limit=${MSC_LIMIT} longmemeval_limit=${LONGMEM_LIMIT} job_multiplier=${JOB_MULTIPLIER}" >&2
 
 QUEUE_ROOT="results/paper3/job_queue/${RUN_PREFIX}"
 QUEUE_PENDING="$QUEUE_ROOT/pending"
@@ -66,7 +66,13 @@ QUEUE_RUNNING="$QUEUE_ROOT/running"
 QUEUE_DONE="$QUEUE_ROOT/done"
 QUEUE_FAILED="$QUEUE_ROOT/failed"
 mkdir -p "$QUEUE_PENDING" "$QUEUE_RUNNING" "$QUEUE_DONE" "$QUEUE_FAILED"
-rm -f "$QUEUE_PENDING"/* "$QUEUE_RUNNING"/* "$QUEUE_DONE"/* "$QUEUE_FAILED"/* 2>/dev/null || true
+rm -f "$QUEUE_PENDING"/* "$QUEUE_FAILED"/* 2>/dev/null || true
+for running_job in "$QUEUE_RUNNING"/*.job; do
+  [[ -e "$running_job" ]] || break
+  basename="$(basename "$running_job")"
+  restored_name="${basename%.gpu*.job}.job"
+  mv "$running_job" "$QUEUE_PENDING/$restored_name"
+done
 
 JOB_SHARDS=$(( GPU_COUNT * JOB_MULTIPLIER ))
 if [[ "$JOB_SHARDS" -lt "$GPU_COUNT" ]]; then
@@ -110,6 +116,20 @@ SHARD_IDS_PATH="$shard_ids_path"
 SHARD_DIR="$shard_dir"
 LOG_PATH="$log_path"
 EOF
+}
+
+shard_already_complete() {
+  local shard_dir="$1"
+  local progress_json="$shard_dir/progress.json"
+  if [[ ! -f "$progress_json" ]]; then
+    return 1
+  fi
+  "$PYTHON_BIN" - <<'PY' "$progress_json" >/dev/null 2>&1
+import json, sys
+with open(sys.argv[1], "r", encoding="utf-8") as handle:
+    payload = json.load(handle)
+raise SystemExit(0 if payload.get("status") == "complete" else 1)
+PY
 }
 
 gpu_preflight() {
@@ -173,6 +193,12 @@ prepare_oracle_jobs() {
     local log_path="${shard_dir}/worker.log"
     mkdir -p "$shard_dir"
     eval "$target_array_name+=(\"$shard_dir\")"
+    if shard_already_complete "$shard_dir"; then
+      local done_job="${QUEUE_DONE}/${shard_name}.job"
+      write_job_file "$done_job" "oracle" "$shard_name" "$input_path" "$benchmark_name" "$max_turns" "$shard_ids_path" "$shard_dir" "$log_path"
+      echo "[queue][oracle] skipping completed shard study=${shard_name}" >&2
+      continue
+    fi
     local job_path="${QUEUE_PENDING}/${shard_name}.job"
     write_job_file "$job_path" "oracle" "$shard_name" "$input_path" "$benchmark_name" "$max_turns" "$shard_ids_path" "$shard_dir" "$log_path"
     echo "[queue][oracle] staged job=${job_path} ids=${shard_ids_path} study=${shard_name}" >&2
@@ -209,6 +235,12 @@ prepare_study_jobs() {
     local log_path="${shard_dir}/worker.log"
     mkdir -p "$shard_dir"
     eval "$target_array_name+=(\"$shard_dir\")"
+    if shard_already_complete "$shard_dir"; then
+      local done_job="${QUEUE_DONE}/${shard_name}.job"
+      write_job_file "$done_job" "study" "$shard_name" "$input_path" "" "$max_turns" "$shard_ids_path" "$shard_dir" "$log_path"
+      echo "[queue][study] skipping completed shard study=${shard_name}" >&2
+      continue
+    fi
     local job_path="${QUEUE_PENDING}/${shard_name}.job"
     write_job_file "$job_path" "study" "$shard_name" "$input_path" "" "$max_turns" "$shard_ids_path" "$shard_dir" "$log_path"
     echo "[queue][study] staged job=${job_path} ids=${shard_ids_path} study=${shard_name}" >&2
