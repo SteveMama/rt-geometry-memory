@@ -37,6 +37,7 @@ LONGMEM_MAX_TURNS="${7:-40}"
 RUN_PREFIX="${8:-paper3_gate1_scaleup_multigpu}"
 ENABLE_ORACLE_ATTENTION_SUMMARY="${ENABLE_ORACLE_ATTENTION_SUMMARY:-0}"
 GPU_COUNT="${GPU_COUNT:-0}"
+JOB_MULTIPLIER="${JOB_MULTIPLIER:-2}"
 
 MSC_LIMIT=32
 LONGMEM_LIMIT=12
@@ -57,6 +58,19 @@ fi
 
 echo "[run_paper3_gate1_scaleup_multigpu] GPUs=${GPU_INDICES[*]} using=$GPU_COUNT model=${MODEL_KEY}" >&2
 
+QUEUE_ROOT="results/paper3/job_queue/${RUN_PREFIX}"
+QUEUE_PENDING="$QUEUE_ROOT/pending"
+QUEUE_RUNNING="$QUEUE_ROOT/running"
+QUEUE_DONE="$QUEUE_ROOT/done"
+QUEUE_FAILED="$QUEUE_ROOT/failed"
+mkdir -p "$QUEUE_PENDING" "$QUEUE_RUNNING" "$QUEUE_DONE" "$QUEUE_FAILED"
+rm -f "$QUEUE_PENDING"/* "$QUEUE_RUNNING"/* "$QUEUE_DONE"/* "$QUEUE_FAILED"/* 2>/dev/null || true
+
+JOB_SHARDS=$(( GPU_COUNT * JOB_MULTIPLIER ))
+if [[ "$JOB_SHARDS" -lt "$GPU_COUNT" ]]; then
+  JOB_SHARDS="$GPU_COUNT"
+fi
+
 join_by_comma() {
   local first=1
   for item in "$@"; do
@@ -69,12 +83,40 @@ join_by_comma() {
   done
 }
 
-launch_oracle_shards() {
+declare -a ORACLE_MSC_DIRS=()
+declare -a STUDY_MSC_DIRS=()
+declare -a ORACLE_LONGMEM_DIRS=()
+declare -a STUDY_LONGMEM_DIRS=()
+
+write_job_file() {
+  local job_path="$1"
+  local kind="$2"
+  local study_name="$3"
+  local input_path="$4"
+  local benchmark_name="$5"
+  local max_turns="$6"
+  local shard_ids_path="$7"
+  local shard_dir="$8"
+  local log_path="$9"
+  cat > "$job_path" <<EOF
+KIND="$kind"
+STUDY_NAME="$study_name"
+INPUT_PATH="$input_path"
+BENCHMARK_NAME="$benchmark_name"
+MAX_TURNS="$max_turns"
+SHARD_IDS_PATH="$shard_ids_path"
+SHARD_DIR="$shard_dir"
+LOG_PATH="$log_path"
+EOF
+}
+
+prepare_oracle_jobs() {
   local benchmark_name="$1"
   local input_path="$2"
   local total_limit="$3"
   local max_turns="$4"
   local study_prefix="$5"
+  local target_array_name="$6"
   local plan_dir="results/paper3/shard_plans/${study_prefix}"
   mkdir -p "$plan_dir"
   local max_turns_arg=()
@@ -86,53 +128,31 @@ launch_oracle_shards() {
     --limit-conversations "$total_limit" \
     --target-turn-stride "$TARGET_TURN_STRIDE" \
     --max-target-turns "$MAX_TARGET_TURNS" \
-    --shard-count "$GPU_COUNT" \
+    --shard-count "$JOB_SHARDS" \
     --output-dir "$plan_dir" \
     "${max_turns_arg[@]}"
-  local pids=()
-  local shard_dirs=()
-  for ((i=0; i<GPU_COUNT; i++)); do
+  for ((i=0; i<JOB_SHARDS; i++)); do
     local shard_ids_path="${plan_dir}/shard_${i}_ids.txt"
     if [[ ! -s "$shard_ids_path" ]]; then
       continue
     fi
-    local shard_name="${study_prefix}_shard${i}of${GPU_COUNT}"
+    local shard_name="${study_prefix}_shard${i}of${JOB_SHARDS}"
     local shard_dir="results/paper3/harm_oracle/${shard_name}"
     local log_path="${shard_dir}/worker.log"
     mkdir -p "$shard_dir"
-    shard_dirs+=("$shard_dir")
-    echo "[multigpu][oracle] gpu=${GPU_INDICES[$i]} shard=${i} ids=${shard_ids_path} study=${shard_name} log=${log_path}" >&2
-    CUDA_VISIBLE_DEVICES="${GPU_INDICES[$i]}" bash scripts/run_paper3_harm_oracle_probe.sh \
-      "$shard_name" \
-      "$benchmark_name" \
-      "$input_path" \
-      "$MODEL_KEY" \
-      "$BUDGETS" \
-      "$total_limit" \
-      "$TARGET_TURN_STRIDE" \
-      "$MAX_TARGET_TURNS" \
-      "$max_turns" \
-      "$ENABLE_ORACLE_ATTENTION_SUMMARY" \
-      "0" \
-      "$shard_ids_path" \
-      2>&1 | tee "$log_path" &
-    pids+=("$!")
+    eval "$target_array_name+=(\"$shard_dir\")"
+    local job_path="${QUEUE_PENDING}/${shard_name}.job"
+    write_job_file "$job_path" "oracle" "$shard_name" "$input_path" "$benchmark_name" "$max_turns" "$shard_ids_path" "$shard_dir" "$log_path"
+    echo "[queue][oracle] staged job=${job_path} ids=${shard_ids_path} study=${shard_name}" >&2
   done
-  for pid in "${pids[@]}"; do
-    wait "$pid"
-  done
-  "$PYTHON_BIN" -m paper3_codec.merge_oracle_shards \
-    --study-name "$study_prefix" \
-    --benchmark-name "$benchmark_name" \
-    --output-root "results/paper3/harm_oracle" \
-    --shard-dirs "$(join_by_comma "${shard_dirs[@]}")"
 }
 
-launch_study_shards() {
+prepare_study_jobs() {
   local input_path="$1"
   local total_limit="$2"
   local max_turns="$3"
   local study_prefix="$4"
+  local target_array_name="$5"
   local plan_dir="results/paper3/shard_plans/${study_prefix}"
   mkdir -p "$plan_dir"
   local max_turns_arg=()
@@ -144,48 +164,134 @@ launch_study_shards() {
     --limit-conversations "$total_limit" \
     --target-turn-stride "$TARGET_TURN_STRIDE" \
     --max-target-turns "$MAX_TARGET_TURNS" \
-    --shard-count "$GPU_COUNT" \
+    --shard-count "$JOB_SHARDS" \
     --output-dir "$plan_dir" \
     "${max_turns_arg[@]}"
-  local pids=()
-  local shard_dirs=()
-  for ((i=0; i<GPU_COUNT; i++)); do
+  for ((i=0; i<JOB_SHARDS; i++)); do
     local shard_ids_path="${plan_dir}/shard_${i}_ids.txt"
     if [[ ! -s "$shard_ids_path" ]]; then
       continue
     fi
-    local shard_name="${study_prefix}_shard${i}of${GPU_COUNT}"
+    local shard_name="${study_prefix}_shard${i}of${JOB_SHARDS}"
     local shard_dir="results/paper3/studies/${shard_name}"
     local log_path="${shard_dir}/worker.log"
     mkdir -p "$shard_dir"
-    shard_dirs+=("$shard_dir")
-    echo "[multigpu][study] gpu=${GPU_INDICES[$i]} shard=${i} ids=${shard_ids_path} study=${shard_name} log=${log_path}" >&2
-    CUDA_VISIBLE_DEVICES="${GPU_INDICES[$i]}" bash scripts/run_paper3_gate1_refinement_probe.sh \
-      "$shard_name" \
-      "$input_path" \
-      "$MODEL_KEY" \
-      "$BUDGETS" \
-      "$total_limit" \
-      "$TARGET_TURN_STRIDE" \
-      "$MAX_TARGET_TURNS" \
-      "$max_turns" \
-      "0" \
-      "$shard_ids_path" \
-      2>&1 | tee "$log_path" &
-    pids+=("$!")
+    eval "$target_array_name+=(\"$shard_dir\")"
+    local job_path="${QUEUE_PENDING}/${shard_name}.job"
+    write_job_file "$job_path" "study" "$shard_name" "$input_path" "" "$max_turns" "$shard_ids_path" "$shard_dir" "$log_path"
+    echo "[queue][study] staged job=${job_path} ids=${shard_ids_path} study=${shard_name}" >&2
   done
-  for pid in "${pids[@]}"; do
-    wait "$pid"
-  done
-  "$PYTHON_BIN" -m paper3_codec.merge_study_shards \
-    --study-name "$study_prefix" \
-    --output-root "results/paper3/studies" \
-    --shard-dirs "$(join_by_comma "${shard_dirs[@]}")"
 }
 
-launch_oracle_shards "msc_valid" "$MSC_INPUT" "$MSC_LIMIT" "" "${RUN_PREFIX}_oracle_msc_valid_32conv"
-launch_study_shards "$MSC_INPUT" "$MSC_LIMIT" "" "${RUN_PREFIX}_refinement_msc_valid_32conv"
-launch_oracle_shards "longmemeval_s_cleaned" "$LONGMEM_INPUT" "$LONGMEM_LIMIT" "$LONGMEM_MAX_TURNS" "${RUN_PREFIX}_oracle_longmemeval_s_cleaned_12conv"
-launch_study_shards "$LONGMEM_INPUT" "$LONGMEM_LIMIT" "$LONGMEM_MAX_TURNS" "${RUN_PREFIX}_refinement_longmemeval_s_cleaned_12conv"
+worker_loop() {
+  local gpu_id="$1"
+  local worker_log="$QUEUE_ROOT/worker_gpu${gpu_id}.log"
+  touch "$worker_log"
+  while true; do
+    local claimed=""
+    local pending_path
+    for pending_path in "$QUEUE_PENDING"/*.job; do
+      [[ -e "$pending_path" ]] || break
+      local basename
+      basename="$(basename "$pending_path")"
+      local target="$QUEUE_RUNNING/${basename%.job}.gpu${gpu_id}.job"
+      if mv "$pending_path" "$target" 2>/dev/null; then
+        claimed="$target"
+        break
+      fi
+    done
+    if [[ -z "$claimed" ]]; then
+      break
+    fi
+
+    # shellcheck source=/dev/null
+    source "$claimed"
+    echo "[worker][gpu=${gpu_id}] starting kind=${KIND} study=${STUDY_NAME} ids=${SHARD_IDS_PATH}" | tee -a "$worker_log"
+    local exit_code=0
+    if [[ "$KIND" == "oracle" ]]; then
+      CUDA_VISIBLE_DEVICES="$gpu_id" bash scripts/run_paper3_harm_oracle_probe.sh \
+        "$STUDY_NAME" \
+        "$BENCHMARK_NAME" \
+        "$INPUT_PATH" \
+        "$MODEL_KEY" \
+        "$BUDGETS" \
+        "999999" \
+        "$TARGET_TURN_STRIDE" \
+        "$MAX_TARGET_TURNS" \
+        "$MAX_TURNS" \
+        "$ENABLE_ORACLE_ATTENTION_SUMMARY" \
+        "0" \
+        "$SHARD_IDS_PATH" \
+        2>&1 | tee "$LOG_PATH"
+      exit_code=${PIPESTATUS[0]}
+    else
+      CUDA_VISIBLE_DEVICES="$gpu_id" bash scripts/run_paper3_gate1_refinement_probe.sh \
+        "$STUDY_NAME" \
+        "$INPUT_PATH" \
+        "$MODEL_KEY" \
+        "$BUDGETS" \
+        "999999" \
+        "$TARGET_TURN_STRIDE" \
+        "$MAX_TARGET_TURNS" \
+        "$MAX_TURNS" \
+        "0" \
+        "$SHARD_IDS_PATH" \
+        2>&1 | tee "$LOG_PATH"
+      exit_code=${PIPESTATUS[0]}
+    fi
+
+    if [[ "$exit_code" -eq 0 ]]; then
+      mv "$claimed" "$QUEUE_DONE/$(basename "$claimed")"
+      echo "[worker][gpu=${gpu_id}] completed kind=${KIND} study=${STUDY_NAME}" | tee -a "$worker_log"
+    else
+      mv "$claimed" "$QUEUE_FAILED/$(basename "$claimed")"
+      echo "[worker][gpu=${gpu_id}] failed kind=${KIND} study=${STUDY_NAME} exit=${exit_code}" | tee -a "$worker_log"
+      return "$exit_code"
+    fi
+  done
+}
+
+prepare_oracle_jobs "msc_valid" "$MSC_INPUT" "$MSC_LIMIT" "" "${RUN_PREFIX}_oracle_msc_valid_32conv" ORACLE_MSC_DIRS
+prepare_study_jobs "$MSC_INPUT" "$MSC_LIMIT" "" "${RUN_PREFIX}_refinement_msc_valid_32conv" STUDY_MSC_DIRS
+prepare_oracle_jobs "longmemeval_s_cleaned" "$LONGMEM_INPUT" "$LONGMEM_LIMIT" "$LONGMEM_MAX_TURNS" "${RUN_PREFIX}_oracle_longmemeval_s_cleaned_12conv" ORACLE_LONGMEM_DIRS
+prepare_study_jobs "$LONGMEM_INPUT" "$LONGMEM_LIMIT" "$LONGMEM_MAX_TURNS" "${RUN_PREFIX}_refinement_longmemeval_s_cleaned_12conv" STUDY_LONGMEM_DIRS
+
+echo "[run_paper3_gate1_scaleup_multigpu] queued jobs=$(find "$QUEUE_PENDING" -type f -name '*.job' | wc -l | tr -d ' ')" >&2
+
+declare -a WORKER_PIDS=()
+for ((i=0; i<GPU_COUNT; i++)); do
+  worker_loop "${GPU_INDICES[$i]}" &
+  WORKER_PIDS+=("$!")
+done
+for pid in "${WORKER_PIDS[@]}"; do
+  wait "$pid"
+done
+
+if compgen -G "$QUEUE_FAILED/*.job" > /dev/null; then
+  echo "[run_paper3_gate1_scaleup_multigpu] failed jobs remain in $QUEUE_FAILED" >&2
+  exit 1
+fi
+
+"$PYTHON_BIN" -m paper3_codec.merge_oracle_shards \
+  --study-name "${RUN_PREFIX}_oracle_msc_valid_32conv" \
+  --benchmark-name "msc_valid" \
+  --output-root "results/paper3/harm_oracle" \
+  --shard-dirs "$(join_by_comma "${ORACLE_MSC_DIRS[@]}")"
+
+"$PYTHON_BIN" -m paper3_codec.merge_study_shards \
+  --study-name "${RUN_PREFIX}_refinement_msc_valid_32conv" \
+  --output-root "results/paper3/studies" \
+  --shard-dirs "$(join_by_comma "${STUDY_MSC_DIRS[@]}")"
+
+"$PYTHON_BIN" -m paper3_codec.merge_oracle_shards \
+  --study-name "${RUN_PREFIX}_oracle_longmemeval_s_cleaned_12conv" \
+  --benchmark-name "longmemeval_s_cleaned" \
+  --output-root "results/paper3/harm_oracle" \
+  --shard-dirs "$(join_by_comma "${ORACLE_LONGMEM_DIRS[@]}")"
+
+"$PYTHON_BIN" -m paper3_codec.merge_study_shards \
+  --study-name "${RUN_PREFIX}_refinement_longmemeval_s_cleaned_12conv" \
+  --output-root "results/paper3/studies" \
+  --shard-dirs "$(join_by_comma "${STUDY_LONGMEM_DIRS[@]}")"
 
 echo "[run_paper3_gate1_scaleup_multigpu] complete" >&2

@@ -31,6 +31,7 @@ from .run_paper3 import (
     _policy_messages,
     _prefix_turn_costs,
     _progress,
+    _read_csv,
     _select_conversations,
     _semantic_support_proxy_scores,
     _support_scores,
@@ -822,6 +823,31 @@ def run_oracle_harm_probe(
     model_payloads: dict[str, Any] = {}
     candidate_rows: list[dict[str, Any]] = []
     completed_conversation_ids: list[str] = []
+    progress_path = output_dir / "progress.json"
+    if progress_path.exists():
+        progress_payload = json.loads(progress_path.read_text(encoding="utf-8"))
+        if progress_payload.get("status") == "complete" and (output_dir / "summary.json").exists():
+            return json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
+        completed_conversation_ids = [
+            str(item) for item in progress_payload.get("completed_conversation_ids", []) if str(item)
+        ]
+        candidate_rows = _read_csv(output_dir / "candidate_rows.partial.csv")
+        model_payloads = {
+            str(model_key): payload for model_key, payload in progress_payload.get("models", {}).items()
+        }
+    completed_conversation_id_set = set(completed_conversation_ids)
+    if completed_conversation_id_set:
+        conversations = [
+            conversation for conversation in conversations
+            if conversation.conversation_id not in completed_conversation_id_set
+        ]
+        print(
+            f"[harm_oracle_study] resuming from partial outputs: completed={len(completed_conversation_ids)} "
+            f"remaining={len(conversations)} rows={len(candidate_rows)}",
+            flush=True,
+        )
+        if not conversations and (output_dir / "summary.json").exists():
+            return json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
     for model_key in model_keys:
         spec = resolve_model_spec(model_key)
         if spec is None:
@@ -992,6 +1018,7 @@ def run_oracle_harm_probe(
                     "num_candidate_rows": len(candidate_rows),
                     "skip_conversations": skip_conversations,
                     "conversation_ids_path": str(conversation_ids_path) if conversation_ids_path is not None else None,
+                    "models": model_payloads,
                 },
             )
 

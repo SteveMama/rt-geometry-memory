@@ -153,6 +153,13 @@ def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
+def _read_csv(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
@@ -596,6 +603,77 @@ def run_codec_pilot(
     evaluation_rows: list[dict[str, Any]] = []
     behavior_rows: list[dict[str, Any]] = []
     completed_conversation_ids: list[str] = []
+    if output_dir is not None:
+        progress_path = output_dir / "progress.json"
+        if progress_path.exists():
+            progress_payload = json.loads(progress_path.read_text(encoding="utf-8"))
+            if progress_payload.get("status") == "complete" and (output_dir / "summary.json").exists():
+                summary = json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
+                return {
+                    "summary": summary,
+                    "rows": _read_csv(output_dir / "evaluation_rows.csv"),
+                    "behavior_rows": _read_csv(output_dir / "behavior_rows.csv"),
+                }
+            completed_conversation_ids = [
+                str(item) for item in progress_payload.get("completed_conversation_ids", []) if str(item)
+            ]
+            evaluation_rows = _read_csv(output_dir / "evaluation_rows.partial.csv")
+            behavior_rows = _read_csv(output_dir / "behavior_rows.partial.csv")
+    completed_conversation_id_set = set(completed_conversation_ids)
+    if completed_conversation_id_set:
+        conversations = [
+            conversation for conversation in conversations
+            if conversation.conversation_id not in completed_conversation_id_set
+        ]
+        if not conversations:
+            if output_dir is None:
+                raise RuntimeError("All selected conversations already completed, but no output_dir was provided.")
+            summary = {
+                "created_at": datetime.now().isoformat(timespec="seconds"),
+                "model_key": model_key,
+                "model_name": spec.model_name,
+                "families": families,
+                "budgets": budgets,
+                "recent_window": recent_window,
+                "min_history": min_history,
+                "segment_span": segment_span,
+                "policies": list(policies),
+                "target_turn_stride": target_turn_stride,
+                "max_target_turns": max_target_turns,
+                "max_turns_per_conversation": max_turns_per_conversation,
+                "skip_conversations": skip_conversations,
+                "conversation_ids_path": str(conversation_ids_path) if conversation_ids_path is not None else None,
+                "num_conversations": len(completed_conversation_ids),
+                "num_evaluations": len(evaluation_rows),
+                "num_behavior_evaluations": len(behavior_rows),
+                "aggregate": _aggregate_rows(evaluation_rows),
+                "behavior_aggregate": _aggregate_behavior_rows(behavior_rows),
+                "improvement_vs_uniform": _improvement_vs_uniform(evaluation_rows),
+                "behavior_improvement_vs_uniform": _behavior_improvement_vs_uniform(behavior_rows),
+            }
+            _write_json(output_dir / "summary.json", summary)
+            (output_dir / "report.md").write_text(_format_report(summary), encoding="utf-8")
+            _write_json(
+                output_dir / "progress.json",
+                {
+                    "status": "complete",
+                    "updated_at": datetime.now().isoformat(timespec="seconds"),
+                    "model_key": model_key,
+                    "num_conversations_total": len(completed_conversation_ids),
+                    "num_conversations_completed": len(completed_conversation_ids),
+                    "completed_conversation_ids": completed_conversation_ids,
+                    "num_evaluation_rows": len(evaluation_rows),
+                    "num_behavior_rows": len(behavior_rows),
+                    "summary_path": str(output_dir / "summary.json"),
+                    "report_path": str(output_dir / "report.md"),
+                },
+            )
+            return {"summary": summary, "rows": evaluation_rows, "behavior_rows": behavior_rows}
+        print(
+            f"[{model_key}] resuming from partial outputs: completed={len(completed_conversation_ids)} "
+            f"remaining={len(conversations)} rows={len(evaluation_rows)} behavior_rows={len(behavior_rows)}",
+            flush=True,
+        )
     conversation_iterator = _progress(
         enumerate(conversations, start=1),
         total=len(conversations),
