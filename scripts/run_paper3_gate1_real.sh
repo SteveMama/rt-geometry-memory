@@ -76,7 +76,8 @@ bash scripts/run_paper3_gate1_refinement_probe.sh \
   "$BUDGETS" \
   "$LONGMEM_LIMIT" \
   "$TARGET_TURN_STRIDE" \
-  "$MAX_TARGET_TURNS"
+  "$MAX_TARGET_TURNS" \
+  "$LONGMEM_MAX_TURNS"
 
 echo "[run_paper3_gate1_real] Gate 1 decision surface complete." >&2
 echo "[run_paper3_gate1_real] Oracle outputs:" >&2

@@ -478,6 +478,7 @@ def run_codec_pilot(
     policies: tuple[str, ...] = DEFAULT_POLICIES,
     target_turn_stride: int = 1,
     max_target_turns: int | None = None,
+    max_turns_per_conversation: int | None = None,
     harm_predictor_path: Path | None = None,
 ) -> dict[str, Any]:
     spec = resolve_model_spec(model_key)
@@ -510,7 +511,9 @@ def run_codec_pilot(
     )
     conversation_target_turns = {
         conversation.conversation_id: _sample_target_turns(
-            num_turns=len(conversation.turns),
+            num_turns=min(len(conversation.turns), max_turns_per_conversation)
+            if max_turns_per_conversation is not None
+            else len(conversation.turns),
             min_history=min_history,
             stride=target_turn_stride,
             max_target_turns=max_target_turns,
@@ -528,7 +531,8 @@ def run_codec_pilot(
     print(
         f"[{model_key}] Model={spec.model_name} device={extractor.device} "
         f"max_input_tokens={max_input_tokens} segment_span={segment_span} "
-        f"target_turn_stride={target_turn_stride} max_target_turns={max_target_turns}",
+        f"target_turn_stride={target_turn_stride} max_target_turns={max_target_turns} "
+        f"max_turns_per_conversation={max_turns_per_conversation}",
         flush=True,
     )
 
@@ -542,7 +546,7 @@ def run_codec_pilot(
     for conversation_index, conversation in conversation_iterator:
         full_batch = extractor.extract_conversation(
             conversation,
-            max_turns=None,
+            max_turns=max_turns_per_conversation,
             max_input_tokens=max_input_tokens,
         )
         target_turns = conversation_target_turns[conversation.conversation_id]
@@ -1013,6 +1017,7 @@ def run_codec_pilot(
         "policies": list(policies),
         "target_turn_stride": target_turn_stride,
         "max_target_turns": max_target_turns,
+        "max_turns_per_conversation": max_turns_per_conversation,
         "num_conversations": len(conversations),
         "num_evaluations": len(evaluation_rows),
         "num_behavior_evaluations": len(behavior_rows),
@@ -1049,6 +1054,7 @@ def _format_report(summary: dict[str, Any]) -> str:
         f"- Segment span: {summary['segment_span']}",
         f"- Target-turn stride: {summary.get('target_turn_stride', 1)}",
         f"- Max target turns / conversation: {summary.get('max_target_turns')}",
+        f"- Max turns / conversation: {summary.get('max_turns_per_conversation')}",
         f"- Conversations: {summary['num_conversations']}",
         f"- Evaluations: {summary['num_evaluations']}",
         f"- Behavior evaluations: {summary['num_behavior_evaluations']}",
@@ -1123,6 +1129,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--segment-span", type=int, default=2)
     parser.add_argument("--target-turn-stride", type=int, default=1)
     parser.add_argument("--max-target-turns", type=int, default=None)
+    parser.add_argument("--max-turns-per-conversation", type=int, default=None)
     parser.add_argument("--harm-predictor-path", type=Path, default=None)
     parser.add_argument(
         "--policies",
@@ -1154,6 +1161,7 @@ def main() -> None:
         policies=_parse_policies(args.policies),
         target_turn_stride=args.target_turn_stride,
         max_target_turns=args.max_target_turns,
+        max_turns_per_conversation=args.max_turns_per_conversation,
         harm_predictor_path=args.harm_predictor_path,
     )
     print(f"Wrote Paper 3 outputs to {args.output_root / args.run_name}")

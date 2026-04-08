@@ -41,6 +41,7 @@ def _study_summary(model_results: list[dict[str, Any]]) -> dict[str, Any]:
             "segment_span": summary["segment_span"],
             "target_turn_stride": summary.get("target_turn_stride", 1),
             "max_target_turns": summary.get("max_target_turns"),
+            "max_turns_per_conversation": summary.get("max_turns_per_conversation"),
             "aggregate": summary["aggregate"],
             "behavior_aggregate": summary.get("behavior_aggregate", {}),
             "improvement_vs_uniform": summary["improvement_vs_uniform"],
@@ -224,6 +225,7 @@ def _format_report(
                 f"- Segment span: {payload['segment_span']}",
                 f"- Target-turn stride: {payload.get('target_turn_stride', 1)}",
                 f"- Max target turns / conversation: {payload.get('max_target_turns')}",
+                f"- Max turns / conversation: {payload.get('max_turns_per_conversation')}",
                 "",
             ]
         )
@@ -291,6 +293,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--segment-span", type=int, default=2)
     parser.add_argument("--target-turn-stride", type=int, default=1)
     parser.add_argument("--max-target-turns", type=int, default=None)
+    parser.add_argument("--max-turns-per-conversation", type=int, default=None)
     parser.add_argument("--harm-predictor-path", type=Path, default=None)
     parser.add_argument(
         "--policies",
@@ -339,6 +342,7 @@ def main() -> None:
             policies=policies,
             target_turn_stride=args.target_turn_stride,
             max_target_turns=args.max_target_turns,
+            max_turns_per_conversation=args.max_turns_per_conversation,
             harm_predictor_path=args.harm_predictor_path,
         )
         model_results.append(result)
@@ -360,6 +364,7 @@ def main() -> None:
         "policies": list(policies),
         "target_turn_stride": args.target_turn_stride,
         "max_target_turns": args.max_target_turns,
+        "max_turns_per_conversation": args.max_turns_per_conversation,
         "models": _study_summary(model_results),
     }
 
