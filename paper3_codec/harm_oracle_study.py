@@ -772,6 +772,7 @@ def run_oracle_harm_probe(
     target_turn_stride: int,
     max_target_turns: int | None,
     max_turns_per_conversation: int | None,
+    enable_attention_summary: bool,
     output_dir: Path,
 ) -> dict[str, Any]:
     conversations = load_conversations_from_paths(input_paths)
@@ -857,7 +858,7 @@ def run_oracle_harm_probe(
                 full_prompt_score = extractor.score_messages(
                     full_messages,
                     max_input_tokens=max_input_tokens,
-                    return_attention_summary=True,
+                    return_attention_summary=enable_attention_summary,
                     cumulative_turn_token_counts=full_batch.token_counts[:prefix_turn_count],
                 )
                 attention_raw, attention_sink = _turn_attention_features(
@@ -906,6 +907,12 @@ def run_oracle_harm_probe(
                             attention_sink=attention_sink,
                         )
                     )
+
+            print(
+                f"[harm_oracle_study] completed conversation {conversation_index}/{len(conversations)} "
+                f"for model={model_key}",
+                flush=True,
+            )
 
             model_payloads[model_key] = {"model_name": spec.model_name}
 
@@ -960,6 +967,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Truncate each conversation to this many turns before extraction. "
              "Critical for long-conversation benchmarks like LongMemEval to keep runtime manageable.",
     )
+    parser.add_argument(
+        "--enable-attention-summary",
+        action="store_true",
+        help="Request attention summaries during oracle scoring. Slower; disabled by default for scale-up runs.",
+    )
     return parser
 
 
@@ -987,6 +999,7 @@ def main() -> None:
         target_turn_stride=args.target_turn_stride,
         max_target_turns=args.max_target_turns,
         max_turns_per_conversation=args.max_turns_per_conversation,
+        enable_attention_summary=args.enable_attention_summary,
         output_dir=output_dir,
     )
     print(

@@ -36,6 +36,7 @@ TARGET_TURN_STRIDE="${5:-4}"
 MAX_TARGET_TURNS="${6:-16}"
 LONGMEM_MAX_TURNS="${7:-40}"
 RUN_PREFIX="${8:-paper3_gate1_scaleup}"
+ENABLE_ORACLE_ATTENTION_SUMMARY="${ENABLE_ORACLE_ATTENTION_SUMMARY:-0}"
 
 MSC_LIMIT=32
 LONGMEM_LIMIT=12
@@ -52,6 +53,7 @@ fi
 echo "[run_paper3_gate1_scaleup] model=${MODEL_KEY} budgets=${BUDGETS}" >&2
 echo "[run_paper3_gate1_scaleup] MSC limit=${MSC_LIMIT} input=${MSC_INPUT}" >&2
 echo "[run_paper3_gate1_scaleup] LongMemEval limit=${LONGMEM_LIMIT} input=${LONGMEM_INPUT} max_turns_per_conv=${LONGMEM_MAX_TURNS}" >&2
+echo "[run_paper3_gate1_scaleup] oracle attention summaries=${ENABLE_ORACLE_ATTENTION_SUMMARY}" >&2
 
 bash scripts/run_paper3_harm_oracle_probe.sh \
   "${RUN_PREFIX}_oracle_msc_valid_32conv" \
@@ -61,7 +63,9 @@ bash scripts/run_paper3_harm_oracle_probe.sh \
   "$BUDGETS" \
   "$MSC_LIMIT" \
   "$TARGET_TURN_STRIDE" \
-  "$MAX_TARGET_TURNS"
+  "$MAX_TARGET_TURNS" \
+  "" \
+  "$ENABLE_ORACLE_ATTENTION_SUMMARY"
 
 bash scripts/run_paper3_gate1_refinement_probe.sh \
   "${RUN_PREFIX}_refinement_msc_valid_32conv" \
@@ -81,7 +85,8 @@ bash scripts/run_paper3_harm_oracle_probe.sh \
   "$LONGMEM_LIMIT" \
   "$TARGET_TURN_STRIDE" \
   "$MAX_TARGET_TURNS" \
-  "$LONGMEM_MAX_TURNS"
+  "$LONGMEM_MAX_TURNS" \
+  "$ENABLE_ORACLE_ATTENTION_SUMMARY"
 
 bash scripts/run_paper3_gate1_refinement_probe.sh \
   "${RUN_PREFIX}_refinement_longmemeval_s_cleaned_12conv" \
