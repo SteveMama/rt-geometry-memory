@@ -4,6 +4,25 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+LOCAL_VENV_PYTHON="$ROOT_DIR/.venv/bin/python"
+if [[ -z "${PYTHON_BIN:-}" ]]; then
+  if [[ -x "$LOCAL_VENV_PYTHON" ]]; then
+    PYTHON_BIN="$LOCAL_VENV_PYTHON"
+  else
+    PYTHON_BIN="$(command -v python3 || command -v python || true)"
+  fi
+fi
+if [[ -z "$PYTHON_BIN" || ! -x "$PYTHON_BIN" ]]; then
+  echo "[run_paper3_gate1_scaleup] could not find .venv/bin/python, python3, or python on PATH" >&2
+  exit 1
+fi
+if ! "$PYTHON_BIN" -c "import torch" >/dev/null 2>&1; then
+  echo "[run_paper3_gate1_scaleup] selected python does not have torch: $PYTHON_BIN" >&2
+  echo "[run_paper3_gate1_scaleup] create .venv and install dependencies first." >&2
+  exit 1
+fi
+export PYTHON_BIN
+
 if [[ $# -lt 2 ]]; then
   echo "Usage: run_paper3_gate1_scaleup.sh <msc-input-jsonl> <longmemeval-input-jsonl> [model-key] [budgets] [target-turn-stride] [max-target-turns] [longmemeval-max-turns-per-conversation] [run-prefix]" >&2
   exit 1

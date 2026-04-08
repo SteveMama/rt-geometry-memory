@@ -4,11 +4,24 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-PYTHON_BIN="${PYTHON_BIN:-$(command -v python3 || command -v python || true)}"
-if [[ -z "$PYTHON_BIN" ]]; then
-  echo "[run_paper3_harm_oracle_probe] could not find python3 or python on PATH" >&2
+LOCAL_VENV_PYTHON="$ROOT_DIR/.venv/bin/python"
+if [[ -z "${PYTHON_BIN:-}" ]]; then
+  if [[ -x "$LOCAL_VENV_PYTHON" ]]; then
+    PYTHON_BIN="$LOCAL_VENV_PYTHON"
+  else
+    PYTHON_BIN="$(command -v python3 || command -v python || true)"
+  fi
+fi
+if [[ -z "$PYTHON_BIN" || ! -x "$PYTHON_BIN" ]]; then
+  echo "[run_paper3_harm_oracle_probe] could not find .venv/bin/python, python3, or python on PATH" >&2
   exit 1
 fi
+if ! "$PYTHON_BIN" -c "import torch" >/dev/null 2>&1; then
+  echo "[run_paper3_harm_oracle_probe] selected python does not have torch: $PYTHON_BIN" >&2
+  echo "[run_paper3_harm_oracle_probe] create .venv and install dependencies first." >&2
+  exit 1
+fi
+export PYTHON_BIN
 
 if [[ $# -lt 3 ]]; then
   echo "Usage: run_paper3_harm_oracle_probe.sh <study-name> <benchmark-name> <input-jsonl> [models] [budgets] [limit-conversations] [target-turn-stride] [max-target-turns] [max-turns-per-conversation]" >&2
