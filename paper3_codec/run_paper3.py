@@ -106,6 +106,57 @@ def _parse_policies(raw: str | None) -> tuple[str, ...]:
     return tuple(item.strip() for item in raw.split(",") if item.strip())
 
 
+def _load_conversation_ids(path: Path | None) -> list[str] | None:
+    if path is None:
+        return None
+    ids = [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if not ids:
+        raise RuntimeError(f"No conversation IDs found in {path}")
+    return ids
+
+
+def _select_conversations(
+    *,
+    conversations: list[ConversationRecord],
+    families: list[str] | None,
+    conversation_ids_path: Path | None,
+    skip_conversations: int,
+    limit_conversations: int | None,
+) -> list[ConversationRecord]:
+    selected = conversations
+    if families is not None:
+        selected = [conversation for conversation in selected if conversation.family in families]
+    conversation_ids = _load_conversation_ids(conversation_ids_path)
+    if conversation_ids is not None:
+        conversation_map = {conversation.conversation_id: conversation for conversation in selected}
+        missing_ids = [conversation_id for conversation_id in conversation_ids if conversation_id not in conversation_map]
+        if missing_ids:
+            raise RuntimeError(
+                "Conversation ID manifest references missing conversations: "
+                + ", ".join(missing_ids[:10])
+                + ("..." if len(missing_ids) > 10 else "")
+            )
+        selected = [conversation_map[conversation_id] for conversation_id in conversation_ids]
+    if skip_conversations > 0:
+        selected = selected[skip_conversations:]
+    if limit_conversations is not None:
+        selected = selected[:limit_conversations]
+    return selected
+
+
+def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
+    if not rows:
+        return
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
 def _sample_target_turns(
     *,
     num_turns: int,
@@ -474,7 +525,8 @@ def run_codec_pilot(
     device: str | None,
     limit_conversations: int | None,
     skip_conversations: int = 0,
-    output_dir: Path | None,
+    conversation_ids_path: Path | None = None,
+    output_dir: Path | None = None,
     segment_span: int = 2,
     policies: tuple[str, ...] = DEFAULT_POLICIES,
     target_turn_stride: int = 1,
@@ -486,13 +538,13 @@ def run_codec_pilot(
     if spec is None:
         raise RuntimeError(f"Unknown model key: {model_key}")
 
-    conversations = load_conversations_from_paths(input_paths)
-    if families is not None:
-        conversations = [conversation for conversation in conversations if conversation.family in families]
-    if skip_conversations > 0:
-        conversations = conversations[skip_conversations:]
-    if limit_conversations is not None:
-        conversations = conversations[:limit_conversations]
+    conversations = _select_conversations(
+        conversations=load_conversations_from_paths(input_paths),
+        families=families,
+        conversation_ids_path=conversation_ids_path,
+        skip_conversations=skip_conversations,
+        limit_conversations=limit_conversations,
+    )
     if not conversations:
         raise RuntimeError("No conversations selected for Paper 3.")
 
@@ -536,12 +588,14 @@ def run_codec_pilot(
         f"max_input_tokens={max_input_tokens} segment_span={segment_span} "
         f"target_turn_stride={target_turn_stride} max_target_turns={max_target_turns} "
         f"max_turns_per_conversation={max_turns_per_conversation} "
-        f"skip_conversations={skip_conversations}",
+        f"skip_conversations={skip_conversations} "
+        f"conversation_ids_path={conversation_ids_path}",
         flush=True,
     )
 
     evaluation_rows: list[dict[str, Any]] = []
     behavior_rows: list[dict[str, Any]] = []
+    completed_conversation_ids: list[str] = []
     conversation_iterator = _progress(
         enumerate(conversations, start=1),
         total=len(conversations),
@@ -1015,6 +1069,30 @@ def run_codec_pilot(
                 f"rows={len(evaluation_rows)} behavior_rows={len(behavior_rows)}",
                 flush=True,
             )
+        completed_conversation_ids.append(conversation.conversation_id)
+        if output_dir is not None:
+            output_dir.mkdir(parents=True, exist_ok=True)
+            _write_csv(output_dir / "evaluation_rows.partial.csv", evaluation_rows)
+            if behavior_rows:
+                _write_csv(output_dir / "behavior_rows.partial.csv", behavior_rows)
+            _write_json(
+                output_dir / "progress.json",
+                {
+                    "status": "running",
+                    "updated_at": datetime.now().isoformat(timespec="seconds"),
+                    "model_key": model_key,
+                    "num_conversations_total": len(conversations),
+                    "num_conversations_completed": len(completed_conversation_ids),
+                    "completed_conversation_ids": completed_conversation_ids,
+                    "num_evaluation_rows": len(evaluation_rows),
+                    "num_behavior_rows": len(behavior_rows),
+                    "target_turn_stride": target_turn_stride,
+                    "max_target_turns": max_target_turns,
+                    "max_turns_per_conversation": max_turns_per_conversation,
+                    "skip_conversations": skip_conversations,
+                    "conversation_ids_path": str(conversation_ids_path) if conversation_ids_path is not None else None,
+                },
+            )
 
     summary = {
         "created_at": datetime.now().isoformat(timespec="seconds"),
@@ -1030,6 +1108,7 @@ def run_codec_pilot(
         "max_target_turns": max_target_turns,
         "max_turns_per_conversation": max_turns_per_conversation,
         "skip_conversations": skip_conversations,
+        "conversation_ids_path": str(conversation_ids_path) if conversation_ids_path is not None else None,
         "num_conversations": len(conversations),
         "num_evaluations": len(evaluation_rows),
         "num_behavior_evaluations": len(behavior_rows),
@@ -1041,17 +1120,26 @@ def run_codec_pilot(
 
     if output_dir is not None:
         output_dir.mkdir(parents=True, exist_ok=True)
-        with (output_dir / "evaluation_rows.csv").open("w", encoding="utf-8", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=list(evaluation_rows[0].keys()))
-            writer.writeheader()
-            writer.writerows(evaluation_rows)
+        _write_csv(output_dir / "evaluation_rows.csv", evaluation_rows)
         if behavior_rows:
-            with (output_dir / "behavior_rows.csv").open("w", encoding="utf-8", newline="") as handle:
-                writer = csv.DictWriter(handle, fieldnames=list(behavior_rows[0].keys()))
-                writer.writeheader()
-                writer.writerows(behavior_rows)
-        (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+            _write_csv(output_dir / "behavior_rows.csv", behavior_rows)
+        _write_json(output_dir / "summary.json", summary)
         (output_dir / "report.md").write_text(_format_report(summary), encoding="utf-8")
+        _write_json(
+            output_dir / "progress.json",
+            {
+                "status": "complete",
+                "updated_at": datetime.now().isoformat(timespec="seconds"),
+                "model_key": model_key,
+                "num_conversations_total": len(conversations),
+                "num_conversations_completed": len(completed_conversation_ids),
+                "completed_conversation_ids": completed_conversation_ids,
+                "num_evaluation_rows": len(evaluation_rows),
+                "num_behavior_rows": len(behavior_rows),
+                "summary_path": str(output_dir / "summary.json"),
+                "report_path": str(output_dir / "report.md"),
+            },
+        )
 
     return {"summary": summary, "rows": evaluation_rows, "behavior_rows": behavior_rows}
 
@@ -1139,6 +1227,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
     parser.add_argument("--skip-conversations", type=int, default=0)
+    parser.add_argument("--conversation-ids-path", type=Path, default=None)
     parser.add_argument("--segment-span", type=int, default=2)
     parser.add_argument("--target-turn-stride", type=int, default=1)
     parser.add_argument("--max-target-turns", type=int, default=None)
@@ -1170,6 +1259,7 @@ def main() -> None:
         device=args.device,
         limit_conversations=args.limit_conversations,
         skip_conversations=args.skip_conversations,
+        conversation_ids_path=args.conversation_ids_path,
         output_dir=args.output_root / args.run_name,
         segment_span=args.segment_span,
         policies=_parse_policies(args.policies),

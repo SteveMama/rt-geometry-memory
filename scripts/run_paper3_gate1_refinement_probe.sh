@@ -24,7 +24,7 @@ fi
 export PYTHON_BIN
 
 if [[ $# -lt 2 ]]; then
-  echo "Usage: run_paper3_gate1_refinement_probe.sh <study-name> <input-jsonl> [models] [budgets] [limit-conversations] [target-turn-stride] [max-target-turns] [max-turns-per-conversation] [skip-conversations]" >&2
+  echo "Usage: run_paper3_gate1_refinement_probe.sh <study-name> <input-jsonl> [models] [budgets] [limit-conversations] [target-turn-stride] [max-target-turns] [max-turns-per-conversation] [skip-conversations] [conversation-ids-path]" >&2
   exit 1
 fi
 
@@ -37,16 +37,21 @@ TARGET_TURN_STRIDE="${6:-4}"
 MAX_TARGET_TURNS="${7:-16}"
 MAX_TURNS_PER_CONVERSATION="${8:-}"
 SKIP_CONVERSATIONS="${9:-0}"
+CONVERSATION_IDS_PATH="${10:-}"
 POLICIES="semantic,budget_aware_semantic_keep_compress_drop,semantic_ambient_geometry_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop"
 
 echo "[run_paper3_gate1_refinement_probe] study=${RUN_NAME} models=${MODEL_KEYS} budgets=${BUDGETS}" >&2
 echo "[run_paper3_gate1_refinement_probe] input=${INPUT_PATH}" >&2
 echo "[run_paper3_gate1_refinement_probe] policies=${POLICIES}" >&2
-echo "[run_paper3_gate1_refinement_probe] max_turns_per_conversation=${MAX_TURNS_PER_CONVERSATION:-none} skip_conversations=${SKIP_CONVERSATIONS}" >&2
+echo "[run_paper3_gate1_refinement_probe] max_turns_per_conversation=${MAX_TURNS_PER_CONVERSATION:-none} skip_conversations=${SKIP_CONVERSATIONS} conversation_ids_path=${CONVERSATION_IDS_PATH:-none}" >&2
 
 MAX_TURNS_ARG=""
 if [[ -n "$MAX_TURNS_PER_CONVERSATION" ]]; then
   MAX_TURNS_ARG="--max-turns-per-conversation $MAX_TURNS_PER_CONVERSATION"
+fi
+CONVERSATION_IDS_ARG=""
+if [[ -n "$CONVERSATION_IDS_PATH" ]]; then
+  CONVERSATION_IDS_ARG="--conversation-ids-path $CONVERSATION_IDS_PATH"
 fi
 
 PYTHONUNBUFFERED=1 "$PYTHON_BIN" -u -m paper3_codec.study \
@@ -62,6 +67,7 @@ PYTHONUNBUFFERED=1 "$PYTHON_BIN" -u -m paper3_codec.study \
   --segment-span 3 \
   --limit-conversations "$LIMIT_CONVERSATIONS" \
   --skip-conversations "$SKIP_CONVERSATIONS" \
+  $CONVERSATION_IDS_ARG \
   --target-turn-stride "$TARGET_TURN_STRIDE" \
   --max-target-turns "$MAX_TARGET_TURNS" \
   $MAX_TURNS_ARG

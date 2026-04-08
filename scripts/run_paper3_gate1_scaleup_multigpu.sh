@@ -57,25 +57,6 @@ fi
 
 echo "[run_paper3_gate1_scaleup_multigpu] GPUs=${GPU_INDICES[*]} using=$GPU_COUNT model=${MODEL_KEY}" >&2
 
-compute_shards() {
-  local total="$1"
-  local shard_count="$2"
-  local base=$(( total / shard_count ))
-  local rem=$(( total % shard_count ))
-  local offset=0
-  SHARD_LIMITS=()
-  SHARD_SKIPS=()
-  for ((i=0; i<shard_count; i++)); do
-    local size="$base"
-    if (( i < rem )); then
-      size=$(( size + 1 ))
-    fi
-    SHARD_LIMITS+=("$size")
-    SHARD_SKIPS+=("$offset")
-    offset=$(( offset + size ))
-  done
-}
-
 join_by_comma() {
   local first=1
   for item in "$@"; do
@@ -94,30 +75,47 @@ launch_oracle_shards() {
   local total_limit="$3"
   local max_turns="$4"
   local study_prefix="$5"
-  compute_shards "$total_limit" "$GPU_COUNT"
+  local plan_dir="results/paper3/shard_plans/${study_prefix}"
+  mkdir -p "$plan_dir"
+  local max_turns_arg=()
+  if [[ -n "$max_turns" ]]; then
+    max_turns_arg=(--max-turns-per-conversation "$max_turns")
+  fi
+  "$PYTHON_BIN" -m paper3_codec.plan_conversation_shards \
+    --input-path "$input_path" \
+    --limit-conversations "$total_limit" \
+    --target-turn-stride "$TARGET_TURN_STRIDE" \
+    --max-target-turns "$MAX_TARGET_TURNS" \
+    --shard-count "$GPU_COUNT" \
+    --output-dir "$plan_dir" \
+    "${max_turns_arg[@]}"
   local pids=()
   local shard_dirs=()
   for ((i=0; i<GPU_COUNT; i++)); do
-    local shard_limit="${SHARD_LIMITS[$i]}"
-    local shard_skip="${SHARD_SKIPS[$i]}"
-    if [[ "$shard_limit" -le 0 ]]; then
+    local shard_ids_path="${plan_dir}/shard_${i}_ids.txt"
+    if [[ ! -s "$shard_ids_path" ]]; then
       continue
     fi
     local shard_name="${study_prefix}_shard${i}of${GPU_COUNT}"
-    shard_dirs+=("results/paper3/harm_oracle/${shard_name}")
-    echo "[multigpu][oracle] gpu=${GPU_INDICES[$i]} shard=${i} skip=${shard_skip} limit=${shard_limit} study=${shard_name}" >&2
+    local shard_dir="results/paper3/harm_oracle/${shard_name}"
+    local log_path="${shard_dir}/worker.log"
+    mkdir -p "$shard_dir"
+    shard_dirs+=("$shard_dir")
+    echo "[multigpu][oracle] gpu=${GPU_INDICES[$i]} shard=${i} ids=${shard_ids_path} study=${shard_name} log=${log_path}" >&2
     CUDA_VISIBLE_DEVICES="${GPU_INDICES[$i]}" bash scripts/run_paper3_harm_oracle_probe.sh \
       "$shard_name" \
       "$benchmark_name" \
       "$input_path" \
       "$MODEL_KEY" \
       "$BUDGETS" \
-      "$shard_limit" \
+      "$total_limit" \
       "$TARGET_TURN_STRIDE" \
       "$MAX_TARGET_TURNS" \
       "$max_turns" \
       "$ENABLE_ORACLE_ATTENTION_SUMMARY" \
-      "$shard_skip" &
+      "0" \
+      "$shard_ids_path" \
+      2>&1 | tee "$log_path" &
     pids+=("$!")
   done
   for pid in "${pids[@]}"; do
@@ -135,28 +133,45 @@ launch_study_shards() {
   local total_limit="$2"
   local max_turns="$3"
   local study_prefix="$4"
-  compute_shards "$total_limit" "$GPU_COUNT"
+  local plan_dir="results/paper3/shard_plans/${study_prefix}"
+  mkdir -p "$plan_dir"
+  local max_turns_arg=()
+  if [[ -n "$max_turns" ]]; then
+    max_turns_arg=(--max-turns-per-conversation "$max_turns")
+  fi
+  "$PYTHON_BIN" -m paper3_codec.plan_conversation_shards \
+    --input-path "$input_path" \
+    --limit-conversations "$total_limit" \
+    --target-turn-stride "$TARGET_TURN_STRIDE" \
+    --max-target-turns "$MAX_TARGET_TURNS" \
+    --shard-count "$GPU_COUNT" \
+    --output-dir "$plan_dir" \
+    "${max_turns_arg[@]}"
   local pids=()
   local shard_dirs=()
   for ((i=0; i<GPU_COUNT; i++)); do
-    local shard_limit="${SHARD_LIMITS[$i]}"
-    local shard_skip="${SHARD_SKIPS[$i]}"
-    if [[ "$shard_limit" -le 0 ]]; then
+    local shard_ids_path="${plan_dir}/shard_${i}_ids.txt"
+    if [[ ! -s "$shard_ids_path" ]]; then
       continue
     fi
     local shard_name="${study_prefix}_shard${i}of${GPU_COUNT}"
-    shard_dirs+=("results/paper3/studies/${shard_name}")
-    echo "[multigpu][study] gpu=${GPU_INDICES[$i]} shard=${i} skip=${shard_skip} limit=${shard_limit} study=${shard_name}" >&2
+    local shard_dir="results/paper3/studies/${shard_name}"
+    local log_path="${shard_dir}/worker.log"
+    mkdir -p "$shard_dir"
+    shard_dirs+=("$shard_dir")
+    echo "[multigpu][study] gpu=${GPU_INDICES[$i]} shard=${i} ids=${shard_ids_path} study=${shard_name} log=${log_path}" >&2
     CUDA_VISIBLE_DEVICES="${GPU_INDICES[$i]}" bash scripts/run_paper3_gate1_refinement_probe.sh \
       "$shard_name" \
       "$input_path" \
       "$MODEL_KEY" \
       "$BUDGETS" \
-      "$shard_limit" \
+      "$total_limit" \
       "$TARGET_TURN_STRIDE" \
       "$MAX_TARGET_TURNS" \
       "$max_turns" \
-      "$shard_skip" &
+      "0" \
+      "$shard_ids_path" \
+      2>&1 | tee "$log_path" &
     pids+=("$!")
   done
   for pid in "${pids[@]}"; do

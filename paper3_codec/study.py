@@ -291,6 +291,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
     parser.add_argument("--skip-conversations", type=int, default=0)
+    parser.add_argument("--conversation-ids-path", type=Path, default=None)
     parser.add_argument("--segment-span", type=int, default=2)
     parser.add_argument("--target-turn-stride", type=int, default=1)
     parser.add_argument("--max-target-turns", type=int, default=None)
@@ -339,6 +340,7 @@ def main() -> None:
             device=args.device,
             limit_conversations=args.limit_conversations,
             skip_conversations=args.skip_conversations,
+            conversation_ids_path=args.conversation_ids_path,
             output_dir=study_dir / model_key,
             segment_span=args.segment_span,
             policies=policies,
@@ -350,6 +352,22 @@ def main() -> None:
         model_results.append(result)
         combined_rows.extend(result["rows"])
         combined_behavior_rows.extend(result["behavior_rows"])
+        (study_dir / "progress.json").write_text(
+            json.dumps(
+                {
+                    "status": "running",
+                    "updated_at": datetime.now().isoformat(timespec="seconds"),
+                    "study_name": args.study_name,
+                    "completed_models": [item["summary"]["model_key"] for item in model_results],
+                    "num_models_total": len(model_keys),
+                    "num_models_completed": len(model_results),
+                    "num_evaluation_rows": len(combined_rows),
+                    "num_behavior_rows": len(combined_behavior_rows),
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
         print(
             f"[study] Completed model {model_key}: "
             f"{result['summary']['num_evaluations']} eval rows, "
@@ -368,6 +386,7 @@ def main() -> None:
         "max_target_turns": args.max_target_turns,
         "max_turns_per_conversation": args.max_turns_per_conversation,
         "skip_conversations": args.skip_conversations,
+        "conversation_ids_path": str(args.conversation_ids_path) if args.conversation_ids_path is not None else None,
         "models": _study_summary(model_results),
     }
 
@@ -390,6 +409,24 @@ def main() -> None:
             behavior_confidence_summary,
             significance_summary,
             behavior_significance_summary,
+        ),
+        encoding="utf-8",
+    )
+    (study_dir / "progress.json").write_text(
+        json.dumps(
+            {
+                "status": "complete",
+                "updated_at": datetime.now().isoformat(timespec="seconds"),
+                "study_name": args.study_name,
+                "completed_models": model_keys,
+                "num_models_total": len(model_keys),
+                "num_models_completed": len(model_keys),
+                "num_evaluation_rows": len(combined_rows),
+                "num_behavior_rows": len(combined_behavior_rows),
+                "summary_path": str(study_dir / "study_summary.json"),
+                "report_path": str(study_dir / "study_report.md"),
+            },
+            indent=2,
         ),
         encoding="utf-8",
     )

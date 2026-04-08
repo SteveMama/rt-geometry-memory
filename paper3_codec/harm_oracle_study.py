@@ -31,9 +31,11 @@ from .run_paper3 import (
     _policy_messages,
     _prefix_turn_costs,
     _progress,
+    _select_conversations,
     _semantic_support_proxy_scores,
     _support_scores,
     _topk_indices,
+    _write_json,
     _kl_divergence,
     _sample_target_turns,
 )
@@ -799,25 +801,27 @@ def run_oracle_harm_probe(
     device: str | None,
     limit_conversations: int | None,
     skip_conversations: int,
+    conversation_ids_path: Path | None,
     target_turn_stride: int,
     max_target_turns: int | None,
     max_turns_per_conversation: int | None,
     enable_attention_summary: bool,
     output_dir: Path,
 ) -> dict[str, Any]:
-    conversations = load_conversations_from_paths(input_paths)
-    if families is not None:
-        conversations = [conversation for conversation in conversations if conversation.family in families]
-    if skip_conversations > 0:
-        conversations = conversations[skip_conversations:]
-    if limit_conversations is not None:
-        conversations = conversations[:limit_conversations]
+    conversations = _select_conversations(
+        conversations=load_conversations_from_paths(input_paths),
+        families=families,
+        conversation_ids_path=conversation_ids_path,
+        skip_conversations=skip_conversations,
+        limit_conversations=limit_conversations,
+    )
     if not conversations:
         raise RuntimeError("No conversations selected for oracle harm study.")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     model_payloads: dict[str, Any] = {}
     candidate_rows: list[dict[str, Any]] = []
+    completed_conversation_ids: list[str] = []
     for model_key in model_keys:
         spec = resolve_model_spec(model_key)
         if spec is None:
@@ -971,6 +975,25 @@ def run_oracle_harm_probe(
                 f"for model={model_key}",
                 flush=True,
             )
+            completed_conversation_ids.append(conversation.conversation_id)
+            _write_csv(output_dir / "candidate_rows.partial.csv", candidate_rows)
+            _write_json(
+                output_dir / "progress.json",
+                {
+                    "status": "running",
+                    "updated_at": datetime.now().isoformat(timespec="seconds"),
+                    "study_name": study_name,
+                    "benchmark_name": benchmark_name,
+                    "model_keys": model_keys,
+                    "current_model_key": model_key,
+                    "num_conversations_total": len(conversations),
+                    "num_conversations_completed": len(completed_conversation_ids),
+                    "completed_conversation_ids": completed_conversation_ids,
+                    "num_candidate_rows": len(candidate_rows),
+                    "skip_conversations": skip_conversations,
+                    "conversation_ids_path": str(conversation_ids_path) if conversation_ids_path is not None else None,
+                },
+            )
 
             model_payloads[model_key] = {"model_name": spec.model_name}
 
@@ -986,6 +1009,7 @@ def run_oracle_harm_probe(
         "budgets": budgets,
         "families": families,
         "skip_conversations": skip_conversations,
+        "conversation_ids_path": str(conversation_ids_path) if conversation_ids_path is not None else None,
         "num_conversations": len(conversations),
         "num_candidate_rows": len(candidate_rows),
         "models": model_payloads,
@@ -995,8 +1019,24 @@ def run_oracle_harm_probe(
     }
 
     _write_csv(output_dir / "candidate_rows.csv", candidate_rows)
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    _write_json(output_dir / "summary.json", summary)
     (output_dir / "report.md").write_text(_format_report(summary), encoding="utf-8")
+    _write_json(
+        output_dir / "progress.json",
+        {
+            "status": "complete",
+            "updated_at": datetime.now().isoformat(timespec="seconds"),
+            "study_name": study_name,
+            "benchmark_name": benchmark_name,
+            "model_keys": model_keys,
+            "num_conversations_total": len(conversations),
+            "num_conversations_completed": len(completed_conversation_ids),
+            "completed_conversation_ids": completed_conversation_ids,
+            "num_candidate_rows": len(candidate_rows),
+            "summary_path": str(output_dir / "summary.json"),
+            "report_path": str(output_dir / "report.md"),
+        },
+    )
     return summary
 
 
@@ -1018,6 +1058,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", default=None)
     parser.add_argument("--limit-conversations", type=int, default=None)
     parser.add_argument("--skip-conversations", type=int, default=0)
+    parser.add_argument("--conversation-ids-path", type=Path, default=None)
     parser.add_argument("--target-turn-stride", type=int, default=4)
     parser.add_argument("--max-target-turns", type=int, default=16)
     parser.add_argument(
@@ -1057,6 +1098,7 @@ def main() -> None:
         device=args.device,
         limit_conversations=args.limit_conversations,
         skip_conversations=args.skip_conversations,
+        conversation_ids_path=args.conversation_ids_path,
         target_turn_stride=args.target_turn_stride,
         max_target_turns=args.max_target_turns,
         max_turns_per_conversation=args.max_turns_per_conversation,
