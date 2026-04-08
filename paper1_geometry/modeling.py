@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -7,6 +8,16 @@ from typing import Any
 import numpy as np
 
 from .conversations import ConversationRecord, conversation_prefix_messages
+
+
+def _extract_batch_size() -> int:
+    raw = os.environ.get("EXTRACT_BATCH_SIZE", "").strip()
+    if not raw:
+        return 8
+    try:
+        return max(int(raw), 1)
+    except ValueError:
+        return 8
 
 
 @dataclass(frozen=True, slots=True)
@@ -242,40 +253,41 @@ class ConversationStateExtractor:
         progress_every: int | None = None,
     ) -> TrajectoryBatch:
         turn_limit = len(conversation.turns) if max_turns is None else min(max_turns, len(conversation.turns))
-        states: list[np.ndarray] = []
-        logits: list[np.ndarray] = []
-        token_counts: list[int] = []
-        turn_roles: list[str] = []
 
         if progress_label:
-            every = progress_every if progress_every is not None else max(1, min(8, turn_limit))
             print(
                 f"[extract_conversation] start {progress_label} turns={turn_limit}",
                 flush=True,
             )
-        else:
-            every = None
 
-        with self.torch.no_grad():
-            for turn_index in range(turn_limit):
-                messages = conversation_prefix_messages(conversation, turn_index)
-                score = self.score_messages(messages, max_input_tokens=max_input_tokens)
-                states.append(score.state)
-                logits.append(score.logits)
-                token_counts.append(score.token_count)
-                turn_roles.append(conversation.turns[turn_index].role)
-                if progress_label and every is not None:
-                    completed = turn_index + 1
-                    if completed == 1 or completed == turn_limit or completed % every == 0:
-                        print(
-                            f"[extract_conversation] {progress_label} turn {completed}/{turn_limit}",
-                            flush=True,
-                        )
+        # Build all prefix message lists upfront.
+        all_prefix_messages = [
+            conversation_prefix_messages(conversation, t)
+            for t in range(turn_limit)
+        ]
+        turn_roles = [conversation.turns[t].role for t in range(turn_limit)]
+
+        # Score in sub-batches to control VRAM usage.
+        # Each prefix can be up to max_input_tokens long; batching T=40 at once
+        # risks OOM on 16GB GPUs. EXTRACT_BATCH_SIZE (default 8) keeps peak usage
+        # bounded while still getting parallel GPU utilization per sub-batch.
+        sub_batch_size = _extract_batch_size()
+        scores: list[MessageScore] = []
+        for start in range(0, turn_limit, sub_batch_size):
+            chunk = all_prefix_messages[start : start + sub_batch_size]
+            chunk_scores = self.score_messages_batch(chunk, max_input_tokens=max_input_tokens)
+            scores.extend(chunk_scores)
+            if progress_label:
+                completed = min(start + sub_batch_size, turn_limit)
+                print(
+                    f"[extract_conversation] {progress_label} turns {completed}/{turn_limit}",
+                    flush=True,
+                )
 
         batch = TrajectoryBatch(
-            states=np.stack(states, axis=0),
-            logits=np.stack(logits, axis=0),
-            token_counts=np.asarray(token_counts, dtype=np.int32),
+            states=np.stack([s.state for s in scores], axis=0),
+            logits=np.stack([s.logits for s in scores], axis=0),
+            token_counts=np.asarray([s.token_count for s in scores], dtype=np.int32),
             turn_roles=turn_roles,
         )
         if progress_label:
