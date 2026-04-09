@@ -32,7 +32,7 @@
 \maketitle
 
 \begin{abstract}
-Compressing long multi-turn conversations requires deciding not only how to compress context, but which signal should rank memory candidates under a fixed budget. We study a sparse keep/compress/drop (KCD) codec and compare geometric, semantic, and hybrid scoring signals across conversational memory regimes. On a stress-test benchmark designed to expose support-turn failures, a geometry-scored codec substantially outperforms a semantic signal swap inside the same codec, indicating that geometry is useful for constraint-critical memory. On public semantic-memory benchmarks, semantic shortlisting remains essential, but query-conditioned geometry improves ranking inside the shortlist and produces the strongest MSC policy result in the mid-budget regime. A single-model 3B validation shows the same qualitative geometry-versus-semantics pattern on the stress set. The main limitation is that the strongest mechanistic evidence comes from a custom stress benchmark, while the public-benchmark evidence is still narrower than a full large-scale benchmark sweep.
+Compressing long multi-turn conversations requires deciding not only how to compress context, but which signal should rank memory candidates under a fixed budget. We study a sparse keep/compress/drop (KCD) codec and compare geometric, semantic, and hybrid scoring signals across conversational memory regimes. On a stress-test benchmark designed to expose support-turn failures, a geometry-scored codec substantially outperforms a semantic signal swap inside the same codec, indicating that geometry is useful for constraint-critical memory. On public semantic-memory benchmarks, semantic shortlisting remains essential, and query-conditioned geometry improves ranking inside the shortlist at larger scale; however, the stronger claim is about shortlist refinement, not a universal replacement of the best semantic codec. A single-model 3B validation shows the same qualitative geometry-versus-semantics pattern on the stress set. The main limitation is that the strongest mechanistic evidence comes from a custom stress benchmark, while the public-benchmark evidence remains stronger on oracle shortlist ranking than on end-to-end policy separation.
 \end{abstract}
 
 \section{Introduction}
@@ -47,7 +47,7 @@ Our experiments are organized around that thesis. We first test whether the geom
 This paper makes three main contributions:
 \begin{itemize}[leftmargin=1.25em]
     \item We show with a direct signal-swap ablation that the same sparse codec behaves very differently depending on its scoring signal: geometry is substantially stronger than semantics on a stress-test benchmark for constraint-critical memory.
-    \item We show that on the public semantic-memory benchmarks studied here, geometry is most useful as a refinement signal inside a semantic shortlist rather than as a standalone selector, with a positive MSC policy result and a LongMemEval shortlist-ranking replication.
+    \item We show that on the public semantic-memory benchmarks studied here, geometry is most useful as a refinement signal inside a semantic shortlist rather than as a standalone selector, with a larger-scale oracle replication on both MSC and LongMemEval and a narrower policy result in which query-conditioned geometry improves over ambient geometry without clearly displacing the strongest semantic codec.
     \item We provide an interpretable mechanism account together with informative negative results that define the boundary of the present claim rather than hiding it.
 \end{itemize}
 
@@ -137,12 +137,12 @@ The paper's hypothesis is that these regimes favor different scoring signals ins
 We use three primary evaluation settings.
 \begin{itemize}[leftmargin=1.25em]
     \item \textbf{Hard stress set}: 36 synthetic but interpretable conversations across long-dependency, retrieval-heavy, and code-conversation families, designed to expose support-turn failures that are plausible in real conversational memory settings. The packets are randomized synthetic instances rather than copied benchmark rows, but they are built from the same conversational memory primitives that recur in public datasets: personal facts, event details, task constraints, and formatting commitments of the kind seen in MSC, LoCoMo, and LongMemEval \cite{msc,locomo,longmemeval}.
-    \item \textbf{MSC valid}: 16 conversations from the multi-session persona benchmark \cite{msc}.
-    \item \textbf{LongMemEval-S cleaned}: a 6-conversation subset from the cleaned LongMemEval release \cite{longmemeval}, truncated to 40 turns per conversation for oracle tractability.
+    \item \textbf{MSC valid}: 32 conversations from the multi-session persona benchmark \cite{msc}.
+    \item \textbf{LongMemEval-S cleaned}: a 12-conversation subset from the cleaned LongMemEval release \cite{longmemeval}, truncated to 40 turns per conversation for oracle tractability.
 \end{itemize}
 Primary experiments use \pname{qwen25\_15b}. A single-model scale check uses \pname{qwen25\_3b}. We treat the hard stress set as mechanism evidence and the public benchmarks as external-validity checks.
 
-The public-benchmark oracle studies operate on explicit candidate-row inventories rather than only end-to-end prompt outcomes. The MSC oracle probe contains 23{,}928 candidate rows across 16 conversations; the LongMemEval probe contains 10{,}416 rows across 6 truncated conversations. This matters because the shortlist question is not ``which policy wins end to end'' in the abstract, but ``whether geometry changes the ranking inside a semantic candidate pool enough to justify deployment.''
+The public-benchmark oracle studies operate on explicit candidate-row inventories rather than only end-to-end prompt outcomes. The MSC oracle probe contains 111{,}877 candidate rows across 32 conversations; the LongMemEval probe contains 32{,}251 rows across 12 truncated conversations. This matters because the shortlist question is not ``which policy wins end to end'' in the abstract, but ``whether geometry changes the ranking inside a semantic candidate pool enough to justify deployment.''
 
 \subsection{Policy Comparisons}
 The paper focuses on a small policy set tied directly to the main claim.
@@ -246,39 +246,39 @@ MSC is the clearest semantic-continuity benchmark in our study. The main questio
 
 \begin{table}[t]
 \centering
-\caption{Gate 1 on MSC valid (\pname{qwen25\_15b}, 16 conversations).}
+\caption{Gate 1 on MSC valid (\pname{qwen25\_15b}, 32 conversations).}
 \label{tab:msc_gate1}
 \begin{tabular}{lccc}
 \toprule
 Budget & Semantic $\tau$ & Hybrid $\tau$ & $\Delta\tau$ \\
 \midrule
-0.20 & 0.295 & 0.825 & $+0.530$ \\
-0.35 & 0.223 & 0.825 & $+0.602$ \\
-0.50 & 0.279 & 0.825 & $+0.546$ \\
+0.20 & 0.295 & 0.647 & $+0.352$ \\
+0.35 & 0.223 & 0.672 & $+0.449$ \\
+0.50 & 0.279 & 0.718 & $+0.439$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-These shortlist-ranking gains are far above the operational threshold used for Gate 1. In that sense, the oracle probe gives a clear yes/no answer: geometry is changing the ranking problem meaningfully enough inside the semantic shortlist to justify policy evaluation.
+These shortlist-ranking gains are still far above the operational threshold used for Gate 1. In that sense, the oracle probe gives a clear yes/no answer: geometry is changing the ranking problem meaningfully enough inside the semantic shortlist to justify policy evaluation.
 
-The shortlist result is also meaningful in operational terms, not just in Kendall units. Within the shortlist, query-conditioned geometry improves top-5 oracle recall from 0.825 for pure semantic ranking to 0.850--0.863 across budgets, while also reducing oracle regret. This is why the hybrid is worth testing as a policy rather than only reporting a ranking statistic.
+The larger-scale result sharpens the mechanism claim. Within the shortlist, query-conditioned geometry improves ranking order strongly, but does not improve top-5 recall over semantic ranking on this 32-conversation slice. The interpretation is therefore narrower and cleaner: geometry acts as a shortlist-ranking correction after semantic retrieval has already surfaced the right candidate pool.
 
 \begin{table}[t]
 \centering
-\caption{MSC policy comparison at budget 0.35. Negative deltas favor the hybrid.}
+\caption{MSC policy comparison from the 32-conversation scale-up. Negative deltas favor the left policy.}
 \label{tab:msc_policy}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{lrr}
+\begin{tabular}{lccc}
 \toprule
-Comparison & $\Delta\Logit$ & $\Delta\NLL$ \\
+Comparison & 0.20 & 0.35 & 0.50 \\
 \midrule
-Hybrid vs.\ budget-aware semantic KCD & $-26.4$ ($p=0.044$ conv) & $-0.057$ ($p=0.020$ row) \\
-Hybrid vs.\ ambient-geometry KCD & $-49.8$ ($p=0.004$ row) & directionally better \\
+Budget-aware semantic vs.\ semantic & $-13.8$ ($p=0.349$ conv) & $-27.7$ ($p=0.045$ conv) & $-71.6$ ($p=0.002$ conv) \\
+Query-conditioned vs.\ ambient geometry & $-14.4$ ($p=0.047$ conv) & $-23.4$ ($p=0.027$ conv) & $+4.6$ ($p=0.814$ conv) \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-At budget 0.35, the query-conditioned hybrid is the strongest policy in the comparison set, while the lower- and higher-budget settings are more suggestive than decisive. The important point is not that geometry replaces semantics on MSC. It does not. The important point is that \emph{query-conditioned} geometry improves the semantic codec, while ambient geometry does not produce the same gain. This is exactly the role we want the refinement signal to play: not as the front door, but as a shortlist-aware ranking correction.
+At larger scale, the refinement claim is narrower than in the earlier checkpoint. Budget-aware semantic KCD is the strongest stable semantic baseline, beating pure semantic at budgets 0.35 and 0.50. The important point is that \emph{query-conditioned} geometry still improves over ambient geometry at budgets 0.20 and 0.35, while remaining statistically indistinguishable from budget-aware semantic. This is exactly the role we want the refinement signal to play: not as the front door, but as a shortlist-aware ranking correction.
 
 At budgets 0.20 and 0.50, the pattern is less decisive. The hybrid is directionally competitive but not as clearly separated. This is consistent with the broader program-level readout that geometry refinement is most useful in the scarcity regime where shortlist decisions are binding.
 
@@ -287,23 +287,23 @@ LongMemEval provides a second public check with more episodic structure. In the 
 
 \begin{table}[t]
 \centering
-\caption{Gate 1 on LongMemEval-S cleaned (\pname{qwen25\_15b}, 6 conversations).}
+\caption{Gate 1 on LongMemEval-S cleaned (\pname{qwen25\_15b}, 12 conversations).}
 \label{tab:lme_gate1}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 Budget & Semantic $\tau$ & Hybrid $\tau$ & $\Delta\tau$ & Gate 1 \\
 \midrule
-0.20 & 0.013 & 0.527 & $+0.514$ & pass \\
-0.35 & 0.013 & 0.520 & $+0.507$ & pass \\
-0.50 & 0.013 & 0.502 & $+0.489$ & pass \\
+0.20 & $-0.010$ & 0.304 & $+0.303$ & pass \\
+0.35 & $-0.010$ & 0.145 & $+0.145$ & pass \\
+0.50 & $-0.010$ & 0.289 & $+0.289$ & pass \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-Within the limits of the current truncated slice, this result serves two purposes. First, it shows that the MSC shortlist result is not unique to persona continuity. Second, it clarifies why the geometry refinement should be framed as a shortlist tool rather than a standalone selector. In this episodic setting, the semantic shortlist still defines the candidate pool, but the geometric refinement adds nearly all of the within-shortlist ranking signal.
+Within the limits of the current truncated slice, this result serves two purposes. First, it shows that the MSC shortlist result is not unique to persona continuity. Second, it clarifies why the geometry refinement should be framed as a shortlist tool rather than a standalone selector. In this episodic setting, the semantic shortlist still defines the candidate pool, but the geometric refinement adds most of the within-shortlist ranking signal.
 
-In the policy study, the query-conditioned hybrid beats the ambient-geometry variant on logit distortion at budget 0.50 ($\Delta\Logit=-76.6$, $p=0.036$ row-level). Because the current slice is truncated to 40 turns, answer NLL is comparatively flat across policies. We therefore treat LongMemEval here as a replication of the shortlist-ranking result rather than as a full end-to-end answer-quality verdict.
+In the policy study, the query-conditioned hybrid does not produce a stable conversation-level win on this truncated slice. Because the current slice is truncated to 40 turns, answer NLL is comparatively flat across policies. We therefore treat LongMemEval here as a replication of the shortlist-ranking result rather than as a full end-to-end answer-quality verdict.
 
 \section{Single-Model 3B Validation}
 To test whether the hard-set signal-comparison result is specific to compact models, we rerun the stress-set comparison on \pname{qwen25\_3b}. This is a \emph{single-model} scale check, not a general scale-law claim.
@@ -356,7 +356,7 @@ The paper therefore does not advocate a universal geometry-first memory policy. 
 We also tested two extensions that did not improve the main result. A learned harm predictor achieved reasonable row-level oracle ranking, but cross-conversation calibration was poor and it did not beat the hybrid policy at deployment. An object-level compression variant also underperformed because the current object boundaries under-retained the available budget. We do not treat these negatives as evidence against the main result; rather, they help bound which extensions currently work and which do not. These negatives are useful because they suggest that the remaining gap is not solved by simply replacing heuristic signals with any learned predictor or by moving immediately to coarse object compression without better object definitions.
 
 \section{Limitations}
-The strongest mechanistic evidence in the paper comes from a custom hard stress set designed to expose support-turn failures. That makes the result informative, but it also limits external validity. Although the hard set uses randomized synthetic packets constructed from memory primitives that also appear in benchmarks such as MSC, LoCoMo, and LongMemEval, it is still a controlled stress test rather than a sampled public benchmark. The public-benchmark evidence is currently stronger on shortlist ranking than on broad end-to-end answer-quality coverage, especially on the truncated LongMemEval slice. The 3B validation uses only one model, so it supports only a single-model replication claim rather than a general statement about scaling. Finally, the learned harm predictor and object-level compression results are informative negatives, but their diagnoses are still based on the current implementation choices rather than exhaustive exploration.
+The strongest mechanistic evidence in the paper comes from a custom hard stress set designed to expose support-turn failures. That makes the result informative, but it also limits external validity. Although the hard set uses randomized synthetic packets constructed from memory primitives that also appear in benchmarks such as MSC, LoCoMo, and LongMemEval, it is still a controlled stress test rather than a sampled public benchmark. The public-benchmark evidence is now stronger than before on shortlist ranking because it covers 32 MSC and 12 LongMemEval conversations, but it is still stronger on oracle ranking than on broad end-to-end answer-quality coverage, especially on the truncated LongMemEval slice. The 3B validation uses only one model, so it supports only a single-model replication claim rather than a general statement about scaling. Finally, the learned harm predictor and object-level compression results are informative negatives, but their diagnoses are still based on the current implementation choices rather than exhaustive exploration.
 
 \bibliography{references}
 
