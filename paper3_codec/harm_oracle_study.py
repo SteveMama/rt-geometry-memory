@@ -504,6 +504,24 @@ def _apply_harm_scalar(rows: list[dict[str, Any]]) -> None:
             rows[row_idx]["harm_scalar"] = float(score[local_idx])
 
 
+def _flag_as_int(value: Any) -> int:
+    if value is None:
+        return 0
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, (int, np.integer)):
+        return int(value)
+    if isinstance(value, (float, np.floating)):
+        return int(value)
+    text = str(value).strip()
+    if not text:
+        return 0
+    try:
+        return int(text)
+    except ValueError:
+        return int(float(text))
+
+
 def _turn_row_views(
     rows: list[dict[str, Any]],
 ) -> dict[str, dict[tuple[str, str, str, str], list[dict[str, Any]]]]:
@@ -518,7 +536,7 @@ def _turn_row_views(
             f"{row['conversation_id']}::{int(row['target_turn'])}",
         )
         overall_groups[key].append(row)
-        if int(row.get("in_semantic_topk", 0)) == 1:
+        if _flag_as_int(row.get("in_semantic_topk", 0)) == 1:
             shortlist_groups[key].append(row)
     return {"overall": overall_groups, "semantic_shortlist": shortlist_groups}
 
