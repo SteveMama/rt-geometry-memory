@@ -13,3 +13,15 @@ artifacts_zip*.zip
 benchmarks/longmemeval_s_cleaned_normalized.jsonl
 benchmarks/msc_valid_raw.jsonl
 benchmarks/longmemeval_s_cleaned_raw.json
+
+.claude/
+ACL_manuscript.zip
+diganosis/
+jupyter-results.doc
+paper3_gate1_scaleup_multigpu_full_bundle.zip
+paper3_gate1_scaleup_multigpu_merged_results.zip
+paper3_gate1_scaleup_multigpu_merged_results/
+rt_open_items_results.zip
+rt_open_items_results/
+rt_results.zip
+rt_results/

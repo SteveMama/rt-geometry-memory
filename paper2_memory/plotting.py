@@ -34,7 +34,6 @@ def plot_budget_curves(rows: list[dict[str, str]], output_path: Path, metric: st
     if not model_keys or not budget_keys:
         return
 
-    fig, axes = plt.subplots(1, len(model_keys), figsize=(5.2 * len(model_keys), 4.4), squeeze=False)
     color_map = {
         "uniform": "#5f5f5f",
         "uniform_segment_actions": "#8a8a8a",
@@ -43,8 +42,9 @@ def plot_budget_curves(rows: list[dict[str, str]], output_path: Path, metric: st
         "geometry_lexical": "#2ca02c",
         "geometry_segment_actions": "#7b3294",
     }
-    for axis, model_key in zip(axes[0], model_keys):
+    for model_key in model_keys:
         x = np.asarray([float(key) for key in budget_keys], dtype=np.float32)
+        fig, axis = plt.subplots(figsize=(6.2, 4.4))
         for policy_name in policy_names:
             y = np.asarray(
                 [_group_mean(rows, metric, model_key=model_key, policy_name=policy_name, budget_fraction=budget_key) for budget_key in budget_keys],
@@ -55,11 +55,12 @@ def plot_budget_curves(rows: list[dict[str, str]], output_path: Path, metric: st
         axis.set_xlabel("Budget fraction")
         axis.set_ylabel(ylabel)
         axis.grid(alpha=0.25)
-    axes[0, -1].legend(loc="best")
-    fig.suptitle(title)
-    fig.tight_layout()
-    fig.savefig(output_path, dpi=180, bbox_inches="tight")
-    plt.close(fig)
+        axis.legend(loc="best")
+        fig.suptitle(f"{title}: {model_key}")
+        fig.tight_layout()
+        model_output = output_path.with_name(f"{output_path.stem}_{model_key}{output_path.suffix}")
+        fig.savefig(model_output, dpi=180, bbox_inches="tight")
+        plt.close(fig)
 
 
 def plot_family_heatmap(rows: list[dict[str, str]], output_path: Path, metric: str, budget_fraction: str, title: str) -> None:
