@@ -12,6 +12,12 @@ This repository is a checkpoint, not the end of the project. The current state i
 - Paper 2 has a real geometry-aware control result plus a mechanism story
 - Paper 3 is alive with two viable compressed-memory policy families, but no final winner yet
 
+Current scope limitations that should be treated as explicit project boundaries:
+
+- the strongest completed evidence is on compact open-weight white-box models, primarily `0.5B` to `3B`
+- current public-benchmark evidence is pilot-scale and should be read as checkpoint evidence, not final benchmark-general proof
+- the current geometry methods assume hidden-state access and therefore do not directly support black-box or API-only deployment
+
 This checkpoint now also includes a manuscript-grade paper bundle:
 
 - IEEE-style manuscript source: [`manuscript/paper_checkpoint.tex`](/Users/pranav/Documents/RT/manuscript/paper_checkpoint.tex)
@@ -67,12 +73,12 @@ Current Paper 3 framing:
 Current Paper 3 checkpoint:
 
 - `geometry_keep_compress_drop` is now a real compression policy, not a degenerate prototype
-- under fairness control, `geometry_keep_compress_drop` is the strongest low-to-mid budget Paper 3 family on `qwen25_15b`
+- under fairness control, `geometry_keep_compress_drop` is the strongest low-to-mid budget Paper 3 family in the current compact-model white-box checkpoint on `qwen25_15b`
 - the 3B probe shows a clean regime split: `geometry_keep_compress_drop` wins at `0.35`, while plain `geometry` retakes the lead at `0.50`
 - the MSC semantic-codec checkpoint shows that semantic-memory benchmarks favor `semantic`, while sparse codec form is benchmark-dependent rather than universal
 - status: latest tracked checkpoint in [`artifacts/paper3/paper3_pilot_v3_full`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_pilot_v3_full)
 - new tracked extensions: [`artifacts/paper3/paper3_batch_v1_fairness`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_batch_v1_fairness) and [`artifacts/paper3/paper3_batch_v1_3b`](/Users/pranav/Documents/RT/artifacts/paper3/paper3_batch_v1_3b)
-- first full public-benchmark report: [`paper3_public_benchmark_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_public_benchmark_checkpoint.md)
+- first pilot public-benchmark checkpoint: [`paper3_public_benchmark_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_public_benchmark_checkpoint.md)
 - MSC semantic-codec report: [`paper3_msc_semantic_codec_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_msc_semantic_codec_checkpoint.md)
 - low-budget KCD smoke report: [`paper3_low_budget_kcd_smoke_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_low_budget_kcd_smoke_checkpoint.md)
 - semantic-KCD optimization report: [`paper3_semantic_kcd_optimization_checkpoint.md`](/Users/pranav/Documents/RT/papers/paper3_semantic_kcd_optimization_checkpoint.md)
@@ -121,6 +127,8 @@ Why these:
 - `Qwen2.5-3B-Instruct` is the first larger-model checkpoint and is intended for Colab or a discrete GPU.
 - `Qwen3-0.6B` is attractive for Paper 1, but it requires `transformers>=4.51.0`.
 - `SmolLM2-1.7B-Instruct` gives one compact non-Qwen control model.
+
+These presets are the current validated white-box model family for the project. Larger-model transfer to `7B+` and black-box/API deployment remain open validation targets rather than established claims.
 
 List the built-in presets with metadata:
 

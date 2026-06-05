@@ -49,38 +49,39 @@ New York, USA
 
 % ─────────────────────────────────────────────────────────────────────────────
 \begin{abstract}
-Long multi-turn conversations exceed the inference budget of small language
-models long before they become semantically exhausted. Existing retention
-policies are either geometry-agnostic (semantic top-$k$) or signal-rigid
-(geometry-only). We show that the optimal scoring signal for a sparse
-keep/compress/drop (KCD) codec depends on the \emph{memory type} the task
-requires, and that geometric features derived from hidden-state trajectories
-on the unit sphere are both necessary and sufficient to distinguish these
-regimes.
-
-We formalize conversation-state dynamics using parallel-transported
-increments on $\Sph^{d-1}$, show that resulting trajectories are extremely
-low-rank (mean rank-95 of 1.05--1.53 across three model families) and
-almost perfectly coupled to decoder output drift (geometry--logit correlation
-0.989--0.994), and use this structure to define a signal-conditioned codec
-family. Four experiments establish the claim. First, \texttt{geometry\_KCD}
-significantly outperforms \texttt{semantic\_KCD} on constraint-critical memory
-($\Delta\Logit{+}37.8$, $p{=}0.028$; support-turn rescue 17/36 vs.\ 7/36),
-because semantic scoring cannot distinguish user constraints from their
-assistant echoes while geometric state displacement can. Second, a Gate~1
-oracle scale-up on MSC valid (111{,}877 candidate rows) shows query-conditioned
-geometry still adds substantial ranking value inside a semantic shortlist
-($\Delta\tau {+}0.35$--$0.45$, 12--15$\times$ threshold), while the larger
-refinement study yields a narrower claim: budget-aware semantic KCD is the
-strongest stable semantic baseline, and query-conditioned geometry beats
-ambient geometry rather than clearly displacing that baseline. Third, the
-same probe on LongMemEval-S cleaned passes Gate~1 at 5--10$\times$ threshold
-($\Delta\tau {+}0.14$--$0.30$), confirming cross-benchmark generality. Fourth,
-a 3B model validation shows the geometry advantage grows with scale:
-\texttt{semantic\_KCD} at 3B produces $+1.13$~nats of answer NLL damage
-($p{=}0.0003$) while every geometry-based policy improves answer quality.
-We also investigate two open directions---a learned harm predictor and
-memory-object level compression---reporting precise diagnoses for both.
+Compressing long multi-turn conversations requires deciding not only how to
+compress context, but which signal should rank memory candidates under a
+fixed budget. We study a sparse keep/compress/drop (KCD) codec and compare
+geometric, semantic, and hybrid scoring signals across conversational memory
+regimes in the current compact white-box open-model setting. Paper~1
+establishes that conversation-state trajectories are extremely low-rank
+(mean rank-95 of 1.05--1.53 across three compact model families) and that
+geometric distortion is tightly coupled to decoder output drift
+(geometry--logit correlation 0.989--0.994), with permutation controls
+collapsing both effects. Paper~2 shows that geometry-aware budget allocation
+beats uniform retention on a custom hard stress set by rescuing
+memory-critical support turns more often (17/36 vs.\ 5/36 on
+\texttt{qwen25\_05b} at budget 0.35). Paper~3 then asks which scoring signal
+should drive the same sparse codec. On a stress-test benchmark designed to
+expose support-turn failures, \texttt{geometry\_KCD} substantially outperforms
+a semantic signal swap inside the same codec ($\Delta\Logit{+}37.8$ at budget
+0.20, $p{=}0.028$; support-turn rescue 17/36 vs.\ 7/36), indicating that
+geometry is useful for constraint-critical memory. On public semantic-memory
+benchmarks, semantic shortlisting remains essential, and query-conditioned
+geometry improves ranking inside the shortlist at larger scale: on MSC valid
+(32 conversations, 111{,}877 candidate rows) the oracle gain is
+$\Delta\tau {+}0.35$--$0.45$, while on LongMemEval-S cleaned
+(12 conversations, 32{,}251 candidate rows; truncated to 40 turns) the gain
+is $+0.14$--$0.30$. A single-model 3B validation shows the same qualitative
+geometry-versus-semantics pattern on the stress set: \texttt{semantic\_KCD}
+at 3B produces $+1.13$~nats of answer NLL damage at budget 0.50
+($p{=}0.0003$) relative to \texttt{geometry\_KCD}, while geometry policies
+improve answer quality relative to uniform. The main limitation is that the
+strongest mechanistic evidence comes from a custom stress benchmark, while
+the public-benchmark evidence is still pilot-scale and stronger on oracle
+shortlist ranking than on end-to-end policy separation. The current method
+also assumes hidden-state access and therefore does not directly support
+black-box or API-only deployment.
 \end{abstract}
 
 \begin{IEEEkeywords}

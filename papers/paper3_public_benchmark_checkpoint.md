@@ -1,5 +1,7 @@
 # Paper 3 Public Benchmark Checkpoint
 
+This note should be read as a pilot public-benchmark checkpoint, not as a final benchmark-scale claim. The run uses one compact white-box open model (`qwen25_15b`) and a 25-conversation benchmark slice.
+
 ## Run
 
 - study: `paper3_public_v1_public_benchmark`
@@ -30,7 +32,7 @@ Tracked outputs:
 
 ## Main Reading
 
-This public-benchmark result is strong enough to matter and different enough to change the policy story.
+This pilot public-benchmark checkpoint is strong enough to matter and different enough to change the policy story, but not large enough to support broad benchmark-general claims on its own.
 
 The hard stress set suggested:
 
@@ -43,7 +45,7 @@ This public benchmark instead shows:
 - mid budget (`0.35`): `semantic` and `geometry_segment_actions` are strongest
 - higher budget (`0.50`): `geometry_keep_compress_drop` becomes strongest
 
-So the benchmark is not saying the geometry program fails. It is saying the policy ranking depends on what kind of memory problem the benchmark emphasizes.
+So the benchmark is not saying the geometry program fails. It is saying the policy ranking depends on what kind of memory problem the benchmark emphasizes, at least within this compact-model pilot slice.
 
 ## Logit Results
 
@@ -138,7 +140,7 @@ This is not a contradiction. It is evidence that different conversational-memory
 
 ## Practical Conclusion
 
-The public benchmark strengthens the overall project, but changes the policy story:
+The pilot public benchmark strengthens the overall project, but changes the policy story:
 
 - it confirms that geometry-family policies are real outside the custom hard set
 - it does not support KCD as the universal low/mid-budget winner
@@ -146,6 +148,12 @@ The public benchmark strengthens the overall project, but changes the policy sto
 - it suggests that future codec work should distinguish between:
   - semantic/episode memory preservation
   - support-turn-faithful sparse compression
+
+## Scope Limits
+
+- model scope: this checkpoint uses a compact white-box open model, not a `7B+` model
+- benchmark scope: `25` conversations is enough for a checkpoint, not for a final general claim
+- deployment scope: the geometry policies here depend on hidden-state access and do not directly support black-box API-only deployment
 
 ## Immediate Follow-On
 

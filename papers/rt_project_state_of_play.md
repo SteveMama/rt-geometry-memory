@@ -9,6 +9,12 @@
 
 A three-paper program asking: **can the geometric structure of an LLM's hidden states tell you which conversation turns to keep, compress, or drop?**
 
+Current scope limitations:
+
+- the strongest completed evidence is on compact open-weight white-box models, mainly `0.5B` to `3B`
+- public-benchmark slices reported so far are pilot-scale checkpoints, not final benchmark-scale evidence
+- geometry scoring currently assumes hidden-state access and therefore does not directly cover black-box or API-only deployment
+
 The unifying math starts here. For a conversation with turns `x_1 ... x_T`, extract the last-token hidden state at each turn:
 
 ```
@@ -276,7 +282,7 @@ Result: viable and sometimes strong, but no variant cleanly displaced plain `sem
 **Question:** Inside a semantic shortlist, do geometric features add *any* ranking value?
 
 **Oracle criteria (must hit at least one):**
-- Δ Kendall tau ≥ +0.03
+- heuristic screen: Δ Kendall tau ≥ +0.03
 - Δ top-5 oracle recall ≥ +5 percentage points
 
 On: `MSC valid` and `LongMemEval-S cleaned`
@@ -286,6 +292,8 @@ On: `MSC valid` and `LongMemEval-S cleaned`
 - `budget_aware_semantic_KCD` (incumbent)
 - `semantic_ambient_geometry_KCD` (does ambient geometry help inside the shortlist?)
 - `semantic_query_conditioned_geometry_KCD` (does query-aware geometry help?)
+
+`+0.03` is currently a practical screening threshold, not a derived precision constant. It should be treated as heuristic unless backed by a noise-floor or sensitivity analysis.
 
 **Current status:** Scripts written and committed. Benchmark JSONLs (`msc_valid_normalized.jsonl`, `longmemeval_s_cleaned_normalized.jsonl`) now present on disk as untracked files. **No canonical Gate 1 results recorded yet.**
 

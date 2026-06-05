@@ -2,13 +2,15 @@
 
 This note defines the first real decision run for the geometry-versus-semantics gap.
 
+The gate definitions here are operational screening rules for compact white-box experiments, not mathematically derived constants.
+
 ## Goal
 
 Answer one narrow question on real semantic-memory benchmarks:
 
 > Inside a semantic shortlist, does geometry refinement improve over semantic-only compression?
 
-This is the first real Gate 1 decision surface. It replaces toy smokes with a focused public-benchmark run.
+This is the first real Gate 1 decision surface. It replaces toy smokes with a focused benchmark checkpoint run in the current compact white-box setting.
 
 ## Benchmarks
 
@@ -47,17 +49,19 @@ Use:
 - `query_geom_v2_risk`
 - `combined_structural_score`
 
-Primary oracle criteria:
+Primary oracle screening criteria:
 
 - `Δ Kendall tau >= +0.03`, or
 - `Δ top-5 oracle recall >= +5 percentage points`
+
+These cutoffs are provisional heuristic thresholds, not statistically canonical constants. They are intended as practical filters for deciding whether geometry refinement is worth a larger follow-on run. If a manuscript uses them, they should be accompanied by sensitivity analysis rather than presented as uniquely justified values.
 
 This must happen on at least one of:
 
 - `MSC valid`
 - `LongMemEval-S cleaned`
 
-If not, geometry refinement remains diagnostic only on semantic-memory benchmarks.
+If not, geometry refinement remains diagnostic only on semantic-memory benchmarks in the current compact-model white-box setting.
 
 ## Gate 1 Policy Question
 
@@ -85,6 +89,10 @@ Success condition:
 - use both row-level and conversation-level significance summaries
 
 If the hybrid ties or loses across both benchmarks, stop hand-designed geometry refinement and move to the learned harm predictor.
+
+## Deployment Scope
+
+The current Gate 1 design assumes white-box access to hidden states and internal geometry features. It does not directly establish deployability for black-box or API-only systems. Any black-box version would need either a surrogate scorer or a response-only proxy, which would be a separate experiment.
 
 ## Execution Surface
 
