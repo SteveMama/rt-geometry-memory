@@ -1,0 +1,238 @@
+{
+  "qwen25_15b": {
+    "0.20": {
+      "lexical_tfidf": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.14573181420609074,
+            "std": 0.5580474257288365,
+            "ci_low": -0.15634646961856352,
+            "ci_high": -0.13510773493703865,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.11211934326557682,
+            "std": 0.16177646295044884,
+            "ci_low": -0.12215761345642953,
+            "ci_high": -0.10214269136198634,
+            "p_value": 0.0
+          }
+        }
+      },
+      "longllmlingua": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.17692751023217787,
+            "std": 0.3295603404023486,
+            "ci_low": -0.18306324891584294,
+            "ci_high": -0.17059166854937233,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.2470632080157445,
+            "std": 0.2004109109251703,
+            "ci_low": -0.25936225406240676,
+            "ci_high": -0.2350507558727447,
+            "p_value": 0.0
+          }
+        }
+      },
+      "recency": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.1586344492055375,
+            "std": 0.5878631961979914,
+            "ci_low": -0.16972616412103222,
+            "ci_high": -0.147498586273084,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.1255156135647041,
+            "std": 0.1689308688239557,
+            "ci_low": -0.13632660493954366,
+            "ci_high": -0.11482777776313406,
+            "p_value": 0.0
+          }
+        }
+      },
+      "recency_keep_compress_drop": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.17330999126251687,
+            "std": 0.5697293701396828,
+            "ci_low": -0.1842412215794265,
+            "ci_high": -0.16257770222908388,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.142415418245022,
+            "std": 0.16427276031930757,
+            "ci_low": -0.15274917137574856,
+            "ci_high": -0.13259893560089747,
+            "p_value": 0.0
+          }
+        }
+      }
+    },
+    "0.35": {
+      "lexical_tfidf": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.24452011682576819,
+            "std": 0.7152232320106354,
+            "ci_low": -0.25821505144936135,
+            "ci_high": -0.23088014913893257,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.19486108376645916,
+            "std": 0.198992243079214,
+            "ci_low": -0.2073486084591614,
+            "ci_high": -0.18243352893955014,
+            "p_value": 0.0
+          }
+        }
+      },
+      "longllmlingua": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.12456704851008504,
+            "std": 0.4025602281081568,
+            "ci_low": -0.13225980604986537,
+            "ci_high": -0.11662855477270156,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.19911212491089594,
+            "std": 0.23145884482716655,
+            "ci_low": -0.21303862269047366,
+            "ci_high": -0.1844410109502081,
+            "p_value": 0.0
+          }
+        }
+      },
+      "recency": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.2660851207872855,
+            "std": 0.7368570273450686,
+            "ci_low": -0.27972429622885553,
+            "ci_high": -0.2515524698134325,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.2188707844280836,
+            "std": 0.20180773713164482,
+            "ci_low": -0.2321268876213806,
+            "ci_high": -0.20652878385056805,
+            "p_value": 0.0
+          }
+        }
+      },
+      "recency_keep_compress_drop": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.28825071052712636,
+            "std": 0.7250598559327814,
+            "ci_low": -0.3012421011121117,
+            "ci_high": -0.27462852341200883,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.24871048806339463,
+            "std": 0.19372353864465006,
+            "ci_low": -0.2608397797280227,
+            "ci_high": -0.2372329700077599,
+            "p_value": 0.0
+          }
+        }
+      }
+    },
+    "0.50": {
+      "lexical_tfidf": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.31800121586427393,
+            "std": 0.8356013207209236,
+            "ci_low": -0.33377268530043613,
+            "ci_high": -0.30266254129838593,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.24085419353931903,
+            "std": 0.24398797626502164,
+            "ci_low": -0.25711772996159404,
+            "ci_high": -0.22652235048250152,
+            "p_value": 0.0
+          }
+        }
+      },
+      "longllmlingua": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.07420974655577556,
+            "std": 0.5318555984290425,
+            "ci_low": -0.08400499633364349,
+            "ci_high": -0.06441730183907288,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.15807000314767616,
+            "std": 0.26531977954161245,
+            "ci_low": -0.17451602455739626,
+            "ci_high": -0.1408041188397568,
+            "p_value": 0.0
+          }
+        }
+      },
+      "recency": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.34000150113184524,
+            "std": 0.854518329849371,
+            "ci_low": -0.3563178152869569,
+            "ci_high": -0.3238575824122437,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.2698117118770474,
+            "std": 0.24718456296285252,
+            "ci_low": -0.28490160664224573,
+            "ci_high": -0.25474136712303597,
+            "p_value": 0.0
+          }
+        }
+      },
+      "recency_keep_compress_drop": {
+        "num_pairs": 10541,
+        "delta_answer_avg_neg_logprob": {
+          "row_level": {
+            "mean": -0.37270657719531947,
+            "std": 0.8371668443306917,
+            "ci_low": -0.3886777985905604,
+            "ci_high": -0.35707913903459015,
+            "p_value": 0.0
+          },
+          "conversation_level": {
+            "mean": -0.3113246032020066,
+            "std": 0.2297534373698914,
+            "ci_low": -0.32519182390192974,
+            "ci_high": -0.2977304367322845,
+            "p_value": 0.0
+          }
+        }
+      }
+    }
+  }
+}

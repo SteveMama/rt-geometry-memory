@@ -1,0 +1,30 @@
+{
+  "status": "complete",
+  "updated_at": "2026-06-20T04:22:36",
+  "study_name": "reviewer_fixes_baselines_msc_merged",
+  "shard_dirs": [
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard0of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard1of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard2of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard3of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard4of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard5of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard6of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard7of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard8of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard9of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard10of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard11of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard12of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard13of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard14of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard15of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard16of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard17of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard18of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard19of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_msc_shard20of21"
+  ],
+  "summary_path": "results/reviewer_fixes/baselines/reviewer_fixes_baselines_msc_merged/study_summary.json",
+  "report_path": "results/reviewer_fixes/baselines/reviewer_fixes_baselines_msc_merged/study_report.md"
+}
