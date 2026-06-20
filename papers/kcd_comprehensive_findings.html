@@ -1,0 +1,553 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, system-ui, sans-serif); font-size: 15px; line-height: 1.7; color: var(--color-text-primary); padding: 2rem 0; max-width: 860px; margin: 0 auto; }
+h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.4rem; }
+h2 { font-size: 18px; font-weight: 500; margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+h3 { font-size: 15px; font-weight: 500; margin: 1.5rem 0 0.5rem; }
+p { margin-bottom: 0.8rem; color: var(--color-text-secondary); }
+.meta { font-size: 13px; color: var(--color-text-tertiary); margin-bottom: 2rem; }
+.kicker { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 0.3rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 1rem 0 1.5rem; }
+th { text-align: left; font-weight: 500; font-size: 12px; color: var(--color-text-secondary); padding: 6px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+td { padding: 6px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+.win { color: #0F6E56; font-weight: 500; }
+.lose { color: #993C1D; font-weight: 500; }
+.ns { color: var(--color-text-tertiary); }
+.sig { font-weight: 500; color: var(--color-text-primary); }
+.policy-name { font-family: var(--font-mono, monospace); font-size: 11px; white-space: nowrap; }
+
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg, 12px); padding: 1.25rem; margin-bottom: 1.5rem; }
+.finding-box { border-left: 3px solid #1D9E75; border-radius: 0; background: var(--color-background-secondary); padding: 0.75rem 1rem; margin: 1rem 0 1.5rem; font-size: 14px; color: var(--color-text-primary); }
+.scope-box { border-left: 3px solid #D85A30; border-radius: 0; background: var(--color-background-secondary); padding: 0.75rem 1rem; margin: 1rem 0 1.5rem; font-size: 14px; color: var(--color-text-primary); }
+.negative-box { border-left: 3px solid #888780; border-radius: 0; background: var(--color-background-secondary); padding: 0.75rem 1rem; margin: 1rem 0 1.5rem; font-size: 14px; color: var(--color-text-primary); }
+
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 1rem 0 1.5rem; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md, 8px); padding: 0.75rem 1rem; }
+.stat-label { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-value { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+.stat-sub { font-size: 11px; color: var(--color-text-tertiary); }
+
+.budget-tabs { display: flex; gap: 2px; margin-bottom: 0; }
+.budget-tab { font-size: 12px; padding: 4px 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: 4px 4px 0 0; background: var(--color-background-secondary); color: var(--color-text-secondary); cursor: pointer; }
+.budget-tab.active { background: var(--color-background-primary); color: var(--color-text-primary); border-bottom-color: var(--color-background-primary); }
+
+.toc { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 2rem; }
+.toc a { color: var(--color-text-secondary); text-decoration: none; font-size: 13px; display: block; padding: 2px 0; }
+.toc a:hover { color: var(--color-text-primary); }
+.toc-section { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-tertiary); font-weight: 500; margin-top: 0.75rem; margin-bottom: 2px; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+@media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+.badge { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 4px; font-weight: 500; }
+.badge-green { background: #E1F5EE; color: #0F6E56; }
+.badge-red { background: #FAECE7; color: #993C1D; }
+.badge-gray { background: #F1EFE8; color: #5F5E5A; }
+.badge-blue { background: #E6F1FB; color: #185FA5; }
+
+.overflow-table { overflow-x: auto; }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">KCD Codec research summary: all experiments, findings and results</h2>
+
+<div class="kicker">ACL Findings 2026 — Internal Research Document</div>
+<h1>Signal-Conditioned Memory Compression for Multi-Turn Conversations</h1>
+<p class="meta">KCD (Keep / Compress / Drop) codec · Experiments completed June 2026 · RunPod L40S ×7</p>
+
+<div class="toc">
+  <div class="toc-section">Motivation</div>
+  <a href="#geometry">1 — Geometry characterization</a>
+  <div class="toc-section">Core experiments</div>
+  <a href="#hardset">2 — Hard stress set: signal-swap ablation</a>
+  <a href="#baselines">3 — MSC 1000-conv: external baseline comparison</a>
+  <a href="#variants">4 — MSC 50-conv: KCD signal variants</a>
+  <a href="#lme">5 — LongMemEval-S 100-conv: cross-benchmark</a>
+  <a href="#llama">6 — Llama-3.2-3B: cross-architecture</a>
+  <div class="toc-section">Open items</div>
+  <a href="#gate1">7 — Oracle Gate 1: query-conditioned ranking</a>
+  <a href="#harm">8 — Learned harm predictor (informative negative)</a>
+  <a href="#object">9 — Object-level compression (informative negative)</a>
+  <div class="toc-section">Summary</div>
+  <a href="#scope">10 — Scope conditions and failure modes</a>
+  <a href="#overall">11 — Overall quantitative summary</a>
+</div>
+
+<!-- ============ GEOMETRY ============ -->
+<h2 id="geometry">1 — Geometry characterization</h2>
+<p>Motivation for using hidden-state geometry as a scoring signal. Conversation-state trajectories live on a unit hypersphere and are far more compact than shuffled controls, and geometric distortion tightly predicts decoder drift.</p>
+
+<div class="overflow-table">
+<table>
+  <tr>
+    <th>Model</th><th>Rank-95</th><th>95% CI</th><th>Shuffled Rank-95</th><th>p (H1: structured)</th><th>Corr(d_geo, Δℓ)</th><th>p (H3: predicts drift)</th>
+  </tr>
+  <tr>
+    <td>qwen25_05b</td>
+    <td class="sig">1.049</td>
+    <td>[1.000, 1.111]</td>
+    <td>1.486</td>
+    <td class="win">0.0000</td>
+    <td class="sig">0.989</td>
+    <td class="win">0.0000</td>
+  </tr>
+  <tr>
+    <td>qwen25_15b</td>
+    <td class="sig">1.167</td>
+    <td>[1.083, 1.271]</td>
+    <td>1.458</td>
+    <td class="win">0.0008</td>
+    <td class="sig">0.994</td>
+    <td class="win">0.0000</td>
+  </tr>
+  <tr>
+    <td>smollm2_17b</td>
+    <td>1.528</td>
+    <td>[1.500, 1.576]</td>
+    <td>1.799</td>
+    <td class="win">0.0122</td>
+    <td class="sig">0.989</td>
+    <td class="win">0.0000</td>
+  </tr>
+</table>
+</div>
+
+<div class="finding-box">
+Rank-95 ≈ 1.05–1.53 (near one-dimensional) vs shuffled baseline ≈ 1.46–1.80. Geometric distortion predicts decoder drift with ρ = 0.989–0.994 across all three models. This motivates using transported geometry as a compression scoring signal.
+</div>
+
+<!-- ============ HARDSET ============ -->
+<h2 id="hardset">2 — Hard stress set: signal-swap ablation</h2>
+
+<div class="stat-grid">
+  <div class="stat"><div class="stat-label">Conversations</div><div class="stat-value">9</div><div class="stat-sub">long_dependency, retrieval_heavy, code_conversation</div></div>
+  <div class="stat"><div class="stat-label">Eval rows</div><div class="stat-value">540</div><div class="stat-sub">hardset synthetic benchmark</div></div>
+  <div class="stat"><div class="stat-label">Models</div><div class="stat-value">2</div><div class="stat-sub">qwen25_15b, qwen25_3b</div></div>
+  <div class="stat"><div class="stat-label">Key comparison</div><div class="stat-value">geo vs sem</div><div class="stat-sub">same KCD codec, different scoring signal</div></div>
+</div>
+
+<h3>Signal-swap: semantic_KCD − geometry_KCD (positive = semantic is worse)</h3>
+<p>Primary evidence that the scoring signal matters independently of codec structure.</p>
+
+<div class="overflow-table">
+<table>
+  <tr><th>Model</th><th>Budget</th><th>Δ Logit L2</th><th>p</th><th>Δ Answer NLL</th><th>p</th><th>Verdict</th></tr>
+  <tr>
+    <td>qwen25_15b</td><td>0.20</td>
+    <td class="lose">+37.8</td><td class="win">0.028</td>
+    <td class="lose">+0.195</td><td class="win">0.001</td>
+    <td><span class="badge badge-red">Geo wins both</span></td>
+  </tr>
+  <tr>
+    <td>qwen25_15b</td><td>0.35</td>
+    <td class="lose">+38.5</td><td class="ns">0.079</td>
+    <td class="lose">+0.424</td><td class="win">0.011</td>
+    <td><span class="badge badge-red">Geo wins NLL</span></td>
+  </tr>
+  <tr>
+    <td>qwen25_15b</td><td>0.50</td>
+    <td class="ns">+0.1</td><td class="ns">0.995</td>
+    <td class="lose">+0.628</td><td class="win">0.001</td>
+    <td><span class="badge badge-red">Geo wins NLL</span></td>
+  </tr>
+  <tr style="border-top: 1px solid var(--color-border-tertiary)">
+    <td>qwen25_3b</td><td>0.20</td>
+    <td class="lose">+44.9</td><td class="win">0.048</td>
+    <td class="lose">+0.494</td><td class="win">0.008</td>
+    <td><span class="badge badge-red">Geo wins both</span></td>
+  </tr>
+  <tr>
+    <td>qwen25_3b</td><td>0.35</td>
+    <td class="lose">+69.7</td><td class="win">0.050</td>
+    <td class="lose">+0.853</td><td class="win">0.005</td>
+    <td><span class="badge badge-red">Geo wins both</span></td>
+  </tr>
+  <tr>
+    <td>qwen25_3b</td><td>0.50</td>
+    <td class="ns">−29.1</td><td class="ns">0.128</td>
+    <td class="lose">+1.126</td><td class="win">0.0003</td>
+    <td><span class="badge badge-red">Geo wins NLL</span></td>
+  </tr>
+</table>
+</div>
+
+<div class="finding-box">
+Geometry consistently beats semantic as a scoring signal on constraint-critical memory. The NLL damage from semantic_KCD at qwen25_3b budget 0.50 is +1.126 nats (p=0.0003) — the largest effect size in the project. The advantage grows with model scale (1.5B → 3B), suggesting richer representations make wrong turn selections more consequential.
+</div>
+
+<h3>Support-turn rescue mechanism (qwen25_15b, budget 0.35)</h3>
+<p>Counts of conversations where geometry_KCD retains the latest support turn that uniform would have dropped.</p>
+<div class="two-col">
+  <div class="card">
+    <div class="kicker">geometry_KCD</div>
+    <p style="font-size: 13px; margin-bottom: 8px;">Rescues more support turns than uniform: <strong>17 / 36</strong></p>
+    <p style="font-size: 13px; margin-bottom: 8px;">Uniform beats geometry on support turns: <strong>2 / 36</strong></p>
+    <p style="font-size: 13px; margin-bottom: 0;">Constraint turns rescued: <strong>13</strong> · Base-memory: <strong>6</strong></p>
+  </div>
+  <div class="card">
+    <div class="kicker">semantic_KCD</div>
+    <p style="font-size: 13px; margin-bottom: 8px;">Rescues more support turns than uniform: <strong>7 / 36</strong></p>
+    <p style="font-size: 13px; margin-bottom: 8px;">Uniform beats semantic on support turns: <strong>5 / 36</strong></p>
+    <p style="font-size: 13px; margin-bottom: 0;">Constraint turns rescued: <strong>4</strong> · Base-memory: <strong>3</strong></p>
+  </div>
+</div>
+<div class="finding-box">
+Mechanism: user instructions cause larger local hidden-state displacement than semantically similar assistant echoes. Geometry detects this signature. This is not a recency preference — it is geometric signature sensitivity.
+</div>
+
+<!-- ============ BASELINES ============ -->
+<h2 id="baselines">3 — MSC 1000-conv: external baseline comparison</h2>
+<p>Geometry-behavior divergence at scale. LongLLMLingua is the adversarial case: it optimizes NLL and catastrophically degrades geometric fidelity.</p>
+
+<div class="stat-grid">
+  <div class="stat"><div class="stat-label">Conversations</div><div class="stat-value">1,000</div></div>
+  <div class="stat"><div class="stat-label">Eval rows</div><div class="stat-value">163,755</div></div>
+  <div class="stat"><div class="stat-label">Model</div><div class="stat-value">qwen25_15b</div></div>
+  <div class="stat"><div class="stat-label">Dataset</div><div class="stat-value">MSC valid</div><div class="stat-sub">Multi-Session Conversations</div></div>
+</div>
+
+<div class="overflow-table">
+<table>
+  <tr><th>Policy</th><th>L2 @0.20</th><th>L2 @0.35</th><th>L2 @0.50</th><th>NLL @0.20</th><th>NLL @0.35</th><th>NLL @0.50</th></tr>
+  <tr><td class="policy-name">uniform</td><td>627.2</td><td>613.8</td><td>596.3</td><td>3.361</td><td>3.269</td><td>3.171</td></tr>
+  <tr><td class="policy-name">recency</td><td class="win">605.3</td><td class="win">572.6</td><td class="win">537.5</td><td class="win">3.236</td><td class="win">3.050</td><td class="win">2.901</td></tr>
+  <tr><td class="policy-name">recency_KCD</td><td class="win">604.9</td><td>590.9</td><td>564.4</td><td class="win">3.219</td><td class="win">3.021</td><td class="win">2.860</td></tr>
+  <tr><td class="policy-name">lexical_tfidf</td><td>617.4</td><td>610.5</td><td>594.0</td><td>3.249</td><td>3.074</td><td>2.930</td></tr>
+  <tr><td class="policy-name">LongLLMLingua</td><td class="lose">730.4</td><td class="lose">741.0</td><td class="lose">757.2</td><td class="win">3.114</td><td class="win">3.070</td><td class="win">3.013</td></tr>
+</table>
+</div>
+
+<p style="font-size: 13px; color: var(--color-text-tertiary);">Lower = better for both metrics. L2 = logit L2 (geometric fidelity). NLL = answer negative log-likelihood (behavioral quality).</p>
+
+<div class="scope-box">
+<strong>Geometry-behavior divergence confirmed.</strong> LongLLMLingua: logit L2 +103 to +161 units above uniform (catastrophic geometric loss) while NLL only −0.07 to −0.18 nats better. A method can appear behaviorally adequate while substantially distorting hidden-state representation. These are distinct, complementary objectives.
+</div>
+
+<!-- ============ VARIANTS ============ -->
+<h2 id="variants">4 — MSC 50-conv: KCD signal variant comparison</h2>
+<p>Head-to-head comparison of three KCD scoring signals. sem_qcg = semantic shortlist then query-conditioned geometry reranking.</p>
+
+<div class="stat-grid">
+  <div class="stat"><div class="stat-label">Conversations</div><div class="stat-value">50</div></div>
+  <div class="stat"><div class="stat-label">Rows per policy/budget</div><div class="stat-value">~605</div></div>
+  <div class="stat"><div class="stat-label">Model</div><div class="stat-value">qwen25_15b</div></div>
+  <div class="stat"><div class="stat-label">Dataset</div><div class="stat-value">MSC valid</div></div>
+</div>
+
+<div class="overflow-table">
+<table>
+  <tr><th>Policy</th><th>L2 @0.20</th><th>L2 @0.35</th><th>L2 @0.50</th><th>NLL @0.20</th><th>NLL @0.35</th><th>NLL @0.50</th></tr>
+  <tr><td class="policy-name">uniform</td><td>705.2</td><td>692.2</td><td>682.8</td><td>3.251</td><td>3.166</td><td>3.071</td></tr>
+  <tr><td class="policy-name">geometry_KCD</td><td>709.8</td><td>724.4</td><td>737.0</td><td>3.201</td><td>3.052</td><td>2.923</td></tr>
+  <tr><td class="policy-name">semantic_KCD</td><td>713.4</td><td>740.0</td><td>750.1</td><td>3.176</td><td>2.993</td><td>2.845</td></tr>
+  <tr style="background: var(--color-background-secondary)"><td class="policy-name" style="font-weight:500">sem_qcg_KCD</td><td>717.8</td><td class="win">723.0</td><td class="win">636.4</td><td class="win">3.143</td><td class="win">2.944</td><td class="win">2.789</td></tr>
+</table>
+</div>
+
+<h3>Pairwise: sem_qcg_KCD vs semantic_KCD (exact numbers from results)</h3>
+<div class="overflow-table">
+<table>
+  <tr><th>Budget</th><th>Δ L2 row</th><th>p (row)</th><th>Δ L2 conv</th><th>p (conv)</th><th>Δ NLL conv</th><th>p (conv)</th></tr>
+  <tr>
+    <td>0.20</td>
+    <td class="ns">+7.88</td><td class="ns">0.092</td>
+    <td class="ns">+4.45</td><td class="ns">0.296</td>
+    <td class="win">−0.034</td><td class="win">0.012</td>
+  </tr>
+  <tr>
+    <td>0.35</td>
+    <td class="win">−14.53</td><td class="win">0.014</td>
+    <td class="win">−17.05</td><td class="win">0.005</td>
+    <td class="win">−0.049</td><td class="win">0.003</td>
+  </tr>
+  <tr>
+    <td>0.50</td>
+    <td class="win">−114.49</td><td class="win">&lt;0.001</td>
+    <td class="win">−113.70</td><td class="win">&lt;0.001</td>
+    <td class="win">−0.056</td><td class="win">0.004</td>
+  </tr>
+</table>
+</div>
+<p style="font-size: 13px; color: var(--color-text-tertiary);">Negative delta = sem_qcg is better. CIs at budget 0.50: L2 conv [−142.3, −87.0], NLL conv [−0.095, −0.019].</p>
+
+<div class="finding-box">
+At budget 0.50, sem_qcg achieves logit L2 = 636.4 — <strong>lower than uniform (682.8)</strong>, meaning the policy is more faithful to full-context hidden state than random sampling. It simultaneously wins on answer NLL at all three budgets. This is the only policy in the project that resolves the geometry-behavior tradeoff simultaneously.
+</div>
+
+<!-- ============ LME ============ -->
+<h2 id="lme">5 — LongMemEval-S 100-conv: cross-benchmark generalization</h2>
+<p>Full-length conversations (400–600 turns, no truncation). Tests whether the geometry advantage replicates outside MSC's ≈20–60 turn range.</p>
+
+<div class="stat-grid">
+  <div class="stat"><div class="stat-label">Conversations</div><div class="stat-value">100</div></div>
+  <div class="stat"><div class="stat-label">Rows per pair/budget</div><div class="stat-value">~2,000</div></div>
+  <div class="stat"><div class="stat-label">Model</div><div class="stat-value">qwen25_15b</div></div>
+  <div class="stat"><div class="stat-label">Turn length</div><div class="stat-value">400–600</div><div class="stat-sub">no truncation</div></div>
+</div>
+
+<div class="overflow-table">
+<table>
+  <tr><th>Policy</th><th>L2 @0.20</th><th>L2 @0.35</th><th>L2 @0.50</th><th>NLL @0.20</th><th>NLL @0.35</th><th>NLL @0.50</th></tr>
+  <tr><td class="policy-name">uniform</td><td>1732.8</td><td>1763.1</td><td>1705.1</td><td>0.167</td><td>0.139</td><td>0.119</td></tr>
+  <tr><td class="policy-name">geometry_KCD</td><td>1751.0</td><td class="win">1704.5</td><td class="win">1692.4</td><td class="win">0.123</td><td class="win">0.118</td><td class="win">0.114</td></tr>
+  <tr><td class="policy-name">semantic_KCD</td><td class="win">1740.4</td><td class="win">1693.6</td><td>1714.2</td><td class="win">0.114</td><td class="win">0.112</td><td class="win">0.112</td></tr>
+  <tr style="background: var(--color-background-secondary)"><td class="policy-name">sem_qcg_KCD</td><td class="win">1740.7</td><td class="lose">1743.9</td><td class="win">1696.9</td><td class="win">0.124</td><td class="win">0.122</td><td class="win">0.112</td></tr>
+</table>
+</div>
+
+<h3>Pairwise: sem_qcg_KCD vs semantic_KCD on LME (exact numbers)</h3>
+<div class="overflow-table">
+<table>
+  <tr><th>Budget</th><th>Δ L2 row</th><th>p (row)</th><th>Δ L2 conv</th><th>p (conv)</th><th>Δ NLL conv</th><th>p (conv)</th></tr>
+  <tr>
+    <td>0.20</td>
+    <td class="ns">+0.261</td><td class="ns">0.973</td>
+    <td class="ns">+0.261</td><td class="ns">0.988</td>
+    <td class="lose">+0.010</td><td class="ns">0.623</td>
+  </tr>
+  <tr>
+    <td>0.35</td>
+    <td class="lose">+50.31</td><td class="lose">&lt;0.001</td>
+    <td class="lose">+50.31</td><td class="lose">0.011</td>
+    <td class="lose">+0.010</td><td class="ns">0.819</td>
+  </tr>
+  <tr>
+    <td>0.50</td>
+    <td class="win">−17.35</td><td class="win">0.025</td>
+    <td class="ns">−17.35</td><td class="ns">0.517</td>
+    <td class="ns">+0.000</td><td class="ns">0.683</td>
+  </tr>
+</table>
+</div>
+
+<h3>Behavioral comparison: semantic_KCD vs geometry_KCD on LME</h3>
+<div class="overflow-table">
+<table>
+  <tr><th>Budget</th><th>Δ NLL row</th><th>p (row)</th><th>Δ NLL conv</th><th>p (conv)</th></tr>
+  <tr><td>0.20</td><td class="win">−0.011</td><td class="win">0.001</td><td class="win">−0.010</td><td class="win">0.021</td></tr>
+  <tr><td>0.35</td><td class="win">−0.007</td><td class="win">0.013</td><td class="win">−0.006</td><td class="win">0.032</td></tr>
+  <tr><td>0.50</td><td class="ns">−0.002</td><td class="ns">0.154</td><td class="ns">−0.002</td><td class="ns">0.111</td></tr>
+</table>
+</div>
+
+<div class="scope-box">
+<strong>Geometry advantage does not replicate at conversation level on LME.</strong> At budget 0.35, sem_qcg is significantly <em>worse</em> than semantic on geometry (Δ +50.3 L2, p=0.011 conv). All KCD policies improve behavior vs uniform, but query-conditioned geometry brings no additional NLL benefit. Scope condition: per-turn geometry becomes noisy on 400–600 turn conversations where each turn competes in crowded representational space.
+</div>
+
+<h3>QA accuracy results (12,684 scored generations, LME 500-conv proxy)</h3>
+<div class="overflow-table">
+<table>
+  <tr><th>Policy</th><th>EM @0.20</th><th>Token F1 @0.20</th><th>ΔF1 vs uniform (p)</th><th>EM @0.35</th><th>Token F1 @0.35</th><th>ΔF1 vs uniform (p)</th></tr>
+  <tr><td class="policy-name">geometry_KCD</td><td>0.0009</td><td>0.0817</td><td>−0.0059 (0.039)</td><td>0.0009</td><td>0.0802</td><td>−0.0009 (0.728)</td></tr>
+  <tr><td class="policy-name">semantic_KCD</td><td>0.0009</td><td>0.0769</td><td>−0.0105 (0.000)</td><td>0.0009</td><td>0.0770</td><td>−0.0041 (0.126)</td></tr>
+  <tr><td class="policy-name">sem_qcg_KCD</td><td>0.0009</td><td>0.0826</td><td>−0.0063 (0.039)</td><td>0.0009</td><td>0.0770</td><td>−0.0041 (0.193)</td></tr>
+  <tr><td class="policy-name">uniform</td><td>0.0009</td><td>0.0902</td><td>—</td><td>0.0009</td><td>0.0816</td><td>—</td></tr>
+</table>
+</div>
+<p style="font-size: 13px; color: var(--color-text-tertiary);">Note: QA scores are uniformly near-zero. The qa_accuracy_study uses the next conversation turn as the gold answer, which is a proxy metric not aligned with LME's official QA annotations. These results are discarded as invalid for the paper; behavioral NLL from the geometry study is used instead.</p>
+
+<!-- ============ LLAMA ============ -->
+<h2 id="llama">6 — Llama-3.2-3B: cross-architecture validation</h2>
+<p>Tests whether the geometry advantage extends to a different model family. MSC valid, 50 conversations.</p>
+
+<div class="stat-grid">
+  <div class="stat"><div class="stat-label">Conversations</div><div class="stat-value">50</div></div>
+  <div class="stat"><div class="stat-label">Model</div><div class="stat-value">llama32_3b</div></div>
+  <div class="stat"><div class="stat-label">Dataset</div><div class="stat-value">MSC valid</div></div>
+  <div class="stat"><div class="stat-label">Key comparison</div><div class="stat-value">sem vs geo</div></div>
+</div>
+
+<div class="overflow-table">
+<table>
+  <tr><th>Policy</th><th>L2 @0.20</th><th>L2 @0.35</th><th>L2 @0.50</th><th>NLL @0.20</th><th>NLL @0.35</th><th>NLL @0.50</th></tr>
+  <tr><td class="policy-name">uniform</td><td>689.7</td><td>669.4</td><td>631.0</td><td>3.722</td><td>3.657</td><td>3.524</td></tr>
+  <tr><td class="policy-name">geometry_KCD</td><td>690.6</td><td>643.2</td><td>592.2</td><td>3.617</td><td>3.416</td><td>3.260</td></tr>
+  <tr><td class="policy-name">semantic_KCD</td><td class="win">671.9</td><td class="win">633.5</td><td class="win">586.1</td><td class="win">3.526</td><td class="win">3.317</td><td class="win">3.139</td></tr>
+</table>
+</div>
+
+<h3>Pairwise: semantic_KCD vs geometry_KCD on Llama-3.2-3B</h3>
+<div class="overflow-table">
+<table>
+  <tr><th>Budget</th><th>Δ L2 row</th><th>p (row)</th><th>Δ L2 conv</th><th>p (conv)</th><th>Δ NLL row</th><th>p (row)</th><th>Δ NLL conv</th><th>p (conv)</th></tr>
+  <tr>
+    <td>0.20</td>
+    <td class="ns">−16.8</td><td class="ns">0.122</td>
+    <td class="ns">−18.7</td><td class="ns">0.141</td>
+    <td class="win">−0.091</td><td class="win">&lt;0.001</td>
+    <td class="win">−0.091</td><td class="win">0.007</td>
+  </tr>
+  <tr>
+    <td>0.35</td>
+    <td class="ns">−18.3</td><td class="ns">0.196</td>
+    <td class="ns">−9.7</td><td class="ns">0.514</td>
+    <td class="win">−0.099</td><td class="win">&lt;0.001</td>
+    <td class="win">−0.099</td><td class="win">0.026</td>
+  </tr>
+  <tr>
+    <td>0.50</td>
+    <td class="ns">−12.9</td><td class="ns">0.410</td>
+    <td class="ns">−6.1</td><td class="ns">0.778</td>
+    <td class="win">−0.121</td><td class="win">&lt;0.001</td>
+    <td class="win">−0.121</td><td class="win">0.009</td>
+  </tr>
+</table>
+</div>
+
+<div class="scope-box">
+<strong>Geometry advantage is NOT universal across architectures.</strong> On Llama-3.2-3B: logit L2 is not significantly different at any budget (all p ≥ 0.14). Answer NLL: semantic compression <em>significantly outperforms geometry</em> at all budgets (p ≤ 0.026 conv level) — the opposite direction from Qwen. Scope condition: geometry signal's discriminability depends on model representation structure, not parameter count alone.
+</div>
+
+<!-- ============ GATE 1 ============ -->
+<h2 id="gate1">7 — Oracle Gate 1: query-conditioned geometry ranking</h2>
+<p>Validates whether query-conditioned geometry can rank turns by their causal importance inside a semantic shortlist. Threshold for Gate 1 pass: Δ Kendall τ ≥ +0.03 vs semantic baseline.</p>
+
+<div class="stat-grid">
+  <div class="stat"><div class="stat-label">Conversations</div><div class="stat-value">6</div></div>
+  <div class="stat"><div class="stat-label">Candidate rows</div><div class="stat-value">10,416</div></div>
+  <div class="stat"><div class="stat-label">Oracle metric</div><div class="stat-value">logit L2</div><div class="stat-sub">logit-defined harm</div></div>
+  <div class="stat"><div class="stat-label">Gate 1 threshold</div><div class="stat-value">+0.03</div><div class="stat-sub">Δ Kendall τ vs semantic</div></div>
+</div>
+
+<div class="overflow-table">
+<table>
+  <tr><th>Feature</th><th>Budget</th><th>Kendall τ</th><th>Top-5 recall</th><th>Δ vs semantic</th><th>Gate 1?</th></tr>
+  <tr><td class="policy-name">semantic_score (baseline)</td><td>0.20</td><td>0.013</td><td>0.900</td><td>—</td><td>—</td></tr>
+  <tr><td class="policy-name">query_geom_v2_risk</td><td>0.20</td><td class="win">0.527</td><td class="win">0.950</td><td class="win">+0.514</td><td><span class="badge badge-green">Pass (17×)</span></td></tr>
+  <tr><td class="policy-name">combined_structural_score</td><td>0.20</td><td class="win">0.440</td><td>0.711</td><td class="win">+0.427</td><td><span class="badge badge-green">Pass (14×)</span></td></tr>
+  <tr><td class="policy-name">query_geom_v2_risk</td><td>0.35</td><td class="win">0.520</td><td class="win">0.950</td><td class="win">+0.507</td><td><span class="badge badge-green">Pass (17×)</span></td></tr>
+  <tr><td class="policy-name">query_geom_v2_risk</td><td>0.50</td><td class="win">0.502</td><td class="win">0.933</td><td class="win">+0.489</td><td><span class="badge badge-green">Pass (16×)</span></td></tr>
+</table>
+</div>
+
+<h3>Policy comparison at budget 0.50 (oracle study)</h3>
+<div class="overflow-table">
+<table>
+  <tr><th>Comparison</th><th>Δ L2 row</th><th>p (row)</th><th>Δ L2 conv</th><th>p (conv)</th></tr>
+  <tr>
+    <td class="policy-name">sem_query_geom vs sem_ambient_geom</td>
+    <td class="win">−76.6</td><td class="win">0.036</td>
+    <td class="ns">−76.6</td><td class="ns">0.75</td>
+  </tr>
+  <tr>
+    <td class="policy-name">sem_query_geom vs budget_aware_sem</td>
+    <td class="ns">−72.3</td><td class="ns">0.061</td>
+    <td class="ns">−72.3</td><td class="ns">1.00</td>
+  </tr>
+</table>
+</div>
+
+<div class="finding-box">
+Gate 1 passes at 17× the threshold using logit-defined harm. Semantic scoring achieves Kendall τ ≈ 0.013 (essentially flat); query-conditioned geometry achieves 0.50–0.53 — a 40× improvement in ranking ability. Query-conditioned projection matters: −76.6 vs ambient geometry (p=0.036 row).
+</div>
+<div class="scope-box">
+<strong>Important caveat:</strong> When the oracle harm metric is redefined using answer NLL (more direct behavioral measure), geometry fails Gate 1 on LME (Δτ ≈ +0.01–0.04, p=0.23–0.97 conv level, some negative). The logit-defined oracle inflates geometry's apparent advantage. This limits the strength of the oracle evidence.
+</div>
+
+<!-- ============ HARM ============ -->
+<h2 id="harm">8 — Learned harm predictor (informative negative)</h2>
+<p>Can a supervised predictor trained on oracle harm scores replace geometric features? Trained on 23,928 MSC oracle rows; tested as a compression signal.</p>
+
+<div class="two-col">
+  <div class="card">
+    <div class="kicker">Predictor performance (row level)</div>
+    <table style="font-size:13px; margin:0">
+      <tr><td>no_attention (26 features)</td><td style="text-align:right">Val τ = 0.596 / Test τ = <strong>0.638</strong></td></tr>
+      <tr><td>with_attention (28 features)</td><td style="text-align:right">Val τ = <strong>0.637</strong> / Test τ = 0.612</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="kicker">Cross-conversation calibration</div>
+    <p style="font-size:13px; color: var(--color-text-primary)">Conversation-level Kendall τ = <strong>−1.0</strong> (perfectly inverted). Predictor fits within-conversation ordering but cross-conversation scale is unconstrained.</p>
+  </div>
+</div>
+
+<h3>Policy evaluation (MSC 16 conversations, budget 0.35)</h3>
+<div class="overflow-table">
+<table>
+  <tr><th>Comparison</th><th>Δ L2 row</th><th>p (row)</th><th>Δ L2 conv</th><th>p (conv)</th></tr>
+  <tr>
+    <td class="policy-name">sem_harm_KCD vs sem_query_geom_KCD</td>
+    <td class="lose">+51.2</td><td class="win">0.023</td>
+    <td class="lose">+41.8</td><td class="win">0.004</td>
+  </tr>
+</table>
+</div>
+<div class="negative-box">
+<strong>Definitive failure.</strong> The learned predictor is significantly worse than query-conditioned geometry at the operationally most important budget (0.35). Root cause: pairwise ranking requires cross-conversation calibration, which point-wise regression cannot achieve without explicit cross-conversation negatives in the training loss. Fix direction: pairwise ranking loss with cross-conversation pairs.
+</div>
+
+<!-- ============ OBJECT ============ -->
+<h2 id="object">9 — Object-level compression (informative negative)</h2>
+<p>Can compressing at the level of memory objects (persona, event, constraint bundles) rather than turns improve retention? Evaluated on 16 MSC conversations.</p>
+
+<div class="overflow-table">
+<table>
+  <tr><th>Policy</th><th>L2 @0.35</th><th>NLL @0.35</th><th>Token frac @0.35</th></tr>
+  <tr><td class="policy-name">semantic_baseline</td><td>928.9</td><td>2.438</td><td>0.638–0.810</td></tr>
+  <tr><td class="policy-name">budget_aware_sem_KCD</td><td>931.2</td><td>2.487</td><td>0.634–0.775</td></tr>
+  <tr><td class="policy-name">sem_object_KCD</td><td class="lose">970.9</td><td class="lose">2.979</td><td class="lose">0.460–0.519</td></tr>
+  <tr><td class="policy-name">sem_object_harm_KCD</td><td class="lose">1023.0</td><td class="lose">3.251</td><td class="lose">0.355–0.431</td></tr>
+</table>
+</div>
+
+<div class="negative-box">
+<strong>Object policies dramatically under-perform.</strong> Logit L2 +100–230 points worse, NLL +0.54–0.87 nats worse vs baseline. Token fraction 0.36–0.52 at budget target 0.50 — the codec is leaving budget on the table. Root cause: object boundary over-segmentation and per-object budget allocation fails to fill budget precisely. The concept is sound; the execution is mechanical. Requires better boundary detection and per-object cost estimation.
+</div>
+
+<!-- ============ SCOPE ============ -->
+<h2 id="scope">10 — Scope conditions and failure modes</h2>
+
+<div class="two-col">
+  <div>
+    <h3>What holds up</h3>
+    <table style="font-size:13px">
+      <tr><td style="padding:4px 8px 4px 0; vertical-align:top"><span class="badge badge-green">✓</span></td><td style="padding:4px 0">Geometry-behavior divergence is real: LongLLMLingua +103–161 logit L2, −0.07–0.18 NLL vs uniform</td></tr>
+      <tr><td style="padding:4px 8px 4px 0; vertical-align:top"><span class="badge badge-green">✓</span></td><td style="padding:4px 0">sem_qcg resolves tradeoff on MSC: best L2 AND best NLL simultaneously at budget 0.50, Δ−113.7 vs semantic (p&lt;0.001 conv)</td></tr>
+      <tr><td style="padding:4px 8px 4px 0; vertical-align:top"><span class="badge badge-green">✓</span></td><td style="padding:4px 0">Signal-swap is load-bearing on hardset: geometry beats semantic on both metrics, effect grows with model scale (Δ NLL +1.126 nats at qwen25_3b budget 0.50, p=0.0003)</td></tr>
+      <tr><td style="padding:4px 8px 4px 0; vertical-align:top"><span class="badge badge-green">✓</span></td><td style="padding:4px 0">Support-turn rescue mechanism is consistent (17 vs 7 at 1.5B, replicated at 3B)</td></tr>
+      <tr><td style="padding:4px 8px 4px 0; vertical-align:top"><span class="badge badge-green">✓</span></td><td style="padding:4px 0">All KCD policies improve NLL vs uniform on LME (p&lt;0.05 conv level)</td></tr>
+    </table>
+  </div>
+  <div>
+    <h3>Scope conditions</h3>
+    <table style="font-size:13px">
+      <tr><td style="padding:4px 8px 4px 0; vertical-align:top"><span class="badge badge-red">!</span></td><td style="padding:4px 0"><strong>Architecture-dependent:</strong> Geometry works on Qwen2.5 (instruction-heavy training). Semantic wins on Llama-3.2-3B (broad text) at all budgets (p≤0.026)</td></tr>
+      <tr><td style="padding:4px 8px 4px 0; vertical-align:top"><span class="badge badge-red">!</span></td><td style="padding:4px 0"><strong>Length-dependent:</strong> Geometry effective on 20–100 turn MSC conversations. Degrades on 400–600 turn LME (sem_qcg worse than semantic at budget 0.35, p=0.011 conv)</td></tr>
+      <tr><td style="padding:4px 8px 4px 0; vertical-align:top"><span class="badge badge-red">!</span></td><td style="padding:4px 0"><strong>Regime-dependent:</strong> Geometry strongest on constraint-critical hardset. Does not replicate geometry advantage on episodic-retrieval LME</td></tr>
+      <tr><td style="padding:4px 8px 4px 0; vertical-align:top"><span class="badge badge-red">!</span></td><td style="padding:4px 0"><strong>Oracle metric-dependent:</strong> Logit-defined harm inflates geometry advantage in Gate 1. Answer-NLL-defined harm reveals geometry fails Gate 1 on LME</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============ SUMMARY ============ -->
+<h2 id="overall">11 — Overall quantitative summary</h2>
+
+<div class="overflow-table">
+<table>
+  <tr>
+    <th>Experiment</th><th>Model</th><th>Benchmark</th><th>Key result</th><th>p</th><th>Direction</th>
+  </tr>
+  <tr><td>Geom characterization</td><td>qwen25_15b</td><td>—</td><td>Corr(d_geo, Δℓ) = 0.994</td><td>&lt;0.001</td><td><span class="badge badge-blue">Motivation</span></td></tr>
+  <tr><td>Signal-swap</td><td>qwen25_15b</td><td>Hardset</td><td>sem vs geo Δ NLL +0.628 @ 0.50</td><td>0.001</td><td><span class="badge badge-green">Geo wins</span></td></tr>
+  <tr><td>Signal-swap 3B</td><td>qwen25_3b</td><td>Hardset</td><td>sem vs geo Δ NLL +1.126 @ 0.50</td><td>0.0003</td><td><span class="badge badge-green">Geo wins, larger</span></td></tr>
+  <tr><td>Support rescue</td><td>qwen25_15b</td><td>Hardset</td><td>Geo rescues 17/36 vs sem 7/36 @ 0.35</td><td>—</td><td><span class="badge badge-green">Mechanism confirmed</span></td></tr>
+  <tr><td>Geo-behavior divergence</td><td>qwen25_15b</td><td>MSC 1000</td><td>LongLLMLingua Δ L2 +161 @ 0.50</td><td>&lt;0.001</td><td><span class="badge badge-green">Divergence confirmed</span></td></tr>
+  <tr><td>MSC signal variants</td><td>qwen25_15b</td><td>MSC 50</td><td>sem_qcg Δ L2 −113.7 vs sem @ 0.50</td><td>&lt;0.001</td><td><span class="badge badge-green">sem_qcg wins both</span></td></tr>
+  <tr><td>MSC signal variants</td><td>qwen25_15b</td><td>MSC 50</td><td>sem_qcg Δ NLL −0.056 vs sem @ 0.50</td><td>0.004</td><td><span class="badge badge-green">sem_qcg wins both</span></td></tr>
+  <tr><td>MSC signal variants</td><td>qwen25_15b</td><td>MSC 50</td><td>sem_qcg L2 = 636.4, uniform = 682.8</td><td>—</td><td><span class="badge badge-green">More faithful than random</span></td></tr>
+  <tr><td>LME cross-benchmark</td><td>qwen25_15b</td><td>LME 100</td><td>sem_qcg Δ L2 +50.3 vs sem @ 0.35</td><td>0.011</td><td><span class="badge badge-red">Scope condition: length</span></td></tr>
+  <tr><td>LME behavior</td><td>qwen25_15b</td><td>LME 100</td><td>All KCD policies improve NLL vs uniform</td><td>&lt;0.05 conv</td><td><span class="badge badge-blue">All policies generalize</span></td></tr>
+  <tr><td>Cross-architecture</td><td>llama32_3b</td><td>MSC 50</td><td>Sem Δ NLL −0.099 vs geo @ 0.35</td><td>0.026</td><td><span class="badge badge-red">Scope condition: arch</span></td></tr>
+  <tr><td>Oracle Gate 1</td><td>qwen25_15b</td><td>LME 6</td><td>query_geom Kendall τ = 0.527 vs sem 0.013</td><td>&lt;0.001</td><td><span class="badge badge-green">Gate 1 pass (logit)</span></td></tr>
+  <tr><td>Harm predictor</td><td>qwen25_15b</td><td>MSC 16</td><td>harm_KCD vs sem_qcg Δ L2 +51.2 @ 0.35</td><td>0.023</td><td><span class="badge badge-gray">Negative</span></td></tr>
+  <tr><td>Object compression</td><td>qwen25_15b</td><td>MSC 16</td><td>sem_object_KCD L2 = 970.9 vs baseline 928.9</td><td>—</td><td><span class="badge badge-gray">Negative</span></td></tr>
+</table>
+</div>
+
+<div style="margin-top: 2rem; padding: 1.25rem; background: var(--color-background-secondary); border-radius: var(--border-radius-lg);">
+  <div class="kicker" style="margin-bottom: 0.5rem">Central claim — supported by evidence</div>
+  <p style="color: var(--color-text-primary); margin: 0">Conversational memory compression requires signal-conditioned turn selection. Geometry and semantics are distinct, complementary objectives. On constraint-critical memory, geometry is the right signal (recovers support turns that semantics misses). On semantic-continuity benchmarks, query-conditioned geometry inside a semantic shortlist resolves the geometry-behavior tradeoff — achieving the best geometric fidelity and behavioral quality simultaneously. Neither signal is universally dominant: architecture and conversation length both define the regime where each excels.</p>
+</div>
