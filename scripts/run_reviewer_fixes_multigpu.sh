@@ -253,33 +253,34 @@ log "=== STEP 2: Planning jobs ==="
 declare -a MERGE_SPECS=()
 
 # ── 2a. Hard stress set: longllmlingua baseline (Experiment 1 extension) ──────
-if [[ "$SKIP_BASELINES" == "1" ]]; then
-  log "SKIP_BASELINES=1, skipping hardset and MSC baselines"
+if [[ "$SKIP_BASELINES" != "1" ]]; then
+  log "Planning: longllmlingua baseline on hard stress set"
+  plan_dir_hs="$(plan_shards "$HARDSET_INPUT" "baselines_hardset")"
+  declare -a HS_SHARD_DIRS=()
+  for ((s=0; s<JOB_SHARDS; s++)); do
+    ids_file="$plan_dir_hs/shard_${s}_ids.txt"
+    [[ -s "$ids_file" ]] || continue
+    shard_dir="results/reviewer_fixes/baselines/${RUN_PREFIX}_hardset_shard${s}of${JOB_SHARDS}"
+    HS_SHARD_DIRS+=("$shard_dir")
+    enqueue_job "baselines_hardset_s${s}" "$shard_dir" \
+      "$PYTHON_BIN -m june_fixes.baselines.baseline_study \
+        --study-name ${RUN_PREFIX}_hardset_shard${s}of${JOB_SHARDS} \
+        --model-keys $MODEL_KEY \
+        --input-path $HARDSET_INPUT \
+        --families long_dependency,retrieval_heavy,code_conversation \
+        --budgets $BUDGETS \
+        --policies uniform,longllmlingua,recency,lexical_tfidf,recency_keep_compress_drop \
+        --recent-window 2 \
+        --min-history 4 \
+        --max-input-tokens 768 \
+        --segment-span 2 \
+        --output-root results/reviewer_fixes/baselines \
+        --conversation-ids-path $ids_file"
+  done
+  MERGE_SPECS+=("baselines_hardset|$(IFS=,; echo "${HS_SHARD_DIRS[*]}")")
 else
-log "Planning: longllmlingua baseline on hard stress set"
-plan_dir_hs="$(plan_shards "$HARDSET_INPUT" "baselines_hardset")"
-declare -a HS_SHARD_DIRS=()
-for ((s=0; s<JOB_SHARDS; s++)); do
-  ids_file="$plan_dir_hs/shard_${s}_ids.txt"
-  [[ -s "$ids_file" ]] || continue
-  shard_dir="results/reviewer_fixes/baselines/${RUN_PREFIX}_hardset_shard${s}of${JOB_SHARDS}"
-  HS_SHARD_DIRS+=("$shard_dir")
-  enqueue_job "baselines_hardset_s${s}" "$shard_dir" \
-    "$PYTHON_BIN -m june_fixes.baselines.baseline_study \
-      --study-name ${RUN_PREFIX}_hardset_shard${s}of${JOB_SHARDS} \
-      --model-keys $MODEL_KEY \
-      --input-path $HARDSET_INPUT \
-      --families long_dependency,retrieval_heavy,code_conversation \
-      --budgets $BUDGETS \
-      --policies uniform,longllmlingua,recency,lexical_tfidf,recency_keep_compress_drop \
-      --recent-window 2 \
-      --min-history 4 \
-      --max-input-tokens 768 \
-      --segment-span 2 \
-      --output-root results/reviewer_fixes/baselines \
-      --conversation-ids-path $ids_file"
-done
-MERGE_SPECS+=("baselines_hardset|$(IFS=,; echo "${HS_SHARD_DIRS[*]}")")
+  log "SKIP_BASELINES=1, skipping hardset and MSC baselines"
+fi
 
 # ── 2b. Full LongMemEval-S: geometry_KCD + baselines (no 40-turn cap) ─────────
 # Uses LONGMEM_INPUT_SUBSET (default: first 150 conversations) to control disk usage.
@@ -355,7 +356,7 @@ else
 fi
 
 # ── 2d. MSC baselines with longllmlingua ─────────────────────────────────────
-if [[ -f "$MSC_INPUT" ]]; then
+if [[ "$SKIP_BASELINES" != "1" ]] && [[ -f "$MSC_INPUT" ]]; then
   log "Planning: longllmlingua baseline on MSC"
   plan_dir_msc="$(plan_shards "$MSC_INPUT" "baselines_msc")"
   declare -a MSC_SHARD_DIRS=()
@@ -382,7 +383,6 @@ if [[ -f "$MSC_INPUT" ]]; then
   done
   MERGE_SPECS+=("baselines_msc|$(IFS=,; echo "${MSC_SHARD_DIRS[*]}")")
 fi
-fi  # end SKIP_BASELINES
 
 # ── 2e. MSC KCD geometry study (paper3_codec.study on MSC subset) ─────────────
 # Runs geometry KCD policies on MSC (MSC_KCD_LIMIT conversations, default 50).
