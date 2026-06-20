@@ -231,6 +231,7 @@ if [[ -f "$LONGMEM_INPUT" ]]; then
         --study-name ${RUN_PREFIX}_lme_shard${s}of${JOB_SHARDS} \
         --model-keys $MODEL_KEY \
         --input-path $LONGMEM_INPUT \
+        --families longmemeval_s_full \
         --budgets $BUDGETS \
         --policies uniform,semantic,geometry,geometry_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop \
         --recent-window 2 \
