@@ -347,7 +347,7 @@ def run_baseline_study(args: argparse.Namespace) -> None:
     for model_key in model_keys:
         spec = resolve_model_spec(model_key)
         extractor = ConversationStateExtractor(
-            model_key, device=args.device, dtype=args.dtype, state_layer=args.state_layer
+            spec.model_name, device=args.device, dtype=args.dtype, state_layer=args.state_layer
         )
         models_meta[model_key] = {"model_name": spec.model_name}
         for conversation_index, conversation in enumerate(conversations, start=1):
