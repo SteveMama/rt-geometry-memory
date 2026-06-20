@@ -438,6 +438,7 @@ def run_qa_accuracy(
     qa_rows: list[dict[str, Any]] = []
     for task, prediction in zip(tasks, policy_predictions):
         conversation = conversations[task["conversation_id"]]
+        question = conversation.turns[task["target_turn"]].content
         gold = conversation.turns[task["target_turn"] + 1].content
         scores = _score_prediction(prediction, gold)
         reference = reference_by_key[(task["conversation_id"], task["target_turn"])]
@@ -449,6 +450,7 @@ def run_qa_accuracy(
                 "target_turn": task["target_turn"],
                 "policy_name": task["policy_name"],
                 "budget_fraction": task["budget_fraction"],
+                "question": question,
                 "prediction": prediction,
                 "gold_answer": gold,
                 **scores,

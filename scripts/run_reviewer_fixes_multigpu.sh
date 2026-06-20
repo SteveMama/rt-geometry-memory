@@ -512,6 +512,61 @@ for spec in "${MERGE_SPECS[@]}"; do
   esac
 done
 
+# ── Step 4.5: QA accuracy generation on merged LME study ─────────────────────
+# Replays retained_turn_indices from evaluation_rows.csv, generates free-form
+# answers, and scores with EM / token-F1 / containment. Runs after the LME
+# merge so the generation can use the complete merged CSV.
+# Output: results/reviewer_fixes/lme_qa/<shard>/qa_rows.csv
+# These files are later consumed by scripts/run_llm_judge_eval.py (locally,
+# after downloading from the pod) using Gemini 2.5 Flash + Llama-3-70B.
+log "=== STEP 4.5: QA accuracy generation (LME) ==="
+
+LME_MERGED_DIR="results/reviewer_fixes/fullLME/${RUN_PREFIX}_fullLME_merged"
+if [[ -f "$LME_MERGED_DIR/evaluation_rows.csv" ]] && [[ -n "${LONGMEM_INPUT_SUBSET:-}" ]] && [[ -f "$LONGMEM_INPUT_SUBSET" ]]; then
+  log "Planning: QA generation on merged LME study ($LME_MERGED_DIR)"
+  plan_dir_qa="$(plan_shards "$LONGMEM_INPUT_SUBSET" "lme_qa")"
+  # Clear queue for second worker pass
+  rm -f "$QUEUE_PENDING"/*.job "$QUEUE_RUNNING"/*.job 2>/dev/null || true
+  declare -a QA_SHARD_DIRS=()
+  for ((s=0; s<JOB_SHARDS; s++)); do
+    ids_file="$plan_dir_qa/shard_${s}_ids.txt"
+    [[ -s "$ids_file" ]] || continue
+    qa_shard_dir="results/reviewer_fixes/lme_qa/${RUN_PREFIX}_lme_qa_shard${s}of${JOB_SHARDS}"
+    QA_SHARD_DIRS+=("$qa_shard_dir")
+    enqueue_job "lme_qa_s${s}" "$qa_shard_dir" \
+      "$PYTHON_BIN -m june_fixes.qa_accuracy.qa_accuracy_study \
+        --study-dir $LME_MERGED_DIR \
+        --input-path $LONGMEM_INPUT_SUBSET \
+        --model-key $MODEL_KEY \
+        --output-dir $qa_shard_dir \
+        --max-input-tokens 1024 \
+        --max-new-tokens 128 \
+        --conversation-ids-path $ids_file"
+  done
+  QA_PENDING=$(ls "$QUEUE_PENDING"/*.job 2>/dev/null | wc -l | tr -d ' ')
+  log "Enqueued $QA_PENDING QA generation shards"
+  # Second worker pool pass
+  declare -a QA_WORKER_PIDS=()
+  for ((i=0; i<GPU_COUNT; i++)); do
+    for ((w=0; w<WORKERS_PER_GPU; w++)); do
+      worker_loop "${GPU_INDICES[$i]}" &
+      QA_WORKER_PIDS+=("$!")
+    done
+  done
+  for pid in "${QA_WORKER_PIDS[@]}"; do wait "$pid" || true; done
+  # Merge QA shards
+  if [[ ${#QA_SHARD_DIRS[@]} -gt 0 ]]; then
+    log "Merging QA shards..."
+    "$PYTHON_BIN" -m june_fixes.qa_accuracy.merge_qa_shards \
+      --study-name "${RUN_PREFIX}_lme_qa_merged" \
+      --output-root results/reviewer_fixes/lme_qa \
+      --shard-dirs "$(IFS=,; echo "${QA_SHARD_DIRS[*]}")" \
+      || log "WARNING: QA shard merge failed"
+  fi
+else
+  log "Skipping QA generation: LME merged study not found or LME input missing"
+fi
+
 # ── Step 5: Run pairwise reports ──────────────────────────────────────────────
 log "=== STEP 5: Pairwise reports ==="
 
