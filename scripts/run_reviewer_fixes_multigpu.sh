@@ -94,7 +94,7 @@ JOB_SHARDS=$(( GPU_COUNT * JOB_MULTIPLIER ))
 log "GPUs: ${GPU_INDICES[*]} | using $GPU_COUNT | shards/workload=$JOB_SHARDS"
 
 # restore any interrupted jobs from previous run
-for running_job in "$QUEUE_RUNNING"/*.job 2>/dev/null; do
+for running_job in "$QUEUE_RUNNING"/*.job; do
   [[ -e "$running_job" ]] || continue
   base="$(basename "$running_job")"
   mv "$running_job" "$QUEUE_PENDING/${base%.gpu*.job}.job"
