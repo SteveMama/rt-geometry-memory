@@ -54,6 +54,7 @@ RUN_PREFIX="${RUN_PREFIX:-reviewer_fixes}"
 MODEL_KEY="${MODEL_KEY:-qwen25_15b}"
 BUDGETS="${BUDGETS:-0.20,0.35,0.50}"
 JOB_MULTIPLIER="${JOB_MULTIPLIER:-2}"
+WORKERS_PER_GPU="${WORKERS_PER_GPU:-1}"
 GPU_PREFLIGHT_RETRIES="${GPU_PREFLIGHT_RETRIES:-6}"
 GPU_PREFLIGHT_SLEEP="${GPU_PREFLIGHT_SLEEP:-10}"
 SKIP_DOWNLOAD="${SKIP_DOWNLOAD:-0}"
@@ -358,8 +359,10 @@ worker_loop() {
 
 declare -a WORKER_PIDS=()
 for ((i=0; i<GPU_COUNT; i++)); do
-  worker_loop "${GPU_INDICES[$i]}" &
-  WORKER_PIDS+=("$!")
+  for ((w=0; w<WORKERS_PER_GPU; w++)); do
+    worker_loop "${GPU_INDICES[$i]}" &
+    WORKER_PIDS+=("$!")
+  done
 done
 for pid in "${WORKER_PIDS[@]}"; do wait "$pid" || true; done
 
