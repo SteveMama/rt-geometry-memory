@@ -174,8 +174,46 @@ For the stress-set signal comparison, we treat conversation-level significance (
 We report row-level and conversation-level statistics separately. Row-level tests provide high-resolution evidence on local behavior, but rows from the same conversation are not independent. Conversation-level tests better reflect benchmark-level stability. In the results, we therefore treat conversation-level significance as the more conservative benchmark-level signal and use row-level tests mainly to support within-conversation mechanism claims. Where only row-level significance is reported, we treat the result as supportive rather than decisive at the benchmark level.
 
 \section{Constraint-Critical Memory: Why Signal Choice Matters}
+\subsection{External Baselines on the Stress Set}
+Before comparing KCD signals, we establish how external compression methods behave on constraint-critical memory, to confirm that geometry-behavior divergence is not limited to public benchmarks.
+
+\begin{table}[t]
+\centering
+\caption{External baseline comparison on the hard stress set
+(\pname{qwen25\_15b}, 9 conversations, 540 rows).
+Lower is better. Significant differences vs.\ uniform are marked:
+$^{*}p{<}0.05$, $^{**}p{<}0.01$, conversation-level signflip test.}
+\label{tab:hardset_baselines}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+Policy & L2@.20 & L2@.35 & L2@.50 & NLL@.20 & NLL@.35 & NLL@.50 \\
+\midrule
+Uniform            & 387.4 & 338.0 & 268.5 & 1.627 & 1.272 & 1.353 \\
+Recency            & $\mathbf{348.4}^{**}$ & 326.3 & $\mathbf{274.6}$ & 1.620 & 1.115 & 1.027 \\
+Recency-KCD        & $\mathbf{348.4}^{**}$ & $\mathbf{311.8}$ & 290.9 & 1.620 & 1.115 & 0.959 \\
+Lexical TF-IDF     & 381.9 & 323.1 & 276.9 & 1.553 & 1.004 & $\mathbf{0.801}$ \\
+\textsc{LongLLMLingua} & 385.6 & $372.4^{*}$ & $369.8^{**}$ & $\mathbf{1.252}^{**}$ & $\mathbf{0.758}^{*}$ & $\mathbf{0.697}^{**}$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Table~\ref{tab:hardset_baselines} reveals a striking pattern that mirrors the MSC finding.
+\textsc{LongLLMLingua} achieves the best NLL at every budget---dramatically so at
+$B{=}0.50$ ($0.697$ vs.\ uniform $1.353$, $p{=}0.008$)---but incurs the worst
+geometric fidelity: logit L2 increases by $+34.4$ units at $B{=}0.35$ ($p{=}0.017$)
+and $+101.3$ units at $B{=}0.50$ ($p{=}0.004$) relative to uniform.
+Recency-based compression achieves the best geometric fidelity at low budget
+($-39.0$ vs.\ uniform at $B{=}0.20$, $p{=}0.003$) but offers no significant NLL
+improvement.
+\textbf{Geometry-behavior divergence therefore manifests on constraint-critical
+memory, not only on semantic-continuity benchmarks.}
+The signal-swap ablation below shows that while LongLLMLingua's NLL advantage
+is real, the \emph{geometry-aware} KCD codec better preserves the representational
+structure that supports downstream constraint satisfaction.
+
 \subsection{Geometry-Aware Control Under Scarcity}
-Before comparing signals inside the sparse codec, we first ask whether geometry helps at all under budget pressure. On the hard stress set, geometry-aware retention improves over uniform retention across compact models.
+Having established that external baselines diverge on the hardset, we next ask whether geometry-aware KCD retention improves over uniform. On the hard stress set, geometry-aware retention improves over uniform retention across compact models.
 
 \begin{table}[t]
 \centering

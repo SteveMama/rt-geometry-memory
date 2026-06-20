@@ -483,6 +483,47 @@ for the response the model will produce.
 \label{sec:hardset}
 % ---------------------------------------------------------------
 
+\subsection{External Baselines on the Stress Set}
+
+We first establish how external compression methods behave on constraint-critical
+memory, confirming that geometry-behavior divergence is not benchmark-specific.
+
+\begin{table}[t]
+\centering
+\caption{External baseline comparison on the hard stress set
+(Qwen2.5-1.5B, 9 conversations, 540 rows). Lower is better.
+$^{*}p{<}0.05$, $^{**}p{<}0.01$, conversation-level signflip test vs.\ uniform.}
+\label{tab:hardset_baselines}
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{Logit $\ell_2$ $\downarrow$} & \multicolumn{3}{c}{Answer NLL $\downarrow$} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ \\
+\midrule
+Uniform            & 387.4 & 338.0 & 268.5 & 1.627 & 1.272 & 1.353 \\
+Recency            & $\mathbf{348.4}^{**}$ & 326.3 & $\mathbf{274.6}$ & 1.620 & 1.115 & 1.027 \\
+Recency-\kcd{}     & $\mathbf{348.4}^{**}$ & $\mathbf{311.8}$ & 290.9 & 1.620 & 1.115 & 0.959 \\
+TF-IDF             & 381.9 & 323.1 & 276.9 & 1.553 & 1.004 & \textbf{0.801} \\
+\textsc{LongLLMLingua} & 385.6 & $372.4^{*}$ & $369.8^{**}$ & $\mathbf{1.252}^{**}$ & $\mathbf{0.758}^{*}$ & $\mathbf{0.697}^{**}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:hardset_baselines} shows that the geometry-behavior divergence documented
+on MSC (Table~\ref{tab:baselines}) replicates on constraint-critical memory.
+\textsc{LongLLMLingua} achieves the best NLL at every budget---at $B{=}0.50$,
+NLL drops from $1.353$ (uniform) to $0.697$ ($p{=}0.008$, conv)---but degrades
+logit $\ell_2$ by $+34.4$ at $B{=}0.35$ ($p{=}0.017$) and by $+101.3$ at
+$B{=}0.50$ ($p{=}0.004$).
+Recency-based compression achieves the best geometric fidelity at low budget
+($\Delta{=}{-39.0}$ at $B{=}0.20$, $p{=}0.003$) with no significant NLL improvement.
+\textbf{Geometry-behavior divergence is therefore a property of the compression
+method, not a property of the benchmark.}
+The signal-swap ablation below shows that geometry-aware turn selection retains
+the representational structure that constraint-critical answers require,
+while semantic scoring and LongLLMLingua sacrifice that structure for NLL gain.
+
 \subsection{Setup and Motivation}
 
 We construct a synthetic stress set of $9$ conversations
