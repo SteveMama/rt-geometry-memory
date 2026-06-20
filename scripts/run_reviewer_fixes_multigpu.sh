@@ -484,7 +484,7 @@ for ((i=0; i<GPU_COUNT; i++)); do
 done
 for pid in "${WORKER_PIDS[@]}"; do wait "$pid" || true; done
 
-FAILED_COUNT=$(ls "$QUEUE_FAILED"/*.job 2>/dev/null | wc -l | tr -d ' ')
+FAILED_COUNT=$(ls "$QUEUE_FAILED"/*.job 2>/dev/null | wc -l | tr -d ' ') || FAILED_COUNT=0
 if [[ "$FAILED_COUNT" -gt 0 ]]; then
   log "WARNING: $FAILED_COUNT jobs failed. Re-run this script to retry (completed shards are skipped)."
   log "Failed jobs:"
@@ -572,7 +572,7 @@ if [[ -f "$LME_MERGED_DIR/evaluation_rows.csv" ]] && [[ -n "${LONGMEM_INPUT_SUBS
   done
   for pid in "${QA_WORKER_PIDS[@]}"; do wait "$pid" || true; done
   # Count QA failures
-  QA_FAILED_COUNT=$(ls "$QUEUE_FAILED"/*.job 2>/dev/null | wc -l | tr -d ' ')
+  QA_FAILED_COUNT=$(ls "$QUEUE_FAILED"/*.job 2>/dev/null | wc -l | tr -d ' ') || QA_FAILED_COUNT=0
   [[ "$QA_FAILED_COUNT" -gt 0 ]] && log "WARNING: $QA_FAILED_COUNT QA generation shards failed"
   # Merge QA shards into single qa_rows.csv + qa_report.md
   if [[ ${#QA_SHARD_DIRS[@]} -gt 0 ]]; then
