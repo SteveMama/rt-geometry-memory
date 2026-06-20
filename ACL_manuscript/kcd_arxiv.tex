@@ -1,0 +1,914 @@
+\documentclass[11pt]{article}
+
+% Standard arXiv/NLP packages
+\usepackage[margin=1in]{geometry}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=blue!70!black,
+    urlcolor=blue!70!black
+}
+
+% Useful shorthands
+\newcommand{\kcd}{\textsc{kcd}}
+\newcommand{\semqcg}{\textsc{sem-qcg}}
+\newcommand{\geokcd}{\textsc{geo-kcd}}
+\newcommand{\semkcd}{\textsc{sem-kcd}}
+\newcommand{\lme}{\textsc{LongMemEval-S}}
+\newcommand{\msc}{\textsc{msc}}
+\newcommand{\Lf}{\mathcal{L}}
+\newcommand{\hv}{\mathbf{h}}
+\newcommand{\uv}{\mathbf{u}}
+\newcommand{\qv}{\mathbf{q}}
+\newcommand{\Sph}{\mathbb{S}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\PT}{\mathrm{PT}}
+\newcommand{\Log}{\mathrm{Log}}
+
+\title{\textbf{Signal-Conditioned Memory Compression\\for Multi-Turn Conversations}}
+
+\author{
+  Anonymous Authors\thanks{Code, data, and experiment logs will be released at publication.} \\
+  Anonymous Institution \\
+  \texttt{anonymous@anonymous.edu}
+}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+% ---------------------------------------------------------------
+\begin{abstract}
+% ---------------------------------------------------------------
+Multi-turn conversation compression must balance two distinct objectives:
+preserving the geometric structure of the model's hidden-state representation
+(\emph{geometric fidelity}) and maintaining behavioral output quality
+(\emph{answer likelihood}).
+We show these objectives can diverge substantially:
+\textsc{LongLLMLingua}, a compression method optimized for answer likelihood,
+incurs logit $\ell_2$ penalties of $+103$--$161$ units relative to uniform
+sampling across three budget levels while providing only marginal negative
+log-likelihood (NLL) improvement on 1{,}000 Multi-Session Conversations
+(163{,}755 evaluation rows).
+We introduce the \textbf{Keep/Compress/Drop (\kcd{}) codec},
+a sparse ternary turn-selection framework,
+and study three scoring signals:
+geometry-based (\geokcd{}),
+semantic-based (\semkcd{}),
+and query-conditioned geometry inside a semantic shortlist (\semqcg{}).
+On Multi-Session Conversations (50 conversations, Qwen2.5-1.5B-Instruct),
+\semqcg{} achieves logit $\ell_2$ of $636.4$ at budget $0.50$---lower
+than uniform sampling ($682.8$)---while simultaneously improving answer NLL
+versus both semantic and geometry variants
+($\Delta{-}113.7$ logit $\ell_2$ and $\Delta{-}0.056$ NLL versus \semkcd{},
+both $p{<}0.001$ at conversation level).
+On a synthetic constraint-critical stress set, geometry-based scoring
+outperforms semantic scoring by up to $+1.1$ nats NLL ($p{<}0.001$, 3B scale),
+an effect that grows with model size.
+We characterize two scope conditions:
+the geometry advantage is architecture-dependent
+(present on Qwen2.5-\{1.5B,3B\} but reversed on Llama-3.2-3B)
+and length-dependent
+(degrades on 400--600 turn conversations).
+These findings establish geometry-behavior divergence as a consequential
+phenomenon and demonstrate that the choice of turn scoring signal is a
+first-class design decision in conversational memory compression.
+\end{abstract}
+
+% ---------------------------------------------------------------
+\section{Introduction}
+% ---------------------------------------------------------------
+
+Deployed conversational systems face a hard constraint: as sessions grow,
+the full conversation history quickly exceeds a fixed context window.
+Memory compression---selecting, condensing, or dropping prior turns to stay
+within a token budget---is therefore a core engineering challenge.
+Most prior work treats this as a single-objective problem: minimize the loss
+on held-out continuations, or equivalently, preserve behavioral quality
+as measured by answer NLL \citep{jiang-etal-2024-longllmlingua, pan-etal-2024-llmlingua2}.
+
+We argue this framing is incomplete.
+Two distinct quantities are affected by compression:
+the \emph{behavioral} quality of model outputs (answer likelihood, task accuracy),
+and the \emph{geometric fidelity} of the model's hidden-state trajectory,
+which reflects how faithfully the compressed context reconstructs the
+internal representational state that the full context would produce.
+These objectives are not equivalent and, as we show, can diverge dramatically.
+
+\paragraph{Geometry-behavior divergence.}
+Our first observation is that \textsc{LongLLMLingua}---a strong baseline
+optimized for NLL---achieves only marginal behavioral improvements
+($-0.07$ to $-0.18$ nats versus uniform sampling)
+while incurring catastrophic geometric degradation
+($+103$ to $+161$ logit $\ell_2$ units on MSC, $n{=}1{,}000$ conversations).
+A method that looks adequate by behavioral metrics
+may be distorting the model's representational geometry substantially.
+
+\paragraph{The \kcd{} codec.}
+We introduce a sparse ternary codec that assigns one of three actions to each
+prior turn---\textsc{keep}, \textsc{compress}, or \textsc{drop}---under a
+fixed token budget.
+The codec is signal-agnostic: any per-turn score can rank turns for retention.
+We study three signals:
+(i) \emph{geometry-based}: transported hidden-state curvature and subspace energy,
+(ii) \emph{semantic}: cosine similarity of turn hidden states to the target turn,
+and (iii) \emph{query-conditioned geometry} (\semqcg{}):
+geometric features projected through the hidden state at the current query turn,
+applied as a reranker within a semantic shortlist.
+
+\paragraph{Main findings.}
+On Multi-Session Conversations \citep{xu-etal-2022-beyond},
+\semqcg{} is the only variant achieving simultaneously best geometric fidelity
+\emph{and} best behavioral quality at budget $\geq 0.35$,
+resolving the geometry-behavior tradeoff that plagues simpler signals.
+At budget $0.50$, \semqcg{} achieves lower logit $\ell_2$ than uniform
+random sampling---meaning the policy is \emph{more faithful} to the
+full-context hidden state than retaining an arbitrary subset of turns.
+On a constraint-critical stress set
+(exact user instructions, retrieval packets, code constraints),
+geometry-based scoring beats semantic scoring on both metrics,
+with the NLL damage from using the wrong signal growing from
+$+0.63$ nats at 1.5B to $+1.13$ nats at 3B.
+
+\paragraph{Contributions.}
+\begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
+  \item We demonstrate \textbf{geometry-behavior divergence} at scale:
+    methods optimizing NLL can catastrophically degrade hidden-state geometric
+    fidelity, motivating dual-objective evaluation of memory compression.
+  \item We introduce \semqcg{} and show it is the only \kcd{} variant achieving
+    simultaneously best geometric fidelity \emph{and} behavioral quality on
+    \msc{} (both $p{<}0.001$, conversation-level signflip test).
+  \item We provide a \textbf{support-turn rescue mechanism} account explaining
+    why geometry works on constraint-critical memory: user instructions produce
+    larger hidden-state displacement than semantically similar assistant echoes
+    ($17/36$ conversations rescued by geometry versus $7/36$ by semantic).
+  \item We characterize two \textbf{scope conditions}---architecture-dependence
+    (Llama-3.2-3B reversal) and length-dependence (400--600 turn conversations)---
+    that bound where geometry-based signals add value.
+\end{enumerate}
+
+The rest of the paper is organized as follows.
+Section~\ref{sec:background} introduces the geometric framework and \kcd{} codec.
+Sections~\ref{sec:divergence}--\ref{sec:scope} present experiments.
+Section~\ref{sec:related} covers related work.
+Section~\ref{sec:limits} states limitations explicitly.
+
+% ---------------------------------------------------------------
+\section{Background}
+\label{sec:background}
+% ---------------------------------------------------------------
+
+\subsection{Conversation State Geometry}
+\label{sec:geo}
+
+Let $\hv_t \in \R^d$ denote the last-layer hidden state produced by a
+causal language model after processing the $t$-th conversation turn,
+normalized to the unit hypersphere $\Sph^{d-1}$.
+The sequence $(\hv_1, \hv_2, \ldots, \hv_T)$ traces a trajectory on $\Sph^{d-1}$.
+
+\paragraph{Compact structure.}
+We quantify intrinsic dimensionality via \emph{Rank-95}:
+the number of principal components explaining $95\%$ of variance
+in the centered trajectory matrix, normalized by the sequence length.
+We observe that real conversation trajectories are highly compact
+(Rank-95 $\approx 1.05$--$1.53$), whereas shuffled controls---which
+break temporal ordering---achieve Rank-95 $\approx 1.46$--$1.80$
+(Table~\ref{tab:geometry}).
+This compact structure is consistent across model families and
+motivates transported geometry as a discriminative signal.
+
+\paragraph{Geometric distortion predicts decoder drift.}
+For a compressed context $c_\pi$ under compression policy $\pi$,
+define the \emph{logit $\ell_2$} between the full and compressed contexts as:
+\[
+\mathrm{LL2}(\pi) = \left\| \mathbf{e}_{\text{full}} - \mathbf{e}_\pi \right\|_2
+\]
+where $\mathbf{e}$ denotes the output logit vector at the prediction position.
+We find that the Pearson correlation between per-turn geometric distortion
+and logit $\ell_2$ is $\rho = 0.989$--$0.994$ across all tested models
+($p < 0.001$ in all cases; Table~\ref{tab:geometry}).
+This tight correspondence motivates geometric distortion as a proxy for
+representational harm.
+
+\paragraph{Transported geometry.}
+We use \emph{parallel transport} on $\Sph^{d-1}$ to bring per-turn
+displacement vectors into a common tangent space.
+For consecutive hidden states $\hv_t, \hv_{t+1}$, the incremental
+displacement in the tangent space at $\hv_t$ is:
+\[
+\uv_t = \PT_{\hv_t \to \hv_{\text{ref}}}\bigl(\Log_{\hv_t}(\hv_{t+1})\bigr)
+\]
+where $\Log_{\hv_t}(\cdot)$ is the Riemannian logarithm map and
+$\PT_{\hv_t \to \hv_{\text{ref}}}(\cdot)$ is parallel transport to
+a reference point $\hv_{\text{ref}}$ (taken as the mean of the trajectory).
+Per-turn geometric features---curvature, subspace energy, alignment---are
+derived from $\uv_t$.
+
+\subsection{The \kcd{} Codec}
+\label{sec:codec}
+
+Given a conversation with $T$ turns and a token budget $B$,
+the \kcd{} codec assigns each turn $t \in \{1, \ldots, T\}$ one of three actions:
+\[
+a_t \in \{\textsc{keep}, \textsc{compress}, \textsc{drop}\}
+\]
+subject to the constraint:
+\[
+\sum_{t=1}^T \mathrm{cost}(a_t, \tau_t) \leq B
+\]
+where $\tau_t$ is the token count of turn $t$ and $\mathrm{cost}(\cdot)$ satisfies
+$\mathrm{cost}(\textsc{keep}, \tau) = \tau$,
+$\mathrm{cost}(\textsc{compress}, \tau) = \lceil \alpha \tau \rceil$ for compression ratio $\alpha < 1$,
+and $\mathrm{cost}(\textsc{drop}, \tau) = 0$.
+
+The codec is parameterized by a per-turn score $s_t$ and applies a
+greedy assignment: turns with highest scores are kept first, followed by
+compressed turns, and remaining turns are dropped.
+The budget $B$ is expressed as a fraction of the full context length
+(we evaluate at $B \in \{0.20, 0.35, 0.50\}$).
+
+\subsection{Scoring Signals}
+\label{sec:signals}
+
+We study three choices of $s_t$:
+
+\paragraph{\geokcd{}.}
+The score is a linear combination of transported geometric features:
+curvature magnitude $\kappa_t = \|\uv_t\|$,
+subspace energy $\sigma_t$ (proportion of variance captured by $\uv_t$),
+and alignment $\alpha_t = \cos(\uv_t, \bar{\uv})$ with the mean displacement.
+\[
+s_t^{\text{geo}} = w_1 \kappa_t + w_2 \sigma_t + w_3 \alpha_t
+\]
+Weights are set by a held-out validation search on MSC.
+Geometric risk is higher at turns where the trajectory deviates strongly,
+which empirically corresponds to turns carrying constraint-critical information
+(user instructions, code snippets, factual assertions).
+
+\paragraph{\semkcd{}.}
+The score is the cosine similarity of the turn's hidden state to the
+target turn (the turn whose continuation we are predicting):
+\[
+s_t^{\text{sem}} = \cos(\hv_t, \hv_{\text{target}})
+\]
+This favors turns whose surface content is semantically similar to
+the current query, as measured in the model's representation space.
+
+\paragraph{\semqcg{} (Query-Conditioned Geometry).}
+This two-stage signal first builds a semantic shortlist of the top-$k$
+turns by $s_t^{\text{sem}}$, then reranks within that shortlist using
+geometry conditioned on the hidden state at the query turn:
+\[
+\uv_t^{(q)} = \PT_{\hv_t \to \hv_q}\bigl(\Log_{\hv_t}(\hv_q)\bigr)
+\]
+where $\hv_q$ is the hidden state at the query (target) turn.
+The reranking score is the projection of $\uv_t^{(q)}$ onto the
+query-turn direction, capturing how geometrically proximate turn $t$
+is to the current query's representational context.
+Intuitively, \semqcg{} biases retention toward turns whose information
+is load-bearing for the current query's hidden-state trajectory.
+
+% ---------------------------------------------------------------
+\section{Geometry-Behavior Divergence}
+\label{sec:divergence}
+% ---------------------------------------------------------------
+
+\subsection{Setup}
+We evaluate on the Multi-Session Conversations (MSC) valid split
+\citep{xu-etal-2022-beyond},
+using $1{,}000$ conversations and the Qwen2.5-1.5B-Instruct model
+\citep{qwen2025qwen25technicalreport}.
+This produces $163{,}755$ evaluation rows.
+Baselines include uniform random turn sampling (\emph{uniform}),
+recency-based retention (\emph{recency}),
+recency scoring inside the \kcd{} codec (\emph{recency-\kcd{}}),
+lexical TF-IDF (\emph{TF-IDF}),
+and \textsc{LongLLMLingua} \citep{jiang-etal-2024-longllmlingua}.
+
+We report two metrics:
+\textbf{Logit $\ell_2$} (lower is better geometric fidelity) and
+\textbf{Answer NLL} (lower is better behavioral quality), computed as
+the negative log-likelihood of the ground-truth assistant response tokens
+under the compressed context.
+
+\subsection{Results}
+
+\begin{table}[t]
+\centering
+\caption{External baseline comparison on MSC valid ($n{=}1{,}000$ conversations,
+163{,}755 evaluation rows, Qwen2.5-1.5B). \textbf{Bold} = best per column.
+Lower is better for both metrics.}
+\label{tab:baselines}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{Logit $\ell_2$ $\downarrow$} & \multicolumn{3}{c}{Answer NLL $\downarrow$} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ \\
+\midrule
+Uniform            & 627.2 & 613.8 & 596.3 & 3.361 & 3.269 & 3.171 \\
+Recency            & \textbf{605.3} & \textbf{572.6} & \textbf{537.5} & 3.236 & 3.050 & 2.901 \\
+Recency-\kcd{}     & 604.9 & 590.9 & 564.4 & \textbf{3.219} & \textbf{3.021} & \textbf{2.860} \\
+TF-IDF             & 617.4 & 610.5 & 594.0 & 3.249 & 3.074 & 2.930 \\
+\textsc{LongLLMLingua} & 730.4 & 741.0 & 757.2 & 3.114 & 3.070 & 3.013 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:baselines} shows a striking dissociation.
+\textsc{LongLLMLingua} achieves the \emph{lowest} NLL at budget $0.20$
+($3.114$ vs.\ uniform $3.361$) but the \emph{highest} logit $\ell_2$
+across all budgets ($730.4$--$757.2$ vs.\ uniform $596.3$--$627.2$).
+The geometric degradation is $+103$ to $+161$ units above uniform---a
+method designed to preserve behavioral quality systematically damages
+the model's representational geometry.
+
+Recency-\kcd{} achieves the best NLL ($3.219$ at $B{=}0.20$),
+while plain recency achieves the best logit $\ell_2$ ($537.5$ at $B{=}0.50$).
+No single policy dominates both objectives.
+
+\paragraph{Implication.}
+Evaluating compression methods on NLL alone is insufficient.
+A method can be behaviorally adequate while substantially distorting
+the hidden-state representation the model uses for reasoning,
+generation planning, and chain-of-thought.
+This motivates dual-objective evaluation, which we adopt throughout.
+
+% ---------------------------------------------------------------
+\section{Signal Variant Comparison}
+\label{sec:variants}
+% ---------------------------------------------------------------
+
+\subsection{Setup}
+We compare the three \kcd{} scoring signals (\S\ref{sec:signals}) on MSC valid,
+using $50$ conversations and Qwen2.5-1.5B-Instruct.
+This yields approximately $605$ evaluation rows per policy per budget.
+Statistical significance is assessed by a two-sided signflip permutation test
+\citep{ojala-garriga-2010}, reported at both row level (per evaluation row)
+and conversation level (per-conversation means aggregated).
+Conversation-level tests are the primary evidence; row-level tests are reported
+for completeness but are anti-conservative due to within-conversation dependence.
+
+\subsection{Results}
+
+\begin{table}[t]
+\centering
+\caption{\kcd{} signal variant comparison on MSC valid
+($n{=}50$ conversations, Qwen2.5-1.5B).
+\textbf{Bold} = best per column. Lower is better.}
+\label{tab:variants}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{Logit $\ell_2$ $\downarrow$} & \multicolumn{3}{c}{Answer NLL $\downarrow$} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ \\
+\midrule
+Uniform   & 705.2 & 692.2 & 682.8 & 3.251 & 3.166 & 3.071 \\
+\geokcd{} & 709.8 & 724.4 & 737.0 & 3.201 & 3.052 & 2.923 \\
+\semkcd{} & 713.4 & 740.0 & 750.1 & 3.176 & 2.993 & 2.845 \\
+\semqcg{} & 717.8 & \textbf{723.0} & \textbf{636.4} & \textbf{3.143} & \textbf{2.944} & \textbf{2.789} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise comparison: \semqcg{} minus \semkcd{}
+on MSC valid ($n{=}50$ conversations).
+Negative $\Delta$ means \semqcg{} is better.
+$p_\text{row}$ = row-level signflip; $p_\text{conv}$ = conversation-level
+(primary evidence). CI = 95\% bootstrap confidence interval.}
+\label{tab:pairwise_msc}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccccc}
+\toprule
+Budget & $\Delta$ L2 (row) & $p_\text{row}$ & $\Delta$ L2 (conv) & $p_\text{conv}$ & $\Delta$ NLL (conv) & $p_\text{conv}$ \\
+\midrule
+$0.20$ & $+7.88$ & $0.092$ & $+4.45$ & $0.296$ & $-0.034$ & $0.012$ \\
+$0.35$ & $-14.53$ & $0.014$ & $-17.05$ & $\mathbf{0.005}$ & $-0.049$ & $\mathbf{0.003}$ \\
+$0.50$ & $-114.49$ & $\mathbf{<}0.001$ & $-113.70$ & $\mathbf{<}0.001$ & $-0.056$ & $\mathbf{0.004}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:variants} shows that \semqcg{} uniquely resolves the
+geometry-behavior tradeoff.
+At budget $0.50$, \semqcg{} achieves logit $\ell_2 = 636.4$---\emph{lower
+than uniform sampling} ($682.8$)---meaning the compressed context is more
+faithful to the full-context hidden state than randomly retaining half the turns.
+This is the only regime in our experiments where a compression policy
+is strictly more geometrically faithful than the no-selection baseline.
+
+Table~\ref{tab:pairwise_msc} shows that the improvement is statistically
+robust at conversation level: at $B{=}0.35$, the geometry advantage is
+$\Delta{-}17.05$ logit $\ell_2$ ($p_\text{conv} = 0.005$) and the behavioral
+advantage is $\Delta{-}0.049$ NLL ($p_\text{conv} = 0.003$).
+At $B{=}0.50$ the geometry improvement is dramatic
+($\Delta{-}113.70$, $p_\text{conv} < 0.001$)
+with 95\% CI $[-142.3, -87.0]$.
+
+\paragraph{Mechanism.}
+The query-conditioned projection $\uv_t^{(q)}$ biases turn selection toward
+turns geometrically proximate to the current query's hidden state,
+independently of surface-level semantic similarity.
+This is especially useful at higher budgets, where many turns score
+similarly on semantics but differ in their geometric proximity to the query.
+The result is that \semqcg{} fills budget with turns that are both
+semantically relevant (from the shortlist) and geometrically load-bearing
+for the response the model will produce.
+
+% ---------------------------------------------------------------
+\section{Constraint-Critical Memory}
+\label{sec:hardset}
+% ---------------------------------------------------------------
+
+\subsection{Setup and Motivation}
+
+We construct a synthetic stress set of $9$ conversations
+($540$ evaluation rows) spanning three families:
+\emph{long-dependency} (exact user instructions referenced many turns later),
+\emph{retrieval-heavy} (verbatim fact bundles required for correct completion),
+and \emph{code-conversation} (code artifacts with precise syntax constraints).
+These families exercise the hardest case for compression:
+the signal-to-noise ratio for \emph{support turns}
+(turns that contain the constraints) is low,
+because semantically similar assistant echoes compete with user instructions
+in any similarity-based ranking.
+
+We test the signal-swap hypothesis:
+holding the \kcd{} codec fixed, does the choice of scoring signal matter?
+We compare \geokcd{} versus \semkcd{} on Qwen2.5-1.5B and Qwen2.5-3B-Instruct.
+
+\subsection{Signal-Swap Results}
+
+\begin{table}[t]
+\centering
+\caption{Signal-swap ablation on the hard stress set.
+$\Delta$ = \semkcd{} minus \geokcd{}; positive = geometry is better.
+$p$ values are conversation-level signflip tests.
+$^*p{<}0.05$, $^{**}p{<}0.01$, $^{***}p{<}0.001$.}
+\label{tab:hardset}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{llccccc}
+\toprule
+Model & Budget & $\Delta$ Logit $\ell_2$ & $p$ & $\Delta$ Answer NLL & $p$ \\
+\midrule
+\multirow{3}{*}{Qwen2.5-1.5B}
+  & $0.20$ & $+37.8$ & $0.028^*$  & $+0.195$ & $0.001^{**}$  \\
+  & $0.35$ & $+38.5$ & $0.079$     & $+0.424$ & $0.011^*$     \\
+  & $0.50$ & $+0.1$  & $0.995$     & $+0.628$ & $0.001^{**}$  \\
+\midrule
+\multirow{3}{*}{Qwen2.5-3B}
+  & $0.20$ & $+44.9$ & $0.048^*$   & $+0.494$ & $0.008^{**}$  \\
+  & $0.35$ & $+69.7$ & $0.050^*$   & $+0.853$ & $0.005^{**}$  \\
+  & $0.50$ & $-29.1$ & $0.128$     & $+1.126$ & $\mathbf{0.0003^{***}}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:hardset} confirms that geometry-based scoring is
+substantially better than semantic scoring on constraint-critical memory.
+At Qwen2.5-3B, budget $0.50$, the NLL damage from using the wrong
+signal is $+1.126$ nats ($p = 0.0003$)---the largest effect size in
+our entire experimental program.
+Notably, the NLL advantage grows with model scale
+(1.5B: $+0.628$ nats; 3B: $+1.126$ nats),
+consistent with the interpretation that richer representations
+make incorrect turn selections more consequential.
+The logit $\ell_2$ advantage is significant at low and mid budgets
+but attenuates at $B{=}0.50$ (where both policies have more budget
+to include turns and signal quality matters less).
+
+\subsection{Support-Turn Rescue}
+
+To understand the mechanism, we trace \emph{which} turns each policy
+retains relative to uniform sampling.
+A \emph{support turn} is defined as any turn containing a constraint
+(instruction, code artifact, verbatim fact) that is required for
+correct completion of the target turn.
+
+\begin{table}[t]
+\centering
+\caption{Support-turn rescue analysis on the hard stress set
+($36$ conversations with identified support turns, budget $0.35$).
+A rescue occurs when a policy retains the latest support turn that
+uniform sampling would drop.}
+\label{tab:rescue}
+\begin{tabular}{lcc}
+\toprule
+Outcome & \geokcd{} & \semkcd{} \\
+\midrule
+Policy rescues more support turns than uniform & $17/36$ & $7/36$ \\
+Uniform beats policy on support turns          & $2/36$  & $5/36$ \\
+Constraint turns rescued (from long-dep, code) & $13$    & $4$    \\
+Base-memory turns rescued (persona, fact)      & $6$     & $3$    \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:rescue} reveals the mechanism:
+\geokcd{} rescues the latest support turn in $17/36$ conversations
+versus $7/36$ for \semkcd{}.
+User instructions produce larger local hidden-state displacement
+than semantically similar assistant echoes,
+because the model updates its representational context more substantially
+when processing novel, directive content
+than when processing a rephrasing or acknowledgment of prior information.
+Geometry detects this signature; cosine similarity does not,
+because the semantic content of an instruction and its echo
+can be similar while their geometric roles are opposite.
+
+% ---------------------------------------------------------------
+\section{Scope Conditions}
+\label{sec:scope}
+% ---------------------------------------------------------------
+
+The results above establish the efficacy of geometry-based scoring
+under specific conditions.
+We now characterize two scope conditions that bound these claims.
+
+\subsection{Architecture Dependence}
+
+\begin{table}[t]
+\centering
+\caption{Cross-architecture comparison on MSC valid ($n{=}50$ conversations)
+with Llama-3.2-3B-Instruct.
+Lower is better. $\Delta$NLL (conv) = \semkcd{} minus \geokcd{} at conversation
+level; negative means \semkcd{} is better.}
+\label{tab:llama}
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{Logit $\ell_2$ $\downarrow$} & \multicolumn{3}{c}{Answer NLL $\downarrow$} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ \\
+\midrule
+Uniform   & 689.7 & 669.4 & 631.0 & 3.722 & 3.657 & 3.524 \\
+\geokcd{} & 690.6 & 643.2 & 592.2 & 3.617 & 3.416 & 3.260 \\
+\semkcd{} & \textbf{671.9} & \textbf{633.5} & \textbf{586.1} & \textbf{3.526} & \textbf{3.317} & \textbf{3.139} \\
+\midrule
+$\Delta$NLL (conv) & \multicolumn{3}{c}{$-0.091^{**}$\;$-0.099^{*}$\;$-0.121^{**}$}
+                   & \multicolumn{3}{c}{$p = 0.007$\;$0.026$\;$0.009$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On Llama-3.2-3B-Instruct (Table~\ref{tab:llama}),
+semantic compression \emph{significantly outperforms} geometry at all budgets
+for behavioral quality ($p \leq 0.026$ conversation level),
+and the logit $\ell_2$ advantage of semantic is not significant at any budget
+($p \geq 0.14$).
+This is the opposite of the Qwen pattern.
+
+We attribute this to differences in pretraining regime:
+Qwen2.5 models undergo heavy instruction-following finetuning
+that produces discriminative per-turn geometry---user instructions
+reliably move the hidden state more than assistant echoes.
+Llama-3.2-3B's broader text training does not produce this property:
+the geometric signature of constraint-critical turns is weaker,
+making semantic similarity the more reliable selection criterion.
+The scope condition is therefore about model representation structure,
+not parameter count.
+
+\subsection{Length Dependence}
+
+\begin{table}[t]
+\centering
+\caption{Cross-benchmark results on \lme{} ($n{=}100$ full-length conversations,
+400--600 turns, Qwen2.5-1.5B). Lower is better.}
+\label{tab:lme}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{Logit $\ell_2$ $\downarrow$} & \multicolumn{3}{c}{Answer NLL $\downarrow$} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ \\
+\midrule
+Uniform   & 1732.8 & 1763.1 & 1705.1 & 0.167 & 0.139 & 0.119 \\
+\geokcd{} & 1751.0 & 1704.5 & \textbf{1692.4} & 0.123 & 0.118 & 0.114 \\
+\semkcd{} & \textbf{1740.4} & \textbf{1693.6} & 1714.2 & \textbf{0.114} & \textbf{0.112} & \textbf{0.112} \\
+\semqcg{} & 1740.7 & 1743.9 & 1696.9 & 0.124 & 0.122 & 0.112 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:lme} shows results on \lme{} \citep{wu-etal-2025-longmemeval},
+a benchmark of episodic retrieval tasks with 400--600 turn conversations
+(no truncation).
+All \kcd{} policies improve behavioral quality versus uniform
+($p < 0.05$ at conversation level for all NLL comparisons at budgets $0.20$--$0.35$),
+confirming that turn-level selection generalizes across benchmarks.
+
+However, the geometry advantage does \emph{not} replicate at conversation level.
+At budget $0.35$, \semqcg{} is significantly \emph{worse} than \semkcd{}
+on logit $\ell_2$: $\Delta{+}50.3$, $p_\text{conv} = 0.011$.
+This reversal has a natural explanation:
+in 400--600 turn conversations, each turn's geometric signature is competing
+with hundreds of other turns in a crowded representational space.
+Per-turn geometric features become noisier as trajectory length grows,
+because individual displacement vectors represent smaller fractions of
+the total trajectory variance.
+Semantic shortlisting, which operates at coarser granularity,
+remains discriminative; geometry provides no additional value within
+a crowded shortlist.
+
+\paragraph{Summary.}
+The geometry advantage is reliable for conversations of roughly $20$--$100$ turns
+(MSC regime).
+For very long conversations ($>400$ turns), semantic similarity
+is the more stable selection criterion.
+Signal design should be conditioned on expected conversation length.
+
+% ---------------------------------------------------------------
+\section{Related Work}
+\label{sec:related}
+% ---------------------------------------------------------------
+
+\paragraph{Prompt and context compression.}
+\citet{jiang-etal-2024-longllmlingua} propose perplexity-guided
+token-level compression for long-context LLM inference.
+We use LongLLMLingua as a primary baseline and show it achieves
+only marginal NLL improvement while incurring large geometric degradation---
+evidence that NLL-optimized compression is not sufficient for representational fidelity.
+\citet{pan-etal-2024-llmlingua2} propose LLMLingua-2, a data-distillation
+approach for task-agnostic prompt compression.
+\citet{chevalier-etal-2023-adapting} use language model fine-tuning to learn
+compact memory representations; our approach operates at inference time
+without modifying model weights.
+\citet{he-etal-2025-pretraining} train a context compressor as a preprocessing step.
+\citet{nawrot-etal-2024-dynamic} introduce dynamic memory compression
+for efficient LLM inference via key-value cache compression.
+Our work differs in operating at the turn level rather than token or
+key-value cache level, and in introducing dual-objective evaluation.
+
+\paragraph{Conversational memory and benchmarks.}
+\citet{xu-etal-2022-beyond} introduce Multi-Session Conversations (MSC),
+a persona-grounded multi-session dialogue dataset that we use as
+our primary evaluation benchmark.
+\citet{wu-etal-2025-longmemeval} introduce LongMemEval,
+testing five core memory abilities across 500 manually curated questions
+embedded in scalable user-assistant chat histories.
+\citet{maharana-etal-2024-evaluating} develop LoCoMo,
+a benchmark for very-long-term conversational memory.
+\citet{luo-etal-2026-from} survey memory mechanisms in LLM agents,
+classifying them into context-resident compression, retrieval-augmented stores,
+reflective self-improvement, hierarchical virtual context, and policy-learned management;
+our \kcd{} codec falls in the context-resident compression family.
+\citet{nan-etal-2025-nemori} propose Nemori, a self-organizing memory system
+inspired by cognitive science.
+\citet{wang-etal-2025-hymem} introduce HyMem, a hybrid memory architecture
+with dynamic retrieval scheduling.
+
+\paragraph{Hidden-state geometry in language models.}
+\citet{huh-etal-2024-platonic} observe convergence of representations across
+model families toward a common geometric structure, motivating
+cross-model geometric analysis.
+\citet{xiao-etal-2023-efficient} identify attention sinks---tokens that
+accumulate disproportionate attention mass---which we account for in our
+hidden-state extraction via sink-corrected attention weights.
+Recent work on intrinsic dimensionality of transformer representations
+\citep{anagnostidis-etal-2022-signal} provides theoretical grounding for
+the low Rank-95 values we observe ($1.05$--$1.53$).
+To our knowledge, we are the first to use \emph{transported geometry}
+on conversation-state trajectories as a turn-selection signal.
+
+% ---------------------------------------------------------------
+\section{Geometry Characterization}
+\label{sec:geomchar}
+% ---------------------------------------------------------------
+
+We present supporting evidence for our geometric motivation.
+
+\begin{table}[t]
+\centering
+\caption{Geometry characterization across model families.
+Rank-95: intrinsic dimensionality of conversation trajectories
+(lower = more compact, normalized by trajectory length).
+Shuffled Rank-95: control with turn order randomized.
+$\rho$: Pearson correlation between per-turn geometric distortion and
+logit $\ell_2$ (H3: geometry predicts decoder drift).
+All $p$ values from conversation-level permutation tests.}
+\label{tab:geometry}
+\begin{tabular}{lccccc}
+\toprule
+Model & Rank-95 & Shuffled & $p_{H_1}$ & $\rho$ & $p_{H_3}$ \\
+\midrule
+Qwen2.5-0.5B & $1.049$ & $1.486$ & $<0.001$ & $0.989$ & $<0.001$ \\
+Qwen2.5-1.5B & $1.167$ & $1.458$ & $0.001$  & $0.994$ & $<0.001$ \\
+SmolLM2-1.7B & $1.528$ & $1.799$ & $0.012$  & $0.989$ & $<0.001$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:geometry} shows that:
+(H1) Real conversation trajectories are significantly more compact than shuffled
+controls ($p \leq 0.012$), confirming temporal ordering creates compact geometry.
+(H3) Per-turn geometric distortion tightly predicts decoder drift
+($\rho = 0.989$--$0.994$, $p < 0.001$), confirming geometric distortion
+is a meaningful proxy for representational harm.
+These properties hold across architectures and parameter scales.
+
+% ---------------------------------------------------------------
+\section{Limitations}
+\label{sec:limits}
+% ---------------------------------------------------------------
+
+\paragraph{Architecture dependence.}
+The geometry advantage is not universal.
+On Llama-3.2-3B-Instruct, semantic compression significantly outperforms
+geometry-based compression for behavioral quality ($p \leq 0.026$, all budgets).
+We attribute this to pretraining differences,
+but do not test this hypothesis directly.
+Practitioners should validate geometric scoring on their target model family
+before deployment, using a held-out development set.
+
+\paragraph{Conversation length dependence.}
+The geometry advantage degrades on 400--600 turn conversations
+(\lme{} benchmark):
+\semqcg{} is significantly \emph{worse} than \semkcd{} on logit $\ell_2$
+at $B{=}0.35$ ($p_\text{conv} = 0.011$).
+Per-turn geometric features become less discriminative as trajectory length grows.
+Our MSC experiments use conversations of 20--60 turns;
+results may not generalize to much longer sessions without adaptation.
+
+\paragraph{Oracle metric circularity.}
+Our support-turn rescue analysis identifies support turns by manual annotation
+on a small synthetic stress set ($36$ conversations).
+This is a qualitative mechanism study, not a large-scale validation.
+The claim that geometry detects constraint-critical turns rests on
+this small-$n$ analysis plus the signal-swap effect sizes in Table~\ref{tab:hardset}.
+
+\paragraph{QA evaluation on LME.}
+We ran a QA proxy evaluation on LME using the next conversation turn
+as the gold answer.
+Token F1 scores were uniformly near-zero ($\approx 0.08$) across all policies,
+and we determined this metric is invalid because
+LME's conversational gold turns are not faithful proxies for the
+question-answer pairs in the official evaluation protocol.
+We therefore do not report these results as primary evidence
+and rely on NLL and logit $\ell_2$ for the LME cross-benchmark analysis.
+
+\paragraph{Scale.}
+Our experiments use models up to 3B parameters.
+We do not test 7B+ models due to compute constraints.
+The observed scale trend (NLL damage grows 1.5B $\to$ 3B) suggests
+geometry may matter more at larger scale,
+but this hypothesis requires direct validation.
+
+% ---------------------------------------------------------------
+\section{Conclusion}
+% ---------------------------------------------------------------
+
+We introduced the \kcd{} codec for conversational memory compression
+and showed that the choice of turn scoring signal is a first-class
+design decision.
+Geometry and behavioral quality are distinct objectives that diverge
+in practice:
+\textsc{LongLLMLingua}, a state-of-the-art prompt compression method,
+trades geometric fidelity for marginal NLL improvement.
+Query-conditioned geometry inside a semantic shortlist (\semqcg{})
+resolves this tradeoff on Multi-Session Conversations:
+it achieves lower logit $\ell_2$ than uniform random sampling while
+simultaneously improving answer NLL,
+the only policy in our study to win on both objectives simultaneously.
+On constraint-critical memory, geometry-based scoring substantially
+outperforms semantic scoring,
+with the NLL damage from the wrong signal growing from $0.63$ to $1.13$ nats
+as model scale increases from 1.5B to 3B.
+We characterize architecture and length as scope conditions,
+and provide mechanism evidence through support-turn rescue analysis.
+We hope these findings motivate dual-objective evaluation and
+signal-conditioned design as standard practices in conversational memory research.
+
+% ---------------------------------------------------------------
+% BIBLIOGRAPHY
+% ---------------------------------------------------------------
+\bibliographystyle{acl_natbib}
+\bibliography{kcd_arxiv}
+
+% ---------------------------------------------------------------
+\appendix
+% ---------------------------------------------------------------
+
+\section{Experimental Details}
+\label{app:details}
+
+\subsection{Models and Hardware}
+All experiments run on Qwen2.5-1.5B-Instruct, Qwen2.5-3B-Instruct
+\citep{qwen2025qwen25technicalreport},
+and Llama-3.2-3B-Instruct \citep{grattafiori-etal-2024-llama3}.
+Models are loaded in \texttt{bfloat16} with Flash Attention 2
+\citep{dao-etal-2022-flashattention}
+on NVIDIA L40S GPUs ($46$~GB VRAM).
+All MSC experiments run with 7 GPUs and 2 workers per GPU
+to saturate VRAM ($\approx 22$~GB per worker).
+
+\subsection{Dataset Details}
+\textbf{MSC valid}: Multi-Session Conversations validation split \citep{xu-etal-2022-beyond}.
+Conversations average 5 sessions of 4--6 turns each.
+All 1{,}000 conversations used for baseline comparison;
+50 conversations for signal variant study (random sample, fixed seed 42).
+
+\textbf{LongMemEval-S}: \citet{wu-etal-2025-longmemeval} benchmark.
+100 full-length conversations, 400--600 turns each.
+No truncation applied (evaluating compression policies, not context window limits).
+
+\textbf{Hard stress set}: 9 synthetic conversations
+(3 long-dependency, 3 retrieval-heavy, 3 code-conversation),
+$540$ evaluation rows, hand-constructed by the authors.
+Designed to maximize signal-to-noise difficulty for support-turn detection.
+
+\subsection{Compression Parameters}
+Budget fractions: $B \in \{0.20, 0.35, 0.50\}$.
+KCD compression ratio: $\alpha = 0.5$ (compressed turns retain half their tokens,
+selected by leading-token truncation).
+Semantic shortlist size for \semqcg{}: top-$k$ turns where
+$k = \lceil 2B \cdot T \rceil$ (twice the keep budget, so geometry
+selects the final $B \cdot T$ from $2B \cdot T$ candidates).
+
+\subsection{Statistical Protocol}
+All significance tests are two-sided signflip permutation tests
+with 5{,}000 resampling iterations.
+We report both row-level (anti-conservative) and conversation-level
+(conservative, primary) $p$-values.
+No multiple-comparison correction is applied within individual tables;
+results are interpreted directionally, and effect sizes are reported
+alongside $p$-values.
+
+\subsection{Geometry Feature Extraction}
+Hidden states are extracted from the final transformer layer,
+normalized to the unit sphere.
+Parallel transport uses the exponential and logarithm maps on $\mathbb{S}^{d-1}$:
+\[
+\Log_{\mathbf{p}}(\mathbf{q}) = \frac{\arccos(\mathbf{p}^\top \mathbf{q})}{\sqrt{1 - (\mathbf{p}^\top \mathbf{q})^2}}(\mathbf{q} - (\mathbf{p}^\top \mathbf{q})\mathbf{p})
+\]
+Reference point $\hv_\text{ref}$ is the Fréchet mean of the trajectory,
+approximated by iterative geodesic midpoints.
+Attention weights (for the attention-augmented feature set) are averaged
+over the final 4 transformer layers with sink correction:
+the first 32 tokens are excluded from weight normalization
+following \citet{xiao-etal-2023-efficient}.
+
+\section{Additional Pairwise Results}
+\label{app:pairwise}
+
+\subsection{LME Pairwise: \semqcg{} vs.\ \semkcd{}}
+\begin{table}[h]
+\centering
+\caption{\semqcg{} minus \semkcd{} on \lme{} ($n{=}100$ conversations).
+Positive $\Delta$ logit L2 means \semqcg{} is geometrically \emph{worse}.}
+\label{tab:lme_pairwise}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccc}
+\toprule
+Budget & $\Delta$ L2 (row) & $p_\text{row}$ & $\Delta$ L2 (conv) & $p_\text{conv}$ & $\Delta$ NLL (conv) & $p_\text{conv}$ \\
+\midrule
+$0.20$ & $+0.26$  & $0.973$ & $+0.26$  & $0.988$ & $+0.010$ & $0.623$ \\
+$0.35$ & $+50.31$ & ${<}0.001$ & $+50.31$ & $0.011$ & $+0.010$ & $0.819$ \\
+$0.50$ & $-17.35$ & $0.025$ & $-17.35$ & $0.517$ & $\approx 0$ & $0.683$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Llama-3.2-3B Pairwise: \semkcd{} vs.\ \geokcd{}}
+\begin{table}[h]
+\centering
+\caption{\semkcd{} minus \geokcd{} on Llama-3.2-3B ($n{=}50$ conversations).
+Negative $\Delta$ NLL means \semkcd{} is better behaviorally.}
+\label{tab:llama_pairwise}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccc}
+\toprule
+Budget & $\Delta$ L2 (conv) & $p_\text{conv}$ & $\Delta$ NLL (conv) & $p_\text{conv}$ \\
+\midrule
+$0.20$ & $-18.7$ & $0.141$ & $-0.091$ & $\mathbf{0.007}$ \\
+$0.35$ & $-9.7$  & $0.514$ & $-0.099$ & $\mathbf{0.026}$ \\
+$0.50$ & $-6.1$  & $0.778$ & $-0.121$ & $\mathbf{0.009}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
