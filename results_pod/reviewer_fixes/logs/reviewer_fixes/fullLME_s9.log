@@ -1,0 +1,404 @@
+[study] Starting Paper 3 study 'reviewer_fixes_lme_shard9of21' in results/reviewer_fixes/fullLME/reviewer_fixes_lme_shard9of21
+[study] Models=qwen25_15b budgets=0.20,0.35,0.50 policies=uniform,semantic,geometry,geometry_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop
+[study] Running model qwen25_15b...
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/RT/paper3_codec/study.py", line 437, in <module>
+    main()
+  File "/workspace/RT/paper3_codec/study.py", line 330, in main
+    result = run_codec_pilot(
+             ^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper3_codec/run_paper3.py", line 708, in run_codec_pilot
+    conversations = _select_conversations(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper3_codec/run_paper3.py", line 141, in _select_conversations
+    raise RuntimeError(
+RuntimeError: Conversation ID manifest references missing conversations: gpt4_e061b84g, 9aaed6a3, 9a707b81, 2133c1b5, gpt4_4ef30696, f35224e0, 81507db6, 25e5aa4f, 18dcd5a5, 6222b6eb...
+[study] Starting Paper 3 study 'reviewer_fixes_lme_shard9of21' in results/reviewer_fixes/fullLME/reviewer_fixes_lme_shard9of21
+[study] Models=qwen25_15b budgets=0.20,0.35,0.50 policies=uniform,semantic,geometry,geometry_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop
+[study] Running model qwen25_15b...
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/RT/paper3_codec/study.py", line 437, in <module>
+    main()
+  File "/workspace/RT/paper3_codec/study.py", line 330, in main
+    result = run_codec_pilot(
+             ^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper3_codec/run_paper3.py", line 708, in run_codec_pilot
+    conversations = _select_conversations(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper3_codec/run_paper3.py", line 141, in _select_conversations
+    raise RuntimeError(
+RuntimeError: Conversation ID manifest references missing conversations: gpt4_e061b84g, 9aaed6a3, 9a707b81, 2133c1b5, gpt4_4ef30696, f35224e0, 81507db6, 25e5aa4f, 18dcd5a5, 6222b6eb...
+[study] Starting Paper 3 study 'reviewer_fixes_lme_shard9of21' in results/reviewer_fixes/fullLME/reviewer_fixes_lme_shard9of21
+[study] Models=qwen25_15b budgets=0.20,0.35,0.50 policies=uniform,semantic,geometry,geometry_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop
+[study] Running model qwen25_15b...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 7856.90it/s]
+[qwen25_15b] Starting Paper 3 run with 24 conversations, 480 target turns, 5 policies, 3 budgets (~7200 policy evaluations).
+[qwen25_15b] Model=Qwen/Qwen2.5-1.5B-Instruct device=cuda max_input_tokens=1024 segment_span=2 target_turn_stride=4 max_target_turns=20 max_turns_per_conversation=None skip_conversations=0 conversation_ids_path=results/reviewer_fixes/shard_plans/reviewer_fixes/fullLME/shard_9_ids.txt
+qwen25_15b conversations:   0%|          | 0/24 [00:00<?, ?it/s][qwen25_15b] starting conversation 1/24 id=gpt4_e061b84g turns=568 sampled_targets=20
+[extract_conversation] start study qwen25_15b gpt4_e061b84g turns=568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 8/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 16/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 24/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 32/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 40/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 48/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 56/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 64/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 72/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 80/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 88/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 96/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 104/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 112/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 120/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 128/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 136/568
+qwen25_15b conversations:   0%|          | 0/24 [00:59<?, ?it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/RT/paper3_codec/study.py", line 437, in <module>
+    main()
+  File "/workspace/RT/paper3_codec/study.py", line 330, in main
+    result = run_codec_pilot(
+             ^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper3_codec/run_paper3.py", line 849, in run_codec_pilot
+    full_batch = _extract_or_load_conversation_batch(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper3_codec/run_paper3.py", line 274, in _extract_or_load_conversation_batch
+    batch = extractor.extract_conversation(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper1_geometry/modeling.py", line 291, in extract_conversation
+    chunk_scores = self.score_messages_batch(chunk, max_input_tokens=max_input_tokens)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper1_geometry/modeling.py", line 370, in score_messages_batch
+    logits = outputs.logits.detach().to(self.torch.float32).cpu().numpy()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+[study] Starting Paper 3 study 'reviewer_fixes_lme_shard9of21' in results/reviewer_fixes/fullLME/reviewer_fixes_lme_shard9of21
+[study] Models=qwen25_15b budgets=0.20,0.35,0.50 policies=uniform,semantic,geometry,geometry_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop
+[study] Running model qwen25_15b...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 11191.52it/s]
+[qwen25_15b] Starting Paper 3 run with 24 conversations, 480 target turns, 5 policies, 3 budgets (~7200 policy evaluations).
+[qwen25_15b] Model=Qwen/Qwen2.5-1.5B-Instruct device=cuda max_input_tokens=1024 segment_span=2 target_turn_stride=4 max_target_turns=20 max_turns_per_conversation=None skip_conversations=0 conversation_ids_path=results/reviewer_fixes/shard_plans/reviewer_fixes/fullLME/shard_9_ids.txt
+qwen25_15b conversations:   0%|          | 0/24 [00:00<?, ?it/s][qwen25_15b] starting conversation 1/24 id=gpt4_e061b84g turns=568 sampled_targets=20
+[extract_conversation] start study qwen25_15b gpt4_e061b84g turns=568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 8/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 16/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 24/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 32/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 40/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 48/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 56/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 64/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 72/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 80/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 88/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 96/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 104/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 112/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 120/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 128/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 136/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 144/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 152/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 160/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 168/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 176/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 184/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 192/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 200/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 208/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 216/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 224/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 232/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 240/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 248/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 256/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 264/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 272/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 280/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 288/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 296/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 304/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 312/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 320/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 328/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 336/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 344/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 352/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 360/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 368/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 376/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 384/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 392/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 400/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 408/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 416/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 424/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 432/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 440/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 448/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 456/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 464/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 472/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 480/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 488/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 496/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 504/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 512/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 520/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 528/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 536/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 544/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 552/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 560/568
+[extract_conversation] study qwen25_15b gpt4_e061b84g turns 568/568
+[extract_conversation] done study qwen25_15b gpt4_e061b84g
+[extract_cache] stored study qwen25_15b gpt4_e061b84g path=/workspace/RT/results/paper3/extract_cache/Qwen_Qwen2.5-1.5B-Instruct/gpt4_e061b84g_aa054da1a3a0abd7.npz
+qwen25_15b conversations:   0%|          | 0/24 [05:21<?, ?it/s, gpt4_e061b84g turns=568 sampled_targets=20 rows=0]qwen25_15b conversations:   4%|▍         | 1/24 [06:47<2:36:13, 407.53s/it, gpt4_e061b84g turns=568 sampled_targets=20 rows=0][qwen25_15b] starting conversation 2/24 id=9aaed6a3 turns=543 sampled_targets=20
+[extract_conversation] start study qwen25_15b 9aaed6a3 turns=543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 8/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 16/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 24/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 32/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 40/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 48/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 56/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 64/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 72/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 80/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 88/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 96/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 104/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 112/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 120/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 128/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 136/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 144/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 152/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 160/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 168/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 176/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 184/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 192/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 200/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 208/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 216/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 224/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 232/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 240/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 248/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 256/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 264/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 272/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 280/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 288/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 296/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 304/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 312/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 320/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 328/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 336/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 344/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 352/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 360/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 368/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 376/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 384/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 392/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 400/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 408/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 416/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 424/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 432/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 440/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 448/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 456/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 464/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 472/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 480/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 488/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 496/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 504/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 512/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 520/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 528/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 536/543
+[extract_conversation] study qwen25_15b 9aaed6a3 turns 543/543
+[extract_conversation] done study qwen25_15b 9aaed6a3
+[extract_cache] stored study qwen25_15b 9aaed6a3 path=/workspace/RT/results/paper3/extract_cache/Qwen_Qwen2.5-1.5B-Instruct/9aaed6a3_8bcf513eadf645a7.npz
+qwen25_15b conversations:   4%|▍         | 1/24 [12:02<2:36:13, 407.53s/it, 9aaed6a3 turns=543 sampled_targets=20 rows=300]   qwen25_15b conversations:   8%|▊         | 2/24 [13:06<2:23:14, 390.67s/it, 9aaed6a3 turns=543 sampled_targets=20 rows=300][qwen25_15b] starting conversation 3/24 id=9a707b81 turns=532 sampled_targets=20
+[extract_conversation] start study qwen25_15b 9a707b81 turns=532
+[extract_conversation] study qwen25_15b 9a707b81 turns 8/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 16/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 24/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 32/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 40/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 48/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 56/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 64/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 72/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 80/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 88/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 96/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 104/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 112/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 120/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 128/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 136/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 144/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 152/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 160/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 168/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 176/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 184/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 192/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 200/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 208/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 216/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 224/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 232/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 240/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 248/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 256/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 264/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 272/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 280/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 288/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 296/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 304/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 312/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 320/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 328/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 336/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 344/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 352/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 360/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 368/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 376/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 384/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 392/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 400/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 408/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 416/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 424/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 432/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 440/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 448/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 456/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 464/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 472/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 480/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 488/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 496/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 504/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 512/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 520/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 528/532
+[extract_conversation] study qwen25_15b 9a707b81 turns 532/532
+[extract_conversation] done study qwen25_15b 9a707b81
+[extract_cache] stored study qwen25_15b 9a707b81 path=/workspace/RT/results/paper3/extract_cache/Qwen_Qwen2.5-1.5B-Instruct/9a707b81_a5980fd98f4a84fc.npz
+qwen25_15b conversations:   8%|▊         | 2/24 [18:10<2:23:14, 390.67s/it, 9a707b81 turns=532 sampled_targets=20 rows=600]qwen25_15b conversations:  12%|█▎        | 3/24 [19:17<2:13:35, 381.70s/it, 9a707b81 turns=532 sampled_targets=20 rows=600][qwen25_15b] starting conversation 4/24 id=2133c1b5 turns=525 sampled_targets=20
+[extract_conversation] start study qwen25_15b 2133c1b5 turns=525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 8/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 16/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 24/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 32/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 40/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 48/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 56/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 64/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 72/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 80/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 88/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 96/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 104/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 112/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 120/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 128/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 136/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 144/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 152/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 160/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 168/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 176/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 184/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 192/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 200/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 208/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 216/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 224/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 232/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 240/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 248/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 256/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 264/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 272/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 280/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 288/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 296/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 304/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 312/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 320/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 328/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 336/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 344/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 352/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 360/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 368/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 376/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 384/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 392/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 400/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 408/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 416/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 424/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 432/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 440/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 448/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 456/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 464/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 472/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 480/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 488/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 496/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 504/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 512/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 520/525
+[extract_conversation] study qwen25_15b 2133c1b5 turns 525/525
+[extract_conversation] done study qwen25_15b 2133c1b5
+qwen25_15b conversations:  12%|█▎        | 3/24 [23:39<2:45:36, 473.15s/it, 9a707b81 turns=532 sampled_targets=20 rows=600]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/RT/paper3_codec/study.py", line 437, in <module>
+    main()
+  File "/workspace/RT/paper3_codec/study.py", line 330, in main
+    result = run_codec_pilot(
+             ^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper3_codec/run_paper3.py", line 849, in run_codec_pilot
+    full_batch = _extract_or_load_conversation_batch(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper3_codec/run_paper3.py", line 281, in _extract_or_load_conversation_batch
+    _save_trajectory_batch(cache_path, batch)
+  File "/workspace/RT/paper3_codec/run_paper3.py", line 226, in _save_trajectory_batch
+    np.savez_compressed(
+  File "/usr/local/lib/python3.11/dist-packages/numpy/lib/_npyio_impl.py", line 753, in savez_compressed
+    _savez(file, args, kwds, True, allow_pickle=allow_pickle)
+  File "/usr/local/lib/python3.11/dist-packages/numpy/lib/_npyio_impl.py", line 779, in _savez
+    zipf = zipfile_factory(file, mode="w", compression=compression)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/numpy/lib/_npyio_impl.py", line 112, in zipfile_factory
+    return zipfile.ZipFile(file, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/zipfile.py", line 1295, in __init__
+    self.fp = io.open(file, filemode)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 28] No space left on device: '/workspace/RT/results/paper3/extract_cache/Qwen_Qwen2.5-1.5B-Instruct/2133c1b5_260d18cbafcb77fa.npz'

@@ -1,0 +1,14 @@
+{
+  "status": "complete",
+  "updated_at": "2026-06-20T03:43:34",
+  "study_name": "reviewer_fixes_signal_swap_llama32_3b",
+  "completed_models": [
+    "llama32_3b"
+  ],
+  "num_models_total": 1,
+  "num_models_completed": 1,
+  "num_evaluation_rows": 540,
+  "num_behavior_rows": 270,
+  "summary_path": "results/reviewer_fixes/scale_llama32_3b/reviewer_fixes_signal_swap_llama32_3b/study_summary.json",
+  "report_path": "results/reviewer_fixes/scale_llama32_3b/reviewer_fixes_signal_swap_llama32_3b/study_report.md"
+}

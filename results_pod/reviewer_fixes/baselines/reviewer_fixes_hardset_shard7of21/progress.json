@@ -1,0 +1,9 @@
+{
+  "completed_conversation_ids": [
+    "stress_retrieval_medication_case"
+  ],
+  "num_conversations_completed": 1,
+  "status": "complete",
+  "study_name": "reviewer_fixes_hardset_shard7of21",
+  "updated_at": "2026-06-20T02:50:35.659899+00:00"
+}

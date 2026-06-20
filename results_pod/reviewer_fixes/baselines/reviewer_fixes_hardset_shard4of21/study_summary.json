@@ -1,0 +1,37 @@
+{
+  "budgets": [
+    0.2,
+    0.35,
+    0.5
+  ],
+  "conversation_ids_path": "results/reviewer_fixes/shard_plans/reviewer_fixes/baselines_hardset/shard_4_ids.txt",
+  "created_at": "2026-06-20T02:50:22.886728+00:00",
+  "families": [
+    "code_conversation",
+    "long_dependency",
+    "retrieval_heavy"
+  ],
+  "max_target_turns": null,
+  "max_turns_per_conversation": null,
+  "model_keys": [
+    "qwen25_15b"
+  ],
+  "models": {
+    "qwen25_15b": {
+      "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
+      "num_behavior_evaluations": 30,
+      "num_conversations": 1,
+      "num_evaluations": 60
+    }
+  },
+  "policies": [
+    "uniform",
+    "longllmlingua",
+    "recency",
+    "lexical_tfidf",
+    "recency_keep_compress_drop"
+  ],
+  "skip_conversations": 0,
+  "study_name": "reviewer_fixes_hardset_shard4of21",
+  "target_turn_stride": 1
+}

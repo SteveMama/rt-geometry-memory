@@ -1,0 +1,442 @@
+{
+  "study_name": "reviewer_fixes_baselines_msc_merged",
+  "created_at": "2026-06-20T04:22:16",
+  "model_keys": [
+    "qwen25_15b"
+  ],
+  "families": null,
+  "budgets": [
+    0.2,
+    0.35,
+    0.5
+  ],
+  "policies": [
+    "lexical_tfidf",
+    "longllmlingua",
+    "recency",
+    "recency_keep_compress_drop",
+    "uniform"
+  ],
+  "target_turn_stride": 2,
+  "max_target_turns": 16,
+  "max_turns_per_conversation": null,
+  "skip_conversations": 0,
+  "models": {
+    "qwen25_15b": {
+      "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
+      "num_conversations": 1000,
+      "num_evaluations": 163755,
+      "num_behavior_evaluations": 158115,
+      "segment_span": null,
+      "target_turn_stride": 2,
+      "max_target_turns": 16,
+      "max_turns_per_conversation": null,
+      "aggregate": {
+        "lexical_tfidf": {
+          "0.20": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 787.6635407156655,
+            "mean_kl": 6.569450800064272,
+            "mean_top1_agreement": 0.6876431254007511,
+            "mean_token_fraction": 0.5196372145438191,
+            "mean_budget_token_fraction": 0.28145911203658125,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          },
+          "0.35": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 775.6266063226495,
+            "mean_kl": 6.110906140153636,
+            "mean_top1_agreement": 0.6851699184757717,
+            "mean_token_fraction": 0.6338020768047697,
+            "mean_budget_token_fraction": 0.41507806839739303,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          },
+          "0.50": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 751.7066466871435,
+            "mean_kl": 5.550479946807043,
+            "mean_top1_agreement": 0.6868187230924246,
+            "mean_token_fraction": 0.7291110623638749,
+            "mean_budget_token_fraction": 0.5396535735396294,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          }
+        },
+        "longllmlingua": {
+          "0.20": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 893.7363519587337,
+            "mean_kl": 7.163339403017688,
+            "mean_top1_agreement": 0.6881927269396354,
+            "mean_token_fraction": 0.36419279180358155,
+            "mean_budget_token_fraction": 0.19999999999999996,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          },
+          "0.35": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 903.4145977917942,
+            "mean_kl": 7.187922450094373,
+            "mean_top1_agreement": 0.6881927269396354,
+            "mean_token_fraction": 0.46785441598703637,
+            "mean_budget_token_fraction": 0.3500000000000001,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          },
+          "0.50": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 919.1528260015334,
+            "mean_kl": 7.17782117476873,
+            "mean_top1_agreement": 0.6881927269396354,
+            "mean_token_fraction": 0.5795374394219174,
+            "mean_budget_token_fraction": 0.5,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          }
+        },
+        "recency": {
+          "0.20": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 774.2800033400213,
+            "mean_kl": 6.5819811641102595,
+            "mean_top1_agreement": 0.6881011266831547,
+            "mean_token_fraction": 0.5219368321345752,
+            "mean_budget_token_fraction": 0.2796976466835401,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          },
+          "0.35": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 737.4655697801518,
+            "mean_kl": 6.1689027573377935,
+            "mean_top1_agreement": 0.688650728222039,
+            "mean_token_fraction": 0.6396894737982974,
+            "mean_budget_token_fraction": 0.4139154844218894,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          },
+          "0.50": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 696.9484912641343,
+            "mean_kl": 5.634827505970367,
+            "mean_top1_agreement": 0.6891087295044426,
+            "mean_token_fraction": 0.7412953629290888,
+            "mean_budget_token_fraction": 0.5378823579511528,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          }
+        },
+        "recency_keep_compress_drop": {
+          "0.20": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 771.9892969888854,
+            "mean_kl": 6.680778219275768,
+            "mean_top1_agreement": 0.6882843271961161,
+            "mean_token_fraction": 0.5217037139423264,
+            "mean_budget_token_fraction": 0.28185116152214956,
+            "mean_kept_segments": 1.5436475222130621,
+            "mean_compressed_segments": 4.582394430704406,
+            "mean_evicted_segments": 5.955848676376294
+          },
+          "0.35": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 751.8317504467693,
+            "mean_kl": 6.249991258823963,
+            "mean_top1_agreement": 0.6883759274525969,
+            "mean_token_fraction": 0.6392918830542303,
+            "mean_budget_token_fraction": 0.41527594143372537,
+            "mean_kept_segments": 1.649629018961253,
+            "mean_compressed_segments": 7.228542639919392,
+            "mean_evicted_segments": 3.2037189704131173
+          },
+          "0.50": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 715.8011516156275,
+            "mean_kl": 5.700897517479955,
+            "mean_top1_agreement": 0.689933131812769,
+            "mean_token_fraction": 0.7421819561447849,
+            "mean_budget_token_fraction": 0.5397711652190543,
+            "mean_kept_segments": 2.7538701108363104,
+            "mean_compressed_segments": 8.368233031052487,
+            "mean_evicted_segments": 0.9597874874049648
+          }
+        },
+        "uniform": {
+          "0.20": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 799.373560948174,
+            "mean_kl": 7.09091875365385,
+            "mean_top1_agreement": 0.6881011266831547,
+            "mean_token_fraction": 0.42534734053678125,
+            "mean_budget_token_fraction": 0.28223247041206323,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          },
+          "0.35": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 782.4956708123442,
+            "mean_kl": 6.974883409094603,
+            "mean_top1_agreement": 0.6885591279655583,
+            "mean_token_fraction": 0.5419848684501096,
+            "mean_budget_token_fraction": 0.4164769692657358,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          },
+          "0.50": {
+            "num_evaluations": 10917,
+            "mean_logit_l2": 761.2021304916154,
+            "mean_kl": 6.773272432974771,
+            "mean_top1_agreement": 0.688650728222039,
+            "mean_token_fraction": 0.6534260518096459,
+            "mean_budget_token_fraction": 0.5399629484676921,
+            "mean_kept_segments": 0.0,
+            "mean_compressed_segments": 0.0,
+            "mean_evicted_segments": 0.0
+          }
+        }
+      },
+      "behavior_aggregate": {
+        "lexical_tfidf": {
+          "0.20": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 3.008022663624986,
+            "mean_answer_total_neg_logprob": 66.27112009801014,
+            "mean_answer_avg_neg_logprob_delta": 0.9154341301533717,
+            "mean_answer_total_neg_logprob_delta": 26.01145360230291
+          },
+          "0.35": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.8163088029302066,
+            "mean_answer_total_neg_logprob": 61.13210618062802,
+            "mean_answer_avg_neg_logprob_delta": 0.723720269458592,
+            "mean_answer_total_neg_logprob_delta": 20.872439684920785
+          },
+          "0.50": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.6410095093758486,
+            "mean_answer_total_neg_logprob": 56.24395218669955,
+            "mean_answer_avg_neg_logprob_delta": 0.5484209759042341,
+            "mean_answer_total_neg_logprob_delta": 15.984285690992316
+          }
+        },
+        "longllmlingua": {
+          "0.20": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.9768269675988988,
+            "mean_answer_total_neg_logprob": 68.15737655345792,
+            "mean_answer_avg_neg_logprob_delta": 0.8842384341272849,
+            "mean_answer_total_neg_logprob_delta": 27.897710057750686
+          },
+          "0.35": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.9362618712458897,
+            "mean_answer_total_neg_logprob": 67.39015214400911,
+            "mean_answer_avg_neg_logprob_delta": 0.8436733377742752,
+            "mean_answer_total_neg_logprob_delta": 27.130485648301867
+          },
+          "0.50": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.8848009786843467,
+            "mean_answer_total_neg_logprob": 66.25389550327293,
+            "mean_answer_avg_neg_logprob_delta": 0.7922124452127325,
+            "mean_answer_total_neg_logprob_delta": 25.994229007565696
+          }
+        },
+        "recency": {
+          "0.20": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.9951200286255393,
+            "mean_answer_total_neg_logprob": 66.00753901432502,
+            "mean_answer_avg_neg_logprob_delta": 0.902531495153925,
+            "mean_answer_total_neg_logprob_delta": 25.74787251861778
+          },
+          "0.35": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.794743798968689,
+            "mean_answer_total_neg_logprob": 60.71148113615881,
+            "mean_answer_avg_neg_logprob_delta": 0.7021552654970747,
+            "mean_answer_total_neg_logprob_delta": 20.45181464045157
+          },
+          "0.50": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.619009224108277,
+            "mean_answer_total_neg_logprob": 55.843214145953894,
+            "mean_answer_avg_neg_logprob_delta": 0.5264206906366629,
+            "mean_answer_total_neg_logprob_delta": 15.583547650246656
+          }
+        },
+        "recency_keep_compress_drop": {
+          "0.20": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.98044448656856,
+            "mean_answer_total_neg_logprob": 65.77674897424343,
+            "mean_answer_avg_neg_logprob_delta": 0.8878559530969458,
+            "mean_answer_total_neg_logprob_delta": 25.517082478536192
+          },
+          "0.35": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.7725782092288482,
+            "mean_answer_total_neg_logprob": 60.38315157776776,
+            "mean_answer_avg_neg_logprob_delta": 0.6799896757572339,
+            "mean_answer_total_neg_logprob_delta": 20.123485082060526
+          },
+          "0.50": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.586304148044803,
+            "mean_answer_total_neg_logprob": 55.324881341310125,
+            "mean_answer_avg_neg_logprob_delta": 0.4937156145731886,
+            "mean_answer_total_neg_logprob_delta": 15.065214845602885
+          }
+        },
+        "uniform": {
+          "0.20": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 3.1537544778310767,
+            "mean_answer_total_neg_logprob": 70.85366070581539,
+            "mean_answer_avg_neg_logprob_delta": 1.0611659443594625,
+            "mean_answer_total_neg_logprob_delta": 30.59399421010815
+          },
+          "0.35": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 3.0608289197559744,
+            "mean_answer_total_neg_logprob": 68.72158565363817,
+            "mean_answer_avg_neg_logprob_delta": 0.9682403862843604,
+            "mean_answer_total_neg_logprob_delta": 28.461919157930936
+          },
+          "0.50": {
+            "num_evaluations": 10541,
+            "mean_answer_avg_neg_logprob": 2.9590107252401223,
+            "mean_answer_total_neg_logprob": 66.19428303766246,
+            "mean_answer_avg_neg_logprob_delta": 0.866422191768508,
+            "mean_answer_total_neg_logprob_delta": 25.934616541955222
+          }
+        }
+      },
+      "improvement_vs_uniform": {
+        "0.20": {
+          "lexical_tfidf": {
+            "delta_logit_l2": -11.710020232508555,
+            "relative_logit_l2": 0.9853510038302759
+          },
+          "longllmlingua": {
+            "delta_logit_l2": 94.3627910105597,
+            "relative_logit_l2": 1.1180459244844572
+          },
+          "recency": {
+            "delta_logit_l2": -25.093557608152764,
+            "relative_logit_l2": 0.968608471890929
+          },
+          "recency_keep_compress_drop": {
+            "delta_logit_l2": -27.38426395928866,
+            "relative_logit_l2": 0.9657428450262892
+          }
+        },
+        "0.35": {
+          "lexical_tfidf": {
+            "delta_logit_l2": -6.869064489694665,
+            "relative_logit_l2": 0.9912215942580698
+          },
+          "longllmlingua": {
+            "delta_logit_l2": 120.91892697945002,
+            "relative_logit_l2": 1.154529835103009
+          },
+          "recency": {
+            "delta_logit_l2": -45.03010103219242,
+            "relative_logit_l2": 0.942453226628788
+          },
+          "recency_keep_compress_drop": {
+            "delta_logit_l2": -30.66392036557488,
+            "relative_logit_l2": 0.9608126645176946
+          }
+        },
+        "0.50": {
+          "lexical_tfidf": {
+            "delta_logit_l2": -9.495483804471974,
+            "relative_logit_l2": 0.9875256736363318
+          },
+          "longllmlingua": {
+            "delta_logit_l2": 157.95069550991798,
+            "relative_logit_l2": 1.2075016466492374
+          },
+          "recency": {
+            "delta_logit_l2": -64.25363922748113,
+            "relative_logit_l2": 0.9155892546097008
+          },
+          "recency_keep_compress_drop": {
+            "delta_logit_l2": -45.4009788759879,
+            "relative_logit_l2": 0.9403562115010554
+          }
+        }
+      },
+      "behavior_improvement_vs_uniform": {
+        "0.20": {
+          "lexical_tfidf": {
+            "delta_answer_avg_neg_logprob": -0.1457318142060906,
+            "delta_answer_avg_neg_logprob_delta": -0.14573181420609083
+          },
+          "longllmlingua": {
+            "delta_answer_avg_neg_logprob": -0.1769275102321779,
+            "delta_answer_avg_neg_logprob_delta": -0.17692751023217768
+          },
+          "recency": {
+            "delta_answer_avg_neg_logprob": -0.15863444920553738,
+            "delta_answer_avg_neg_logprob_delta": -0.1586344492055376
+          },
+          "recency_keep_compress_drop": {
+            "delta_answer_avg_neg_logprob": -0.17330999126251667,
+            "delta_answer_avg_neg_logprob_delta": -0.17330999126251678
+          }
+        },
+        "0.35": {
+          "lexical_tfidf": {
+            "delta_answer_avg_neg_logprob": -0.2445201168257678,
+            "delta_answer_avg_neg_logprob_delta": -0.24452011682576835
+          },
+          "longllmlingua": {
+            "delta_answer_avg_neg_logprob": -0.12456704851008471,
+            "delta_answer_avg_neg_logprob_delta": -0.12456704851008515
+          },
+          "recency": {
+            "delta_answer_avg_neg_logprob": -0.2660851207872854,
+            "delta_answer_avg_neg_logprob_delta": -0.26608512078728563
+          },
+          "recency_keep_compress_drop": {
+            "delta_answer_avg_neg_logprob": -0.28825071052712614,
+            "delta_answer_avg_neg_logprob_delta": -0.2882507105271265
+          }
+        },
+        "0.50": {
+          "lexical_tfidf": {
+            "delta_answer_avg_neg_logprob": -0.31800121586427377,
+            "delta_answer_avg_neg_logprob_delta": -0.3180012158642739
+          },
+          "longllmlingua": {
+            "delta_answer_avg_neg_logprob": -0.07420974655577561,
+            "delta_answer_avg_neg_logprob_delta": -0.0742097465557755
+          },
+          "recency": {
+            "delta_answer_avg_neg_logprob": -0.34000150113184535,
+            "delta_answer_avg_neg_logprob_delta": -0.34000150113184513
+          },
+          "recency_keep_compress_drop": {
+            "delta_answer_avg_neg_logprob": -0.3727065771953195,
+            "delta_answer_avg_neg_logprob_delta": -0.3727065771953194
+          }
+        }
+      }
+    }
+  }
+}

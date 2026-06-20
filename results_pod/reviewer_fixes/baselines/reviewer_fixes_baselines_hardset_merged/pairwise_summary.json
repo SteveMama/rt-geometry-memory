@@ -1,0 +1,134 @@
+{
+  "policy_pairs": [
+    [
+      "geometry_keep_compress_drop",
+      "geometry"
+    ],
+    [
+      "query_conditioned_geometry",
+      "geometry"
+    ],
+    [
+      "query_conditioned_geometry_keep_compress_drop",
+      "support_aware_geometry_keep_compress_drop"
+    ],
+    [
+      "query_conditioned_geometry_keep_compress_drop",
+      "semantic_keep_compress_drop"
+    ],
+    [
+      "query_conditioned_geometry_keep_compress_drop",
+      "geometry_keep_compress_drop"
+    ],
+    [
+      "geometry_keep_compress_drop",
+      "geometry_segment_actions"
+    ],
+    [
+      "geometry_segment_actions",
+      "geometry"
+    ],
+    [
+      "semantic_keep_compress_drop",
+      "semantic"
+    ],
+    [
+      "support_aware_semantic_keep_compress_drop",
+      "semantic_keep_compress_drop"
+    ],
+    [
+      "budget_aware_semantic_keep_compress_drop",
+      "support_aware_semantic_keep_compress_drop"
+    ],
+    [
+      "budget_aware_semantic_keep_compress_drop",
+      "semantic"
+    ],
+    [
+      "budget_aware_semantic_keep_compress_drop",
+      "semantic_filtered_geometry_keep_compress_drop"
+    ],
+    [
+      "semantic_keep_compress_drop",
+      "geometry"
+    ],
+    [
+      "semantic_keep_compress_drop",
+      "geometry_keep_compress_drop"
+    ],
+    [
+      "support_aware_geometry_keep_compress_drop",
+      "geometry_keep_compress_drop"
+    ],
+    [
+      "support_aware_geometry_keep_compress_drop",
+      "geometry"
+    ],
+    [
+      "semantic_filtered_geometry_keep_compress_drop",
+      "support_aware_geometry_keep_compress_drop"
+    ],
+    [
+      "semantic_filtered_geometry_keep_compress_drop",
+      "semantic"
+    ],
+    [
+      "semantic_filtered_geometry_keep_compress_drop",
+      "semantic_keep_compress_drop"
+    ],
+    [
+      "query_conditioned_geometry_v2",
+      "query_conditioned_geometry"
+    ],
+    [
+      "query_conditioned_geometry_keep_compress_drop_v2",
+      "query_conditioned_geometry_keep_compress_drop"
+    ],
+    [
+      "semantic_query_conditioned_geometry_keep_compress_drop",
+      "budget_aware_semantic_keep_compress_drop"
+    ],
+    [
+      "semantic_query_conditioned_geometry_keep_compress_drop",
+      "semantic_keep_compress_drop"
+    ],
+    [
+      "semantic_query_conditioned_geometry_keep_compress_drop",
+      "semantic_ambient_geometry_keep_compress_drop"
+    ],
+    [
+      "semantic_ambient_geometry_keep_compress_drop",
+      "budget_aware_semantic_keep_compress_drop"
+    ],
+    [
+      "semantic_query_conditioned_geometry_keep_compress_drop_no_query",
+      "semantic_query_conditioned_geometry_keep_compress_drop"
+    ],
+    [
+      "semantic_query_conditioned_geometry_keep_compress_drop_no_support",
+      "semantic_query_conditioned_geometry_keep_compress_drop"
+    ],
+    [
+      "semantic_harm_keep_compress_drop",
+      "semantic_query_conditioned_geometry_keep_compress_drop"
+    ],
+    [
+      "semantic_harm_keep_compress_drop",
+      "budget_aware_semantic_keep_compress_drop"
+    ]
+  ],
+  "logit_pairwise": {
+    "qwen25_15b": {
+      "0.20": {},
+      "0.35": {},
+      "0.50": {}
+    }
+  },
+  "behavior_pairwise": {
+    "qwen25_15b": {
+      "0.20": {},
+      "0.35": {},
+      "0.50": {}
+    }
+  }
+}

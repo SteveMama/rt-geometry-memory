@@ -1,0 +1,18 @@
+{
+  "status": "complete",
+  "updated_at": "2026-06-20T04:22:11",
+  "study_name": "reviewer_fixes_baselines_hardset_merged",
+  "shard_dirs": [
+    "results/reviewer_fixes/baselines/reviewer_fixes_hardset_shard0of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_hardset_shard1of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_hardset_shard2of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_hardset_shard3of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_hardset_shard4of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_hardset_shard5of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_hardset_shard6of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_hardset_shard7of21",
+    "results/reviewer_fixes/baselines/reviewer_fixes_hardset_shard8of21"
+  ],
+  "summary_path": "results/reviewer_fixes/baselines/reviewer_fixes_baselines_hardset_merged/study_summary.json",
+  "report_path": "results/reviewer_fixes/baselines/reviewer_fixes_baselines_hardset_merged/study_report.md"
+}

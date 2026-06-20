@@ -1,0 +1,4702 @@
+{
+  "created_at": "2026-06-20T04:48:09",
+  "num_conversations": 500,
+  "shard_count": 21,
+  "families": null,
+  "limit_conversations": null,
+  "skip_conversations": 0,
+  "target_turn_stride": 1,
+  "max_target_turns": 16,
+  "max_turns_per_conversation": null,
+  "shards": [
+    {
+      "shard_index": 0,
+      "estimated_cost": 189808,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "58bf7951",
+        "gpt4_d9af6064",
+        "59524333",
+        "42ec0761",
+        "bf659f65",
+        "21436231",
+        "66f24dbb",
+        "f9e8c073",
+        "gpt4_b5700ca0",
+        "57f827a0",
+        "85fa3a3f",
+        "gpt4_fe651585_abs",
+        "6456829e",
+        "118b2229",
+        "7024f17c",
+        "gpt4_7ddcf75f",
+        "ba358f49_abs",
+        "75832dbd",
+        "6cb6f249",
+        "10d9b85a",
+        "gpt4_468eb064",
+        "92a0aa75",
+        "129d1232",
+        "ba358f49"
+      ],
+      "items": [
+        {
+          "conversation_id": "58bf7951",
+          "family": "longmemeval_s_full",
+          "turn_count": 618,
+          "truncated_turn_count": 618,
+          "target_turn_count": 16,
+          "estimated_cost": 9888
+        },
+        {
+          "conversation_id": "gpt4_d9af6064",
+          "family": "longmemeval_s_full",
+          "turn_count": 536,
+          "truncated_turn_count": 536,
+          "target_turn_count": 16,
+          "estimated_cost": 8576
+        },
+        {
+          "conversation_id": "59524333",
+          "family": "longmemeval_s_full",
+          "turn_count": 530,
+          "truncated_turn_count": 530,
+          "target_turn_count": 16,
+          "estimated_cost": 8480
+        },
+        {
+          "conversation_id": "42ec0761",
+          "family": "longmemeval_s_full",
+          "turn_count": 523,
+          "truncated_turn_count": 523,
+          "target_turn_count": 16,
+          "estimated_cost": 8368
+        },
+        {
+          "conversation_id": "bf659f65",
+          "family": "longmemeval_s_full",
+          "turn_count": 518,
+          "truncated_turn_count": 518,
+          "target_turn_count": 16,
+          "estimated_cost": 8288
+        },
+        {
+          "conversation_id": "21436231",
+          "family": "longmemeval_s_full",
+          "turn_count": 514,
+          "truncated_turn_count": 514,
+          "target_turn_count": 16,
+          "estimated_cost": 8224
+        },
+        {
+          "conversation_id": "66f24dbb",
+          "family": "longmemeval_s_full",
+          "turn_count": 509,
+          "truncated_turn_count": 509,
+          "target_turn_count": 16,
+          "estimated_cost": 8144
+        },
+        {
+          "conversation_id": "f9e8c073",
+          "family": "longmemeval_s_full",
+          "turn_count": 506,
+          "truncated_turn_count": 506,
+          "target_turn_count": 16,
+          "estimated_cost": 8096
+        },
+        {
+          "conversation_id": "gpt4_b5700ca0",
+          "family": "longmemeval_s_full",
+          "turn_count": 502,
+          "truncated_turn_count": 502,
+          "target_turn_count": 16,
+          "estimated_cost": 8032
+        },
+        {
+          "conversation_id": "57f827a0",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "85fa3a3f",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "gpt4_fe651585_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 493,
+          "truncated_turn_count": 493,
+          "target_turn_count": 16,
+          "estimated_cost": 7888
+        },
+        {
+          "conversation_id": "6456829e",
+          "family": "longmemeval_s_full",
+          "turn_count": 490,
+          "truncated_turn_count": 490,
+          "target_turn_count": 16,
+          "estimated_cost": 7840
+        },
+        {
+          "conversation_id": "118b2229",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "7024f17c",
+          "family": "longmemeval_s_full",
+          "turn_count": 485,
+          "truncated_turn_count": 485,
+          "target_turn_count": 16,
+          "estimated_cost": 7760
+        },
+        {
+          "conversation_id": "gpt4_7ddcf75f",
+          "family": "longmemeval_s_full",
+          "turn_count": 482,
+          "truncated_turn_count": 482,
+          "target_turn_count": 16,
+          "estimated_cost": 7712
+        },
+        {
+          "conversation_id": "ba358f49_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 479,
+          "truncated_turn_count": 479,
+          "target_turn_count": 16,
+          "estimated_cost": 7664
+        },
+        {
+          "conversation_id": "75832dbd",
+          "family": "longmemeval_s_full",
+          "turn_count": 476,
+          "truncated_turn_count": 476,
+          "target_turn_count": 16,
+          "estimated_cost": 7616
+        },
+        {
+          "conversation_id": "6cb6f249",
+          "family": "longmemeval_s_full",
+          "turn_count": 472,
+          "truncated_turn_count": 472,
+          "target_turn_count": 16,
+          "estimated_cost": 7552
+        },
+        {
+          "conversation_id": "10d9b85a",
+          "family": "longmemeval_s_full",
+          "turn_count": 468,
+          "truncated_turn_count": 468,
+          "target_turn_count": 16,
+          "estimated_cost": 7488
+        },
+        {
+          "conversation_id": "gpt4_468eb064",
+          "family": "longmemeval_s_full",
+          "turn_count": 462,
+          "truncated_turn_count": 462,
+          "target_turn_count": 16,
+          "estimated_cost": 7392
+        },
+        {
+          "conversation_id": "92a0aa75",
+          "family": "longmemeval_s_full",
+          "turn_count": 457,
+          "truncated_turn_count": 457,
+          "target_turn_count": 16,
+          "estimated_cost": 7312
+        },
+        {
+          "conversation_id": "129d1232",
+          "family": "longmemeval_s_full",
+          "turn_count": 453,
+          "truncated_turn_count": 453,
+          "target_turn_count": 16,
+          "estimated_cost": 7248
+        },
+        {
+          "conversation_id": "ba358f49",
+          "family": "longmemeval_s_full",
+          "turn_count": 411,
+          "truncated_turn_count": 411,
+          "target_turn_count": 16,
+          "estimated_cost": 6576
+        }
+      ]
+    },
+    {
+      "shard_index": 1,
+      "estimated_cost": 190096,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "71017276",
+        "a06e4cfe",
+        "ac031881",
+        "ef9cf60a",
+        "gpt4_5501fe77",
+        "853b0a1d",
+        "95228167",
+        "06f04340",
+        "gpt4_8279ba03",
+        "561fabcd",
+        "71017277",
+        "gpt4_d6585ce8",
+        "gpt4_8279ba02",
+        "1cea1afa",
+        "e8a79c70",
+        "gpt4_8e165409",
+        "c6853660",
+        "87f22b4a",
+        "dcfa8644",
+        "1b9b7252",
+        "61f8c8f8",
+        "gpt4_31ff4165",
+        "7401057b",
+        "28dc39ac"
+      ],
+      "items": [
+        {
+          "conversation_id": "71017276",
+          "family": "longmemeval_s_full",
+          "turn_count": 616,
+          "truncated_turn_count": 616,
+          "target_turn_count": 16,
+          "estimated_cost": 9856
+        },
+        {
+          "conversation_id": "a06e4cfe",
+          "family": "longmemeval_s_full",
+          "turn_count": 536,
+          "truncated_turn_count": 536,
+          "target_turn_count": 16,
+          "estimated_cost": 8576
+        },
+        {
+          "conversation_id": "ac031881",
+          "family": "longmemeval_s_full",
+          "turn_count": 531,
+          "truncated_turn_count": 531,
+          "target_turn_count": 16,
+          "estimated_cost": 8496
+        },
+        {
+          "conversation_id": "ef9cf60a",
+          "family": "longmemeval_s_full",
+          "turn_count": 524,
+          "truncated_turn_count": 524,
+          "target_turn_count": 16,
+          "estimated_cost": 8384
+        },
+        {
+          "conversation_id": "gpt4_5501fe77",
+          "family": "longmemeval_s_full",
+          "turn_count": 518,
+          "truncated_turn_count": 518,
+          "target_turn_count": 16,
+          "estimated_cost": 8288
+        },
+        {
+          "conversation_id": "853b0a1d",
+          "family": "longmemeval_s_full",
+          "turn_count": 514,
+          "truncated_turn_count": 514,
+          "target_turn_count": 16,
+          "estimated_cost": 8224
+        },
+        {
+          "conversation_id": "95228167",
+          "family": "longmemeval_s_full",
+          "turn_count": 509,
+          "truncated_turn_count": 509,
+          "target_turn_count": 16,
+          "estimated_cost": 8144
+        },
+        {
+          "conversation_id": "06f04340",
+          "family": "longmemeval_s_full",
+          "turn_count": 505,
+          "truncated_turn_count": 505,
+          "target_turn_count": 16,
+          "estimated_cost": 8080
+        },
+        {
+          "conversation_id": "gpt4_8279ba03",
+          "family": "longmemeval_s_full",
+          "turn_count": 502,
+          "truncated_turn_count": 502,
+          "target_turn_count": 16,
+          "estimated_cost": 8032
+        },
+        {
+          "conversation_id": "561fabcd",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "71017277",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "gpt4_d6585ce8",
+          "family": "longmemeval_s_full",
+          "turn_count": 493,
+          "truncated_turn_count": 493,
+          "target_turn_count": 16,
+          "estimated_cost": 7888
+        },
+        {
+          "conversation_id": "gpt4_8279ba02",
+          "family": "longmemeval_s_full",
+          "turn_count": 491,
+          "truncated_turn_count": 491,
+          "target_turn_count": 16,
+          "estimated_cost": 7856
+        },
+        {
+          "conversation_id": "1cea1afa",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "e8a79c70",
+          "family": "longmemeval_s_full",
+          "turn_count": 485,
+          "truncated_turn_count": 485,
+          "target_turn_count": 16,
+          "estimated_cost": 7760
+        },
+        {
+          "conversation_id": "gpt4_8e165409",
+          "family": "longmemeval_s_full",
+          "turn_count": 482,
+          "truncated_turn_count": 482,
+          "target_turn_count": 16,
+          "estimated_cost": 7712
+        },
+        {
+          "conversation_id": "c6853660",
+          "family": "longmemeval_s_full",
+          "turn_count": 479,
+          "truncated_turn_count": 479,
+          "target_turn_count": 16,
+          "estimated_cost": 7664
+        },
+        {
+          "conversation_id": "87f22b4a",
+          "family": "longmemeval_s_full",
+          "turn_count": 476,
+          "truncated_turn_count": 476,
+          "target_turn_count": 16,
+          "estimated_cost": 7616
+        },
+        {
+          "conversation_id": "dcfa8644",
+          "family": "longmemeval_s_full",
+          "turn_count": 472,
+          "truncated_turn_count": 472,
+          "target_turn_count": 16,
+          "estimated_cost": 7552
+        },
+        {
+          "conversation_id": "1b9b7252",
+          "family": "longmemeval_s_full",
+          "turn_count": 468,
+          "truncated_turn_count": 468,
+          "target_turn_count": 16,
+          "estimated_cost": 7488
+        },
+        {
+          "conversation_id": "61f8c8f8",
+          "family": "longmemeval_s_full",
+          "turn_count": 461,
+          "truncated_turn_count": 461,
+          "target_turn_count": 16,
+          "estimated_cost": 7376
+        },
+        {
+          "conversation_id": "gpt4_31ff4165",
+          "family": "longmemeval_s_full",
+          "turn_count": 459,
+          "truncated_turn_count": 459,
+          "target_turn_count": 16,
+          "estimated_cost": 7344
+        },
+        {
+          "conversation_id": "7401057b",
+          "family": "longmemeval_s_full",
+          "turn_count": 448,
+          "truncated_turn_count": 448,
+          "target_turn_count": 16,
+          "estimated_cost": 7168
+        },
+        {
+          "conversation_id": "28dc39ac",
+          "family": "longmemeval_s_full",
+          "turn_count": 433,
+          "truncated_turn_count": 433,
+          "target_turn_count": 16,
+          "estimated_cost": 6928
+        }
+      ]
+    },
+    {
+      "shard_index": 2,
+      "estimated_cost": 190096,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "gpt4_93159ced_abs",
+        "a96c20ee_abs",
+        "51a45a95",
+        "1f2b8d4f",
+        "b5ef892d",
+        "eeda8a6d",
+        "f0e564bc",
+        "c960da58",
+        "f0853d11",
+        "cc539528",
+        "2311e44b",
+        "75499fd8",
+        "eace081b",
+        "gpt4_4929293a",
+        "gpt4_1d4ab0c9",
+        "gpt4_d31cdae3",
+        "eeda8a6d_abs",
+        "a1eacc2a",
+        "gpt4_15e38248",
+        "720133ac",
+        "9bbe84a2",
+        "gpt4_b0863698",
+        "gpt4_213fd887",
+        "3ba21379"
+      ],
+      "items": [
+        {
+          "conversation_id": "gpt4_93159ced_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 610,
+          "truncated_turn_count": 610,
+          "target_turn_count": 16,
+          "estimated_cost": 9760
+        },
+        {
+          "conversation_id": "a96c20ee_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 537,
+          "truncated_turn_count": 537,
+          "target_turn_count": 16,
+          "estimated_cost": 8592
+        },
+        {
+          "conversation_id": "51a45a95",
+          "family": "longmemeval_s_full",
+          "turn_count": 531,
+          "truncated_turn_count": 531,
+          "target_turn_count": 16,
+          "estimated_cost": 8496
+        },
+        {
+          "conversation_id": "1f2b8d4f",
+          "family": "longmemeval_s_full",
+          "turn_count": 524,
+          "truncated_turn_count": 524,
+          "target_turn_count": 16,
+          "estimated_cost": 8384
+        },
+        {
+          "conversation_id": "b5ef892d",
+          "family": "longmemeval_s_full",
+          "turn_count": 518,
+          "truncated_turn_count": 518,
+          "target_turn_count": 16,
+          "estimated_cost": 8288
+        },
+        {
+          "conversation_id": "eeda8a6d",
+          "family": "longmemeval_s_full",
+          "turn_count": 515,
+          "truncated_turn_count": 515,
+          "target_turn_count": 16,
+          "estimated_cost": 8240
+        },
+        {
+          "conversation_id": "f0e564bc",
+          "family": "longmemeval_s_full",
+          "turn_count": 510,
+          "truncated_turn_count": 510,
+          "target_turn_count": 16,
+          "estimated_cost": 8160
+        },
+        {
+          "conversation_id": "c960da58",
+          "family": "longmemeval_s_full",
+          "turn_count": 506,
+          "truncated_turn_count": 506,
+          "target_turn_count": 16,
+          "estimated_cost": 8096
+        },
+        {
+          "conversation_id": "f0853d11",
+          "family": "longmemeval_s_full",
+          "turn_count": 502,
+          "truncated_turn_count": 502,
+          "target_turn_count": 16,
+          "estimated_cost": 8032
+        },
+        {
+          "conversation_id": "cc539528",
+          "family": "longmemeval_s_full",
+          "turn_count": 498,
+          "truncated_turn_count": 498,
+          "target_turn_count": 16,
+          "estimated_cost": 7968
+        },
+        {
+          "conversation_id": "2311e44b",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "75499fd8",
+          "family": "longmemeval_s_full",
+          "turn_count": 493,
+          "truncated_turn_count": 493,
+          "target_turn_count": 16,
+          "estimated_cost": 7888
+        },
+        {
+          "conversation_id": "eace081b",
+          "family": "longmemeval_s_full",
+          "turn_count": 491,
+          "truncated_turn_count": 491,
+          "target_turn_count": 16,
+          "estimated_cost": 7856
+        },
+        {
+          "conversation_id": "gpt4_4929293a",
+          "family": "longmemeval_s_full",
+          "turn_count": 488,
+          "truncated_turn_count": 488,
+          "target_turn_count": 16,
+          "estimated_cost": 7808
+        },
+        {
+          "conversation_id": "gpt4_1d4ab0c9",
+          "family": "longmemeval_s_full",
+          "turn_count": 485,
+          "truncated_turn_count": 485,
+          "target_turn_count": 16,
+          "estimated_cost": 7760
+        },
+        {
+          "conversation_id": "gpt4_d31cdae3",
+          "family": "longmemeval_s_full",
+          "turn_count": 482,
+          "truncated_turn_count": 482,
+          "target_turn_count": 16,
+          "estimated_cost": 7712
+        },
+        {
+          "conversation_id": "eeda8a6d_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 479,
+          "truncated_turn_count": 479,
+          "target_turn_count": 16,
+          "estimated_cost": 7664
+        },
+        {
+          "conversation_id": "a1eacc2a",
+          "family": "longmemeval_s_full",
+          "turn_count": 476,
+          "truncated_turn_count": 476,
+          "target_turn_count": 16,
+          "estimated_cost": 7616
+        },
+        {
+          "conversation_id": "gpt4_15e38248",
+          "family": "longmemeval_s_full",
+          "turn_count": 472,
+          "truncated_turn_count": 472,
+          "target_turn_count": 16,
+          "estimated_cost": 7552
+        },
+        {
+          "conversation_id": "720133ac",
+          "family": "longmemeval_s_full",
+          "turn_count": 468,
+          "truncated_turn_count": 468,
+          "target_turn_count": 16,
+          "estimated_cost": 7488
+        },
+        {
+          "conversation_id": "9bbe84a2",
+          "family": "longmemeval_s_full",
+          "turn_count": 461,
+          "truncated_turn_count": 461,
+          "target_turn_count": 16,
+          "estimated_cost": 7376
+        },
+        {
+          "conversation_id": "gpt4_b0863698",
+          "family": "longmemeval_s_full",
+          "turn_count": 459,
+          "truncated_turn_count": 459,
+          "target_turn_count": 16,
+          "estimated_cost": 7344
+        },
+        {
+          "conversation_id": "gpt4_213fd887",
+          "family": "longmemeval_s_full",
+          "turn_count": 448,
+          "truncated_turn_count": 448,
+          "target_turn_count": 16,
+          "estimated_cost": 7168
+        },
+        {
+          "conversation_id": "3ba21379",
+          "family": "longmemeval_s_full",
+          "turn_count": 433,
+          "truncated_turn_count": 433,
+          "target_turn_count": 16,
+          "estimated_cost": 6928
+        }
+      ]
+    },
+    {
+      "shard_index": 3,
+      "estimated_cost": 189856,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "5809eb10",
+        "gpt4_b5700ca9",
+        "a40e080f",
+        "e5ba910e_abs",
+        "b759caee",
+        "gpt4_5438fa52",
+        "gpt4_cd90e484",
+        "d905b33f",
+        "gpt4_4cd9eba1",
+        "e61a7584",
+        "6a27ffc2",
+        "gpt4_68e94287",
+        "gpt4_6ed717ea",
+        "0a34ad58",
+        "69fee5aa",
+        "gpt4_74aed68e",
+        "4388e9dd",
+        "1d4e3b97",
+        "3b6f954b",
+        "099778bb",
+        "b6025781",
+        "b86304ba",
+        "0e5e2d1a",
+        "6a1eabeb"
+      ],
+      "items": [
+        {
+          "conversation_id": "5809eb10",
+          "family": "longmemeval_s_full",
+          "turn_count": 608,
+          "truncated_turn_count": 608,
+          "target_turn_count": 16,
+          "estimated_cost": 9728
+        },
+        {
+          "conversation_id": "gpt4_b5700ca9",
+          "family": "longmemeval_s_full",
+          "turn_count": 539,
+          "truncated_turn_count": 539,
+          "target_turn_count": 16,
+          "estimated_cost": 8624
+        },
+        {
+          "conversation_id": "a40e080f",
+          "family": "longmemeval_s_full",
+          "turn_count": 531,
+          "truncated_turn_count": 531,
+          "target_turn_count": 16,
+          "estimated_cost": 8496
+        },
+        {
+          "conversation_id": "e5ba910e_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 524,
+          "truncated_turn_count": 524,
+          "target_turn_count": 16,
+          "estimated_cost": 8384
+        },
+        {
+          "conversation_id": "b759caee",
+          "family": "longmemeval_s_full",
+          "turn_count": 518,
+          "truncated_turn_count": 518,
+          "target_turn_count": 16,
+          "estimated_cost": 8288
+        },
+        {
+          "conversation_id": "gpt4_5438fa52",
+          "family": "longmemeval_s_full",
+          "turn_count": 515,
+          "truncated_turn_count": 515,
+          "target_turn_count": 16,
+          "estimated_cost": 8240
+        },
+        {
+          "conversation_id": "gpt4_cd90e484",
+          "family": "longmemeval_s_full",
+          "turn_count": 510,
+          "truncated_turn_count": 510,
+          "target_turn_count": 16,
+          "estimated_cost": 8160
+        },
+        {
+          "conversation_id": "d905b33f",
+          "family": "longmemeval_s_full",
+          "turn_count": 506,
+          "truncated_turn_count": 506,
+          "target_turn_count": 16,
+          "estimated_cost": 8096
+        },
+        {
+          "conversation_id": "gpt4_4cd9eba1",
+          "family": "longmemeval_s_full",
+          "turn_count": 502,
+          "truncated_turn_count": 502,
+          "target_turn_count": 16,
+          "estimated_cost": 8032
+        },
+        {
+          "conversation_id": "e61a7584",
+          "family": "longmemeval_s_full",
+          "turn_count": 498,
+          "truncated_turn_count": 498,
+          "target_turn_count": 16,
+          "estimated_cost": 7968
+        },
+        {
+          "conversation_id": "6a27ffc2",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "gpt4_68e94287",
+          "family": "longmemeval_s_full",
+          "turn_count": 493,
+          "truncated_turn_count": 493,
+          "target_turn_count": 16,
+          "estimated_cost": 7888
+        },
+        {
+          "conversation_id": "gpt4_6ed717ea",
+          "family": "longmemeval_s_full",
+          "turn_count": 491,
+          "truncated_turn_count": 491,
+          "target_turn_count": 16,
+          "estimated_cost": 7856
+        },
+        {
+          "conversation_id": "0a34ad58",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "69fee5aa",
+          "family": "longmemeval_s_full",
+          "turn_count": 485,
+          "truncated_turn_count": 485,
+          "target_turn_count": 16,
+          "estimated_cost": 7760
+        },
+        {
+          "conversation_id": "gpt4_74aed68e",
+          "family": "longmemeval_s_full",
+          "turn_count": 482,
+          "truncated_turn_count": 482,
+          "target_turn_count": 16,
+          "estimated_cost": 7712
+        },
+        {
+          "conversation_id": "4388e9dd",
+          "family": "longmemeval_s_full",
+          "turn_count": 479,
+          "truncated_turn_count": 479,
+          "target_turn_count": 16,
+          "estimated_cost": 7664
+        },
+        {
+          "conversation_id": "1d4e3b97",
+          "family": "longmemeval_s_full",
+          "turn_count": 476,
+          "truncated_turn_count": 476,
+          "target_turn_count": 16,
+          "estimated_cost": 7616
+        },
+        {
+          "conversation_id": "3b6f954b",
+          "family": "longmemeval_s_full",
+          "turn_count": 472,
+          "truncated_turn_count": 472,
+          "target_turn_count": 16,
+          "estimated_cost": 7552
+        },
+        {
+          "conversation_id": "099778bb",
+          "family": "longmemeval_s_full",
+          "turn_count": 468,
+          "truncated_turn_count": 468,
+          "target_turn_count": 16,
+          "estimated_cost": 7488
+        },
+        {
+          "conversation_id": "b6025781",
+          "family": "longmemeval_s_full",
+          "turn_count": 462,
+          "truncated_turn_count": 462,
+          "target_turn_count": 16,
+          "estimated_cost": 7392
+        },
+        {
+          "conversation_id": "b86304ba",
+          "family": "longmemeval_s_full",
+          "turn_count": 458,
+          "truncated_turn_count": 458,
+          "target_turn_count": 16,
+          "estimated_cost": 7328
+        },
+        {
+          "conversation_id": "0e5e2d1a",
+          "family": "longmemeval_s_full",
+          "turn_count": 452,
+          "truncated_turn_count": 452,
+          "target_turn_count": 16,
+          "estimated_cost": 7232
+        },
+        {
+          "conversation_id": "6a1eabeb",
+          "family": "longmemeval_s_full",
+          "turn_count": 415,
+          "truncated_turn_count": 415,
+          "target_turn_count": 16,
+          "estimated_cost": 6640
+        }
+      ]
+    },
+    {
+      "shard_index": 4,
+      "estimated_cost": 183248,
+      "conversation_count": 23,
+      "conversation_ids": [
+        "gpt4_2c50253f",
+        "bc8a6e93",
+        "2c63a862",
+        "e01b8e2f",
+        "73d42213",
+        "eaca4986",
+        "8a2466db",
+        "gpt4_85da3956",
+        "6f9b354f",
+        "a89d7624",
+        "b29f3365",
+        "4f54b7c9",
+        "a96c20ee",
+        "993da5e2",
+        "60036106",
+        "08f4fc43",
+        "06db6396",
+        "41698283",
+        "982b5123",
+        "gpt4_61e13b3c",
+        "eac54adc",
+        "60472f9c",
+        "8550ddae"
+      ],
+      "items": [
+        {
+          "conversation_id": "gpt4_2c50253f",
+          "family": "longmemeval_s_full",
+          "turn_count": 593,
+          "truncated_turn_count": 593,
+          "target_turn_count": 16,
+          "estimated_cost": 9488
+        },
+        {
+          "conversation_id": "bc8a6e93",
+          "family": "longmemeval_s_full",
+          "turn_count": 539,
+          "truncated_turn_count": 539,
+          "target_turn_count": 16,
+          "estimated_cost": 8624
+        },
+        {
+          "conversation_id": "2c63a862",
+          "family": "longmemeval_s_full",
+          "turn_count": 531,
+          "truncated_turn_count": 531,
+          "target_turn_count": 16,
+          "estimated_cost": 8496
+        },
+        {
+          "conversation_id": "e01b8e2f",
+          "family": "longmemeval_s_full",
+          "turn_count": 525,
+          "truncated_turn_count": 525,
+          "target_turn_count": 16,
+          "estimated_cost": 8400
+        },
+        {
+          "conversation_id": "73d42213",
+          "family": "longmemeval_s_full",
+          "turn_count": 518,
+          "truncated_turn_count": 518,
+          "target_turn_count": 16,
+          "estimated_cost": 8288
+        },
+        {
+          "conversation_id": "eaca4986",
+          "family": "longmemeval_s_full",
+          "turn_count": 515,
+          "truncated_turn_count": 515,
+          "target_turn_count": 16,
+          "estimated_cost": 8240
+        },
+        {
+          "conversation_id": "8a2466db",
+          "family": "longmemeval_s_full",
+          "turn_count": 510,
+          "truncated_turn_count": 510,
+          "target_turn_count": 16,
+          "estimated_cost": 8160
+        },
+        {
+          "conversation_id": "gpt4_85da3956",
+          "family": "longmemeval_s_full",
+          "turn_count": 507,
+          "truncated_turn_count": 507,
+          "target_turn_count": 16,
+          "estimated_cost": 8112
+        },
+        {
+          "conversation_id": "6f9b354f",
+          "family": "longmemeval_s_full",
+          "turn_count": 502,
+          "truncated_turn_count": 502,
+          "target_turn_count": 16,
+          "estimated_cost": 8032
+        },
+        {
+          "conversation_id": "a89d7624",
+          "family": "longmemeval_s_full",
+          "turn_count": 498,
+          "truncated_turn_count": 498,
+          "target_turn_count": 16,
+          "estimated_cost": 7968
+        },
+        {
+          "conversation_id": "b29f3365",
+          "family": "longmemeval_s_full",
+          "turn_count": 496,
+          "truncated_turn_count": 496,
+          "target_turn_count": 16,
+          "estimated_cost": 7936
+        },
+        {
+          "conversation_id": "4f54b7c9",
+          "family": "longmemeval_s_full",
+          "turn_count": 493,
+          "truncated_turn_count": 493,
+          "target_turn_count": 16,
+          "estimated_cost": 7888
+        },
+        {
+          "conversation_id": "a96c20ee",
+          "family": "longmemeval_s_full",
+          "turn_count": 491,
+          "truncated_turn_count": 491,
+          "target_turn_count": 16,
+          "estimated_cost": 7856
+        },
+        {
+          "conversation_id": "993da5e2",
+          "family": "longmemeval_s_full",
+          "turn_count": 488,
+          "truncated_turn_count": 488,
+          "target_turn_count": 16,
+          "estimated_cost": 7808
+        },
+        {
+          "conversation_id": "60036106",
+          "family": "longmemeval_s_full",
+          "turn_count": 485,
+          "truncated_turn_count": 485,
+          "target_turn_count": 16,
+          "estimated_cost": 7760
+        },
+        {
+          "conversation_id": "08f4fc43",
+          "family": "longmemeval_s_full",
+          "turn_count": 482,
+          "truncated_turn_count": 482,
+          "target_turn_count": 16,
+          "estimated_cost": 7712
+        },
+        {
+          "conversation_id": "06db6396",
+          "family": "longmemeval_s_full",
+          "turn_count": 481,
+          "truncated_turn_count": 481,
+          "target_turn_count": 16,
+          "estimated_cost": 7696
+        },
+        {
+          "conversation_id": "41698283",
+          "family": "longmemeval_s_full",
+          "turn_count": 478,
+          "truncated_turn_count": 478,
+          "target_turn_count": 16,
+          "estimated_cost": 7648
+        },
+        {
+          "conversation_id": "982b5123",
+          "family": "longmemeval_s_full",
+          "turn_count": 475,
+          "truncated_turn_count": 475,
+          "target_turn_count": 16,
+          "estimated_cost": 7600
+        },
+        {
+          "conversation_id": "gpt4_61e13b3c",
+          "family": "longmemeval_s_full",
+          "turn_count": 469,
+          "truncated_turn_count": 469,
+          "target_turn_count": 16,
+          "estimated_cost": 7504
+        },
+        {
+          "conversation_id": "eac54adc",
+          "family": "longmemeval_s_full",
+          "turn_count": 466,
+          "truncated_turn_count": 466,
+          "target_turn_count": 16,
+          "estimated_cost": 7456
+        },
+        {
+          "conversation_id": "60472f9c",
+          "family": "longmemeval_s_full",
+          "turn_count": 456,
+          "truncated_turn_count": 456,
+          "target_turn_count": 16,
+          "estimated_cost": 7296
+        },
+        {
+          "conversation_id": "8550ddae",
+          "family": "longmemeval_s_full",
+          "turn_count": 455,
+          "truncated_turn_count": 455,
+          "target_turn_count": 16,
+          "estimated_cost": 7280
+        }
+      ]
+    },
+    {
+      "shard_index": 5,
+      "estimated_cost": 189936,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "e982271f",
+        "9ea5eabc",
+        "e48988bc",
+        "89941a94",
+        "4d6b87c8",
+        "6e984301",
+        "c18a7dc8",
+        "c8f1aeed",
+        "311778f1",
+        "72e3ee87",
+        "60bf93ed",
+        "27016adc",
+        "7a8d0b71",
+        "0bc8ad93",
+        "f523d9fe",
+        "2ce6a0f2",
+        "09ba9854",
+        "681a1674",
+        "faba32e5",
+        "gpt4_70e84552",
+        "0bb5a684",
+        "f685340e_abs",
+        "3fe836c9",
+        "5a7937c8"
+      ],
+      "items": [
+        {
+          "conversation_id": "e982271f",
+          "family": "longmemeval_s_full",
+          "turn_count": 591,
+          "truncated_turn_count": 591,
+          "target_turn_count": 16,
+          "estimated_cost": 9456
+        },
+        {
+          "conversation_id": "9ea5eabc",
+          "family": "longmemeval_s_full",
+          "turn_count": 539,
+          "truncated_turn_count": 539,
+          "target_turn_count": 16,
+          "estimated_cost": 8624
+        },
+        {
+          "conversation_id": "e48988bc",
+          "family": "longmemeval_s_full",
+          "turn_count": 532,
+          "truncated_turn_count": 532,
+          "target_turn_count": 16,
+          "estimated_cost": 8512
+        },
+        {
+          "conversation_id": "89941a94",
+          "family": "longmemeval_s_full",
+          "turn_count": 525,
+          "truncated_turn_count": 525,
+          "target_turn_count": 16,
+          "estimated_cost": 8400
+        },
+        {
+          "conversation_id": "4d6b87c8",
+          "family": "longmemeval_s_full",
+          "turn_count": 518,
+          "truncated_turn_count": 518,
+          "target_turn_count": 16,
+          "estimated_cost": 8288
+        },
+        {
+          "conversation_id": "6e984301",
+          "family": "longmemeval_s_full",
+          "turn_count": 515,
+          "truncated_turn_count": 515,
+          "target_turn_count": 16,
+          "estimated_cost": 8240
+        },
+        {
+          "conversation_id": "c18a7dc8",
+          "family": "longmemeval_s_full",
+          "turn_count": 511,
+          "truncated_turn_count": 511,
+          "target_turn_count": 16,
+          "estimated_cost": 8176
+        },
+        {
+          "conversation_id": "c8f1aeed",
+          "family": "longmemeval_s_full",
+          "turn_count": 506,
+          "truncated_turn_count": 506,
+          "target_turn_count": 16,
+          "estimated_cost": 8096
+        },
+        {
+          "conversation_id": "311778f1",
+          "family": "longmemeval_s_full",
+          "turn_count": 502,
+          "truncated_turn_count": 502,
+          "target_turn_count": 16,
+          "estimated_cost": 8032
+        },
+        {
+          "conversation_id": "72e3ee87",
+          "family": "longmemeval_s_full",
+          "turn_count": 498,
+          "truncated_turn_count": 498,
+          "target_turn_count": 16,
+          "estimated_cost": 7968
+        },
+        {
+          "conversation_id": "60bf93ed",
+          "family": "longmemeval_s_full",
+          "turn_count": 496,
+          "truncated_turn_count": 496,
+          "target_turn_count": 16,
+          "estimated_cost": 7936
+        },
+        {
+          "conversation_id": "27016adc",
+          "family": "longmemeval_s_full",
+          "turn_count": 493,
+          "truncated_turn_count": 493,
+          "target_turn_count": 16,
+          "estimated_cost": 7888
+        },
+        {
+          "conversation_id": "7a8d0b71",
+          "family": "longmemeval_s_full",
+          "turn_count": 491,
+          "truncated_turn_count": 491,
+          "target_turn_count": 16,
+          "estimated_cost": 7856
+        },
+        {
+          "conversation_id": "0bc8ad93",
+          "family": "longmemeval_s_full",
+          "turn_count": 488,
+          "truncated_turn_count": 488,
+          "target_turn_count": 16,
+          "estimated_cost": 7808
+        },
+        {
+          "conversation_id": "f523d9fe",
+          "family": "longmemeval_s_full",
+          "turn_count": 486,
+          "truncated_turn_count": 486,
+          "target_turn_count": 16,
+          "estimated_cost": 7776
+        },
+        {
+          "conversation_id": "2ce6a0f2",
+          "family": "longmemeval_s_full",
+          "turn_count": 482,
+          "truncated_turn_count": 482,
+          "target_turn_count": 16,
+          "estimated_cost": 7712
+        },
+        {
+          "conversation_id": "09ba9854",
+          "family": "longmemeval_s_full",
+          "turn_count": 481,
+          "truncated_turn_count": 481,
+          "target_turn_count": 16,
+          "estimated_cost": 7696
+        },
+        {
+          "conversation_id": "681a1674",
+          "family": "longmemeval_s_full",
+          "turn_count": 478,
+          "truncated_turn_count": 478,
+          "target_turn_count": 16,
+          "estimated_cost": 7648
+        },
+        {
+          "conversation_id": "faba32e5",
+          "family": "longmemeval_s_full",
+          "turn_count": 475,
+          "truncated_turn_count": 475,
+          "target_turn_count": 16,
+          "estimated_cost": 7600
+        },
+        {
+          "conversation_id": "gpt4_70e84552",
+          "family": "longmemeval_s_full",
+          "turn_count": 469,
+          "truncated_turn_count": 469,
+          "target_turn_count": 16,
+          "estimated_cost": 7504
+        },
+        {
+          "conversation_id": "0bb5a684",
+          "family": "longmemeval_s_full",
+          "turn_count": 465,
+          "truncated_turn_count": 465,
+          "target_turn_count": 16,
+          "estimated_cost": 7440
+        },
+        {
+          "conversation_id": "f685340e_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 458,
+          "truncated_turn_count": 458,
+          "target_turn_count": 16,
+          "estimated_cost": 7328
+        },
+        {
+          "conversation_id": "3fe836c9",
+          "family": "longmemeval_s_full",
+          "turn_count": 451,
+          "truncated_turn_count": 451,
+          "target_turn_count": 16,
+          "estimated_cost": 7216
+        },
+        {
+          "conversation_id": "5a7937c8",
+          "family": "longmemeval_s_full",
+          "turn_count": 421,
+          "truncated_turn_count": 421,
+          "target_turn_count": 16,
+          "estimated_cost": 6736
+        }
+      ]
+    },
+    {
+      "shard_index": 6,
+      "estimated_cost": 190256,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "f4f1d8a4",
+        "8b9d4367",
+        "d3ab962e",
+        "2318644b",
+        "58ef2f1c",
+        "6ade9755",
+        "488d3006",
+        "gpt4_78cf46a3",
+        "28bcfaac",
+        "gpt4_e05b82a6",
+        "6456829e_abs",
+        "2b8f3739",
+        "91b15a6e",
+        "1903aded",
+        "gpt4_59149c77",
+        "dfde3500",
+        "2a1811e2",
+        "9ee3ecd6",
+        "10e09553",
+        "d682f1a2",
+        "e4e14d04",
+        "gpt4_68e94288",
+        "06878be2",
+        "0bc8ad92"
+      ],
+      "items": [
+        {
+          "conversation_id": "f4f1d8a4",
+          "family": "longmemeval_s_full",
+          "turn_count": 587,
+          "truncated_turn_count": 587,
+          "target_turn_count": 16,
+          "estimated_cost": 9392
+        },
+        {
+          "conversation_id": "8b9d4367",
+          "family": "longmemeval_s_full",
+          "turn_count": 539,
+          "truncated_turn_count": 539,
+          "target_turn_count": 16,
+          "estimated_cost": 8624
+        },
+        {
+          "conversation_id": "d3ab962e",
+          "family": "longmemeval_s_full",
+          "turn_count": 532,
+          "truncated_turn_count": 532,
+          "target_turn_count": 16,
+          "estimated_cost": 8512
+        },
+        {
+          "conversation_id": "2318644b",
+          "family": "longmemeval_s_full",
+          "turn_count": 525,
+          "truncated_turn_count": 525,
+          "target_turn_count": 16,
+          "estimated_cost": 8400
+        },
+        {
+          "conversation_id": "58ef2f1c",
+          "family": "longmemeval_s_full",
+          "turn_count": 520,
+          "truncated_turn_count": 520,
+          "target_turn_count": 16,
+          "estimated_cost": 8320
+        },
+        {
+          "conversation_id": "6ade9755",
+          "family": "longmemeval_s_full",
+          "turn_count": 515,
+          "truncated_turn_count": 515,
+          "target_turn_count": 16,
+          "estimated_cost": 8240
+        },
+        {
+          "conversation_id": "488d3006",
+          "family": "longmemeval_s_full",
+          "turn_count": 511,
+          "truncated_turn_count": 511,
+          "target_turn_count": 16,
+          "estimated_cost": 8176
+        },
+        {
+          "conversation_id": "gpt4_78cf46a3",
+          "family": "longmemeval_s_full",
+          "turn_count": 507,
+          "truncated_turn_count": 507,
+          "target_turn_count": 16,
+          "estimated_cost": 8112
+        },
+        {
+          "conversation_id": "28bcfaac",
+          "family": "longmemeval_s_full",
+          "turn_count": 502,
+          "truncated_turn_count": 502,
+          "target_turn_count": 16,
+          "estimated_cost": 8032
+        },
+        {
+          "conversation_id": "gpt4_e05b82a6",
+          "family": "longmemeval_s_full",
+          "turn_count": 499,
+          "truncated_turn_count": 499,
+          "target_turn_count": 16,
+          "estimated_cost": 7984
+        },
+        {
+          "conversation_id": "6456829e_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 496,
+          "truncated_turn_count": 496,
+          "target_turn_count": 16,
+          "estimated_cost": 7936
+        },
+        {
+          "conversation_id": "2b8f3739",
+          "family": "longmemeval_s_full",
+          "turn_count": 493,
+          "truncated_turn_count": 493,
+          "target_turn_count": 16,
+          "estimated_cost": 7888
+        },
+        {
+          "conversation_id": "91b15a6e",
+          "family": "longmemeval_s_full",
+          "turn_count": 491,
+          "truncated_turn_count": 491,
+          "target_turn_count": 16,
+          "estimated_cost": 7856
+        },
+        {
+          "conversation_id": "1903aded",
+          "family": "longmemeval_s_full",
+          "turn_count": 488,
+          "truncated_turn_count": 488,
+          "target_turn_count": 16,
+          "estimated_cost": 7808
+        },
+        {
+          "conversation_id": "gpt4_59149c77",
+          "family": "longmemeval_s_full",
+          "turn_count": 486,
+          "truncated_turn_count": 486,
+          "target_turn_count": 16,
+          "estimated_cost": 7776
+        },
+        {
+          "conversation_id": "dfde3500",
+          "family": "longmemeval_s_full",
+          "turn_count": 482,
+          "truncated_turn_count": 482,
+          "target_turn_count": 16,
+          "estimated_cost": 7712
+        },
+        {
+          "conversation_id": "2a1811e2",
+          "family": "longmemeval_s_full",
+          "turn_count": 481,
+          "truncated_turn_count": 481,
+          "target_turn_count": 16,
+          "estimated_cost": 7696
+        },
+        {
+          "conversation_id": "9ee3ecd6",
+          "family": "longmemeval_s_full",
+          "turn_count": 478,
+          "truncated_turn_count": 478,
+          "target_turn_count": 16,
+          "estimated_cost": 7648
+        },
+        {
+          "conversation_id": "10e09553",
+          "family": "longmemeval_s_full",
+          "turn_count": 474,
+          "truncated_turn_count": 474,
+          "target_turn_count": 16,
+          "estimated_cost": 7584
+        },
+        {
+          "conversation_id": "d682f1a2",
+          "family": "longmemeval_s_full",
+          "turn_count": 471,
+          "truncated_turn_count": 471,
+          "target_turn_count": 16,
+          "estimated_cost": 7536
+        },
+        {
+          "conversation_id": "e4e14d04",
+          "family": "longmemeval_s_full",
+          "turn_count": 463,
+          "truncated_turn_count": 463,
+          "target_turn_count": 16,
+          "estimated_cost": 7408
+        },
+        {
+          "conversation_id": "gpt4_68e94288",
+          "family": "longmemeval_s_full",
+          "turn_count": 461,
+          "truncated_turn_count": 461,
+          "target_turn_count": 16,
+          "estimated_cost": 7376
+        },
+        {
+          "conversation_id": "06878be2",
+          "family": "longmemeval_s_full",
+          "turn_count": 445,
+          "truncated_turn_count": 445,
+          "target_turn_count": 16,
+          "estimated_cost": 7120
+        },
+        {
+          "conversation_id": "0bc8ad92",
+          "family": "longmemeval_s_full",
+          "turn_count": 445,
+          "truncated_turn_count": 445,
+          "target_turn_count": 16,
+          "estimated_cost": 7120
+        }
+      ]
+    },
+    {
+      "shard_index": 7,
+      "estimated_cost": 190176,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "a3045048",
+        "38146c39",
+        "e25c3b8d",
+        "4100d0a0",
+        "gpt4_1d80365e",
+        "09ba9854_abs",
+        "16c90bf4",
+        "dccbc061",
+        "gpt4_45189cb4",
+        "29f2956b",
+        "2e6d26dc",
+        "c14c00dd",
+        "945e3d21",
+        "8e9d538c",
+        "0ddfec37",
+        "edced276",
+        "a346bb18",
+        "a82c026e",
+        "54026fce",
+        "gpt4_4929293b",
+        "0ea62687",
+        "c8090214",
+        "5e1b23de",
+        "d6233ab6"
+      ],
+      "items": [
+        {
+          "conversation_id": "a3045048",
+          "family": "longmemeval_s_full",
+          "turn_count": 586,
+          "truncated_turn_count": 586,
+          "target_turn_count": 16,
+          "estimated_cost": 9376
+        },
+        {
+          "conversation_id": "38146c39",
+          "family": "longmemeval_s_full",
+          "turn_count": 540,
+          "truncated_turn_count": 540,
+          "target_turn_count": 16,
+          "estimated_cost": 8640
+        },
+        {
+          "conversation_id": "e25c3b8d",
+          "family": "longmemeval_s_full",
+          "turn_count": 532,
+          "truncated_turn_count": 532,
+          "target_turn_count": 16,
+          "estimated_cost": 8512
+        },
+        {
+          "conversation_id": "4100d0a0",
+          "family": "longmemeval_s_full",
+          "turn_count": 525,
+          "truncated_turn_count": 525,
+          "target_turn_count": 16,
+          "estimated_cost": 8400
+        },
+        {
+          "conversation_id": "gpt4_1d80365e",
+          "family": "longmemeval_s_full",
+          "turn_count": 519,
+          "truncated_turn_count": 519,
+          "target_turn_count": 16,
+          "estimated_cost": 8304
+        },
+        {
+          "conversation_id": "09ba9854_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 515,
+          "truncated_turn_count": 515,
+          "target_turn_count": 16,
+          "estimated_cost": 8240
+        },
+        {
+          "conversation_id": "16c90bf4",
+          "family": "longmemeval_s_full",
+          "turn_count": 511,
+          "truncated_turn_count": 511,
+          "target_turn_count": 16,
+          "estimated_cost": 8176
+        },
+        {
+          "conversation_id": "dccbc061",
+          "family": "longmemeval_s_full",
+          "turn_count": 507,
+          "truncated_turn_count": 507,
+          "target_turn_count": 16,
+          "estimated_cost": 8112
+        },
+        {
+          "conversation_id": "gpt4_45189cb4",
+          "family": "longmemeval_s_full",
+          "turn_count": 503,
+          "truncated_turn_count": 503,
+          "target_turn_count": 16,
+          "estimated_cost": 8048
+        },
+        {
+          "conversation_id": "29f2956b",
+          "family": "longmemeval_s_full",
+          "turn_count": 498,
+          "truncated_turn_count": 498,
+          "target_turn_count": 16,
+          "estimated_cost": 7968
+        },
+        {
+          "conversation_id": "2e6d26dc",
+          "family": "longmemeval_s_full",
+          "turn_count": 496,
+          "truncated_turn_count": 496,
+          "target_turn_count": 16,
+          "estimated_cost": 7936
+        },
+        {
+          "conversation_id": "c14c00dd",
+          "family": "longmemeval_s_full",
+          "turn_count": 494,
+          "truncated_turn_count": 494,
+          "target_turn_count": 16,
+          "estimated_cost": 7904
+        },
+        {
+          "conversation_id": "945e3d21",
+          "family": "longmemeval_s_full",
+          "turn_count": 491,
+          "truncated_turn_count": 491,
+          "target_turn_count": 16,
+          "estimated_cost": 7856
+        },
+        {
+          "conversation_id": "8e9d538c",
+          "family": "longmemeval_s_full",
+          "turn_count": 488,
+          "truncated_turn_count": 488,
+          "target_turn_count": 16,
+          "estimated_cost": 7808
+        },
+        {
+          "conversation_id": "0ddfec37",
+          "family": "longmemeval_s_full",
+          "turn_count": 485,
+          "truncated_turn_count": 485,
+          "target_turn_count": 16,
+          "estimated_cost": 7760
+        },
+        {
+          "conversation_id": "edced276",
+          "family": "longmemeval_s_full",
+          "turn_count": 484,
+          "truncated_turn_count": 484,
+          "target_turn_count": 16,
+          "estimated_cost": 7744
+        },
+        {
+          "conversation_id": "a346bb18",
+          "family": "longmemeval_s_full",
+          "turn_count": 480,
+          "truncated_turn_count": 480,
+          "target_turn_count": 16,
+          "estimated_cost": 7680
+        },
+        {
+          "conversation_id": "a82c026e",
+          "family": "longmemeval_s_full",
+          "turn_count": 478,
+          "truncated_turn_count": 478,
+          "target_turn_count": 16,
+          "estimated_cost": 7648
+        },
+        {
+          "conversation_id": "54026fce",
+          "family": "longmemeval_s_full",
+          "turn_count": 474,
+          "truncated_turn_count": 474,
+          "target_turn_count": 16,
+          "estimated_cost": 7584
+        },
+        {
+          "conversation_id": "gpt4_4929293b",
+          "family": "longmemeval_s_full",
+          "turn_count": 471,
+          "truncated_turn_count": 471,
+          "target_turn_count": 16,
+          "estimated_cost": 7536
+        },
+        {
+          "conversation_id": "0ea62687",
+          "family": "longmemeval_s_full",
+          "turn_count": 462,
+          "truncated_turn_count": 462,
+          "target_turn_count": 16,
+          "estimated_cost": 7392
+        },
+        {
+          "conversation_id": "c8090214",
+          "family": "longmemeval_s_full",
+          "turn_count": 461,
+          "truncated_turn_count": 461,
+          "target_turn_count": 16,
+          "estimated_cost": 7376
+        },
+        {
+          "conversation_id": "5e1b23de",
+          "family": "longmemeval_s_full",
+          "turn_count": 447,
+          "truncated_turn_count": 447,
+          "target_turn_count": 16,
+          "estimated_cost": 7152
+        },
+        {
+          "conversation_id": "d6233ab6",
+          "family": "longmemeval_s_full",
+          "turn_count": 439,
+          "truncated_turn_count": 439,
+          "target_turn_count": 16,
+          "estimated_cost": 7024
+        }
+      ]
+    },
+    {
+      "shard_index": 8,
+      "estimated_cost": 183248,
+      "conversation_count": 23,
+      "conversation_ids": [
+        "37f165cf",
+        "352ab8bd",
+        "50635ada",
+        "0862e8bf_abs",
+        "d7c942c3",
+        "dd2973ad",
+        "67e0d0f2",
+        "1d4da289",
+        "157a136e",
+        "21d02d0d",
+        "af8d2e46",
+        "ceb54acb",
+        "gpt4_98f46fc6",
+        "00ca467f",
+        "2ebe6c90",
+        "gpt4_76048e76",
+        "b46e15ed",
+        "a9f6b44c",
+        "603deb26",
+        "6aeb4375",
+        "b320f3f8",
+        "4dfccbf8",
+        "bcbe585f"
+      ],
+      "items": [
+        {
+          "conversation_id": "37f165cf",
+          "family": "longmemeval_s_full",
+          "turn_count": 569,
+          "truncated_turn_count": 569,
+          "target_turn_count": 16,
+          "estimated_cost": 9104
+        },
+        {
+          "conversation_id": "352ab8bd",
+          "family": "longmemeval_s_full",
+          "turn_count": 541,
+          "truncated_turn_count": 541,
+          "target_turn_count": 16,
+          "estimated_cost": 8656
+        },
+        {
+          "conversation_id": "50635ada",
+          "family": "longmemeval_s_full",
+          "turn_count": 533,
+          "truncated_turn_count": 533,
+          "target_turn_count": 16,
+          "estimated_cost": 8528
+        },
+        {
+          "conversation_id": "0862e8bf_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 525,
+          "truncated_turn_count": 525,
+          "target_turn_count": 16,
+          "estimated_cost": 8400
+        },
+        {
+          "conversation_id": "d7c942c3",
+          "family": "longmemeval_s_full",
+          "turn_count": 522,
+          "truncated_turn_count": 522,
+          "target_turn_count": 16,
+          "estimated_cost": 8352
+        },
+        {
+          "conversation_id": "dd2973ad",
+          "family": "longmemeval_s_full",
+          "turn_count": 517,
+          "truncated_turn_count": 517,
+          "target_turn_count": 16,
+          "estimated_cost": 8272
+        },
+        {
+          "conversation_id": "67e0d0f2",
+          "family": "longmemeval_s_full",
+          "turn_count": 512,
+          "truncated_turn_count": 512,
+          "target_turn_count": 16,
+          "estimated_cost": 8192
+        },
+        {
+          "conversation_id": "1d4da289",
+          "family": "longmemeval_s_full",
+          "turn_count": 508,
+          "truncated_turn_count": 508,
+          "target_turn_count": 16,
+          "estimated_cost": 8128
+        },
+        {
+          "conversation_id": "157a136e",
+          "family": "longmemeval_s_full",
+          "turn_count": 505,
+          "truncated_turn_count": 505,
+          "target_turn_count": 16,
+          "estimated_cost": 8080
+        },
+        {
+          "conversation_id": "21d02d0d",
+          "family": "longmemeval_s_full",
+          "turn_count": 499,
+          "truncated_turn_count": 499,
+          "target_turn_count": 16,
+          "estimated_cost": 7984
+        },
+        {
+          "conversation_id": "af8d2e46",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "ceb54acb",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "gpt4_98f46fc6",
+          "family": "longmemeval_s_full",
+          "turn_count": 492,
+          "truncated_turn_count": 492,
+          "target_turn_count": 16,
+          "estimated_cost": 7872
+        },
+        {
+          "conversation_id": "00ca467f",
+          "family": "longmemeval_s_full",
+          "turn_count": 488,
+          "truncated_turn_count": 488,
+          "target_turn_count": 16,
+          "estimated_cost": 7808
+        },
+        {
+          "conversation_id": "2ebe6c90",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "gpt4_76048e76",
+          "family": "longmemeval_s_full",
+          "turn_count": 484,
+          "truncated_turn_count": 484,
+          "target_turn_count": 16,
+          "estimated_cost": 7744
+        },
+        {
+          "conversation_id": "b46e15ed",
+          "family": "longmemeval_s_full",
+          "turn_count": 480,
+          "truncated_turn_count": 480,
+          "target_turn_count": 16,
+          "estimated_cost": 7680
+        },
+        {
+          "conversation_id": "a9f6b44c",
+          "family": "longmemeval_s_full",
+          "turn_count": 478,
+          "truncated_turn_count": 478,
+          "target_turn_count": 16,
+          "estimated_cost": 7648
+        },
+        {
+          "conversation_id": "603deb26",
+          "family": "longmemeval_s_full",
+          "turn_count": 474,
+          "truncated_turn_count": 474,
+          "target_turn_count": 16,
+          "estimated_cost": 7584
+        },
+        {
+          "conversation_id": "6aeb4375",
+          "family": "longmemeval_s_full",
+          "turn_count": 470,
+          "truncated_turn_count": 470,
+          "target_turn_count": 16,
+          "estimated_cost": 7520
+        },
+        {
+          "conversation_id": "b320f3f8",
+          "family": "longmemeval_s_full",
+          "turn_count": 465,
+          "truncated_turn_count": 465,
+          "target_turn_count": 16,
+          "estimated_cost": 7440
+        },
+        {
+          "conversation_id": "4dfccbf8",
+          "family": "longmemeval_s_full",
+          "turn_count": 457,
+          "truncated_turn_count": 457,
+          "target_turn_count": 16,
+          "estimated_cost": 7312
+        },
+        {
+          "conversation_id": "bcbe585f",
+          "family": "longmemeval_s_full",
+          "turn_count": 455,
+          "truncated_turn_count": 455,
+          "target_turn_count": 16,
+          "estimated_cost": 7280
+        }
+      ]
+    },
+    {
+      "shard_index": 9,
+      "estimated_cost": 190176,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "gpt4_e061b84g",
+        "9aaed6a3",
+        "9a707b81",
+        "2133c1b5",
+        "gpt4_4ef30696",
+        "f35224e0",
+        "81507db6",
+        "25e5aa4f",
+        "18dcd5a5",
+        "6222b6eb",
+        "bb7c3b45",
+        "e6041065",
+        "gpt4_e414231f",
+        "0100672e",
+        "45dc21b6",
+        "gpt4_c27434e8_abs",
+        "c19f7a0b",
+        "dc439ea3",
+        "gpt4_2f584639",
+        "8cf4d046",
+        "0db4c65d",
+        "e3038f8c",
+        "ef66a6e5",
+        "gpt4_d6585ce9"
+      ],
+      "items": [
+        {
+          "conversation_id": "gpt4_e061b84g",
+          "family": "longmemeval_s_full",
+          "turn_count": 568,
+          "truncated_turn_count": 568,
+          "target_turn_count": 16,
+          "estimated_cost": 9088
+        },
+        {
+          "conversation_id": "9aaed6a3",
+          "family": "longmemeval_s_full",
+          "turn_count": 543,
+          "truncated_turn_count": 543,
+          "target_turn_count": 16,
+          "estimated_cost": 8688
+        },
+        {
+          "conversation_id": "9a707b81",
+          "family": "longmemeval_s_full",
+          "turn_count": 532,
+          "truncated_turn_count": 532,
+          "target_turn_count": 16,
+          "estimated_cost": 8512
+        },
+        {
+          "conversation_id": "2133c1b5",
+          "family": "longmemeval_s_full",
+          "turn_count": 525,
+          "truncated_turn_count": 525,
+          "target_turn_count": 16,
+          "estimated_cost": 8400
+        },
+        {
+          "conversation_id": "gpt4_4ef30696",
+          "family": "longmemeval_s_full",
+          "turn_count": 522,
+          "truncated_turn_count": 522,
+          "target_turn_count": 16,
+          "estimated_cost": 8352
+        },
+        {
+          "conversation_id": "f35224e0",
+          "family": "longmemeval_s_full",
+          "turn_count": 517,
+          "truncated_turn_count": 517,
+          "target_turn_count": 16,
+          "estimated_cost": 8272
+        },
+        {
+          "conversation_id": "81507db6",
+          "family": "longmemeval_s_full",
+          "turn_count": 512,
+          "truncated_turn_count": 512,
+          "target_turn_count": 16,
+          "estimated_cost": 8192
+        },
+        {
+          "conversation_id": "25e5aa4f",
+          "family": "longmemeval_s_full",
+          "turn_count": 508,
+          "truncated_turn_count": 508,
+          "target_turn_count": 16,
+          "estimated_cost": 8128
+        },
+        {
+          "conversation_id": "18dcd5a5",
+          "family": "longmemeval_s_full",
+          "turn_count": 505,
+          "truncated_turn_count": 505,
+          "target_turn_count": 16,
+          "estimated_cost": 8080
+        },
+        {
+          "conversation_id": "6222b6eb",
+          "family": "longmemeval_s_full",
+          "turn_count": 499,
+          "truncated_turn_count": 499,
+          "target_turn_count": 16,
+          "estimated_cost": 7984
+        },
+        {
+          "conversation_id": "bb7c3b45",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "e6041065",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "gpt4_e414231f",
+          "family": "longmemeval_s_full",
+          "turn_count": 492,
+          "truncated_turn_count": 492,
+          "target_turn_count": 16,
+          "estimated_cost": 7872
+        },
+        {
+          "conversation_id": "0100672e",
+          "family": "longmemeval_s_full",
+          "turn_count": 488,
+          "truncated_turn_count": 488,
+          "target_turn_count": 16,
+          "estimated_cost": 7808
+        },
+        {
+          "conversation_id": "45dc21b6",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "gpt4_c27434e8_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 484,
+          "truncated_turn_count": 484,
+          "target_turn_count": 16,
+          "estimated_cost": 7744
+        },
+        {
+          "conversation_id": "c19f7a0b",
+          "family": "longmemeval_s_full",
+          "turn_count": 480,
+          "truncated_turn_count": 480,
+          "target_turn_count": 16,
+          "estimated_cost": 7680
+        },
+        {
+          "conversation_id": "dc439ea3",
+          "family": "longmemeval_s_full",
+          "turn_count": 478,
+          "truncated_turn_count": 478,
+          "target_turn_count": 16,
+          "estimated_cost": 7648
+        },
+        {
+          "conversation_id": "gpt4_2f584639",
+          "family": "longmemeval_s_full",
+          "turn_count": 474,
+          "truncated_turn_count": 474,
+          "target_turn_count": 16,
+          "estimated_cost": 7584
+        },
+        {
+          "conversation_id": "8cf4d046",
+          "family": "longmemeval_s_full",
+          "turn_count": 470,
+          "truncated_turn_count": 470,
+          "target_turn_count": 16,
+          "estimated_cost": 7520
+        },
+        {
+          "conversation_id": "0db4c65d",
+          "family": "longmemeval_s_full",
+          "turn_count": 464,
+          "truncated_turn_count": 464,
+          "target_turn_count": 16,
+          "estimated_cost": 7424
+        },
+        {
+          "conversation_id": "e3038f8c",
+          "family": "longmemeval_s_full",
+          "turn_count": 460,
+          "truncated_turn_count": 460,
+          "target_turn_count": 16,
+          "estimated_cost": 7360
+        },
+        {
+          "conversation_id": "ef66a6e5",
+          "family": "longmemeval_s_full",
+          "turn_count": 447,
+          "truncated_turn_count": 447,
+          "target_turn_count": 16,
+          "estimated_cost": 7152
+        },
+        {
+          "conversation_id": "gpt4_d6585ce9",
+          "family": "longmemeval_s_full",
+          "turn_count": 439,
+          "truncated_turn_count": 439,
+          "target_turn_count": 16,
+          "estimated_cost": 7024
+        }
+      ]
+    },
+    {
+      "shard_index": 10,
+      "estimated_cost": 190080,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "gpt4_6dc9b45b",
+        "60d45044",
+        "41275add",
+        "32260d93",
+        "gpt4_70e84552_abs",
+        "gpt4_2f91af09",
+        "88432d0a_abs",
+        "618f13b2",
+        "46a3abf7",
+        "efc3f7c2",
+        "ec81a493",
+        "gpt4_385a5000",
+        "0f05491a",
+        "c4a1ceb8",
+        "a3838d2b",
+        "09d032c9",
+        "3a704032",
+        "eac54add",
+        "gpt4_4fc4f797",
+        "1192316e",
+        "75f70248",
+        "ba61f0b9",
+        "60159905",
+        "d01c6aa8"
+      ],
+      "items": [
+        {
+          "conversation_id": "gpt4_6dc9b45b",
+          "family": "longmemeval_s_full",
+          "turn_count": 567,
+          "truncated_turn_count": 567,
+          "target_turn_count": 16,
+          "estimated_cost": 9072
+        },
+        {
+          "conversation_id": "60d45044",
+          "family": "longmemeval_s_full",
+          "turn_count": 543,
+          "truncated_turn_count": 543,
+          "target_turn_count": 16,
+          "estimated_cost": 8688
+        },
+        {
+          "conversation_id": "41275add",
+          "family": "longmemeval_s_full",
+          "turn_count": 532,
+          "truncated_turn_count": 532,
+          "target_turn_count": 16,
+          "estimated_cost": 8512
+        },
+        {
+          "conversation_id": "32260d93",
+          "family": "longmemeval_s_full",
+          "turn_count": 526,
+          "truncated_turn_count": 526,
+          "target_turn_count": 16,
+          "estimated_cost": 8416
+        },
+        {
+          "conversation_id": "gpt4_70e84552_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 522,
+          "truncated_turn_count": 522,
+          "target_turn_count": 16,
+          "estimated_cost": 8352
+        },
+        {
+          "conversation_id": "gpt4_2f91af09",
+          "family": "longmemeval_s_full",
+          "turn_count": 517,
+          "truncated_turn_count": 517,
+          "target_turn_count": 16,
+          "estimated_cost": 8272
+        },
+        {
+          "conversation_id": "88432d0a_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 512,
+          "truncated_turn_count": 512,
+          "target_turn_count": 16,
+          "estimated_cost": 8192
+        },
+        {
+          "conversation_id": "618f13b2",
+          "family": "longmemeval_s_full",
+          "turn_count": 508,
+          "truncated_turn_count": 508,
+          "target_turn_count": 16,
+          "estimated_cost": 8128
+        },
+        {
+          "conversation_id": "46a3abf7",
+          "family": "longmemeval_s_full",
+          "turn_count": 505,
+          "truncated_turn_count": 505,
+          "target_turn_count": 16,
+          "estimated_cost": 8080
+        },
+        {
+          "conversation_id": "efc3f7c2",
+          "family": "longmemeval_s_full",
+          "turn_count": 499,
+          "truncated_turn_count": 499,
+          "target_turn_count": 16,
+          "estimated_cost": 7984
+        },
+        {
+          "conversation_id": "ec81a493",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "gpt4_385a5000",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "0f05491a",
+          "family": "longmemeval_s_full",
+          "turn_count": 491,
+          "truncated_turn_count": 491,
+          "target_turn_count": 16,
+          "estimated_cost": 7856
+        },
+        {
+          "conversation_id": "c4a1ceb8",
+          "family": "longmemeval_s_full",
+          "turn_count": 490,
+          "truncated_turn_count": 490,
+          "target_turn_count": 16,
+          "estimated_cost": 7840
+        },
+        {
+          "conversation_id": "a3838d2b",
+          "family": "longmemeval_s_full",
+          "turn_count": 486,
+          "truncated_turn_count": 486,
+          "target_turn_count": 16,
+          "estimated_cost": 7776
+        },
+        {
+          "conversation_id": "09d032c9",
+          "family": "longmemeval_s_full",
+          "turn_count": 483,
+          "truncated_turn_count": 483,
+          "target_turn_count": 16,
+          "estimated_cost": 7728
+        },
+        {
+          "conversation_id": "3a704032",
+          "family": "longmemeval_s_full",
+          "turn_count": 481,
+          "truncated_turn_count": 481,
+          "target_turn_count": 16,
+          "estimated_cost": 7696
+        },
+        {
+          "conversation_id": "eac54add",
+          "family": "longmemeval_s_full",
+          "turn_count": 478,
+          "truncated_turn_count": 478,
+          "target_turn_count": 16,
+          "estimated_cost": 7648
+        },
+        {
+          "conversation_id": "gpt4_4fc4f797",
+          "family": "longmemeval_s_full",
+          "turn_count": 474,
+          "truncated_turn_count": 474,
+          "target_turn_count": 16,
+          "estimated_cost": 7584
+        },
+        {
+          "conversation_id": "1192316e",
+          "family": "longmemeval_s_full",
+          "turn_count": 469,
+          "truncated_turn_count": 469,
+          "target_turn_count": 16,
+          "estimated_cost": 7504
+        },
+        {
+          "conversation_id": "75f70248",
+          "family": "longmemeval_s_full",
+          "turn_count": 468,
+          "truncated_turn_count": 468,
+          "target_turn_count": 16,
+          "estimated_cost": 7488
+        },
+        {
+          "conversation_id": "ba61f0b9",
+          "family": "longmemeval_s_full",
+          "turn_count": 456,
+          "truncated_turn_count": 456,
+          "target_turn_count": 16,
+          "estimated_cost": 7296
+        },
+        {
+          "conversation_id": "60159905",
+          "family": "longmemeval_s_full",
+          "turn_count": 450,
+          "truncated_turn_count": 450,
+          "target_turn_count": 16,
+          "estimated_cost": 7200
+        },
+        {
+          "conversation_id": "d01c6aa8",
+          "family": "longmemeval_s_full",
+          "turn_count": 431,
+          "truncated_turn_count": 431,
+          "target_turn_count": 16,
+          "estimated_cost": 6896
+        }
+      ]
+    },
+    {
+      "shard_index": 11,
+      "estimated_cost": 190160,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "7e00a6cb",
+        "gpt4_b4a80587",
+        "4bc144e2",
+        "031748ae_abs",
+        "4c36ccef",
+        "001be529",
+        "a4996e51",
+        "6d550036",
+        "86f00804",
+        "gpt4_0b2f1d21",
+        "gpt4_18c2b244",
+        "gpt4_7fce9456",
+        "65240037",
+        "01493427",
+        "86b68151",
+        "0e4e4c46",
+        "5c40ec5b",
+        "gpt4_a2d1d1f6",
+        "58470ed2",
+        "gpt4_9a159967",
+        "6e984302",
+        "fca762bc",
+        "gpt4_93f6379c",
+        "18bc8abd"
+      ],
+      "items": [
+        {
+          "conversation_id": "7e00a6cb",
+          "family": "longmemeval_s_full",
+          "turn_count": 566,
+          "truncated_turn_count": 566,
+          "target_turn_count": 16,
+          "estimated_cost": 9056
+        },
+        {
+          "conversation_id": "gpt4_b4a80587",
+          "family": "longmemeval_s_full",
+          "turn_count": 544,
+          "truncated_turn_count": 544,
+          "target_turn_count": 16,
+          "estimated_cost": 8704
+        },
+        {
+          "conversation_id": "4bc144e2",
+          "family": "longmemeval_s_full",
+          "turn_count": 532,
+          "truncated_turn_count": 532,
+          "target_turn_count": 16,
+          "estimated_cost": 8512
+        },
+        {
+          "conversation_id": "031748ae_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 525,
+          "truncated_turn_count": 525,
+          "target_turn_count": 16,
+          "estimated_cost": 8400
+        },
+        {
+          "conversation_id": "4c36ccef",
+          "family": "longmemeval_s_full",
+          "turn_count": 523,
+          "truncated_turn_count": 523,
+          "target_turn_count": 16,
+          "estimated_cost": 8368
+        },
+        {
+          "conversation_id": "001be529",
+          "family": "longmemeval_s_full",
+          "turn_count": 516,
+          "truncated_turn_count": 516,
+          "target_turn_count": 16,
+          "estimated_cost": 8256
+        },
+        {
+          "conversation_id": "a4996e51",
+          "family": "longmemeval_s_full",
+          "turn_count": 514,
+          "truncated_turn_count": 514,
+          "target_turn_count": 16,
+          "estimated_cost": 8224
+        },
+        {
+          "conversation_id": "6d550036",
+          "family": "longmemeval_s_full",
+          "turn_count": 507,
+          "truncated_turn_count": 507,
+          "target_turn_count": 16,
+          "estimated_cost": 8112
+        },
+        {
+          "conversation_id": "86f00804",
+          "family": "longmemeval_s_full",
+          "turn_count": 505,
+          "truncated_turn_count": 505,
+          "target_turn_count": 16,
+          "estimated_cost": 8080
+        },
+        {
+          "conversation_id": "gpt4_0b2f1d21",
+          "family": "longmemeval_s_full",
+          "turn_count": 499,
+          "truncated_turn_count": 499,
+          "target_turn_count": 16,
+          "estimated_cost": 7984
+        },
+        {
+          "conversation_id": "gpt4_18c2b244",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "gpt4_7fce9456",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "65240037",
+          "family": "longmemeval_s_full",
+          "turn_count": 491,
+          "truncated_turn_count": 491,
+          "target_turn_count": 16,
+          "estimated_cost": 7856
+        },
+        {
+          "conversation_id": "01493427",
+          "family": "longmemeval_s_full",
+          "turn_count": 489,
+          "truncated_turn_count": 489,
+          "target_turn_count": 16,
+          "estimated_cost": 7824
+        },
+        {
+          "conversation_id": "86b68151",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "0e4e4c46",
+          "family": "longmemeval_s_full",
+          "turn_count": 483,
+          "truncated_turn_count": 483,
+          "target_turn_count": 16,
+          "estimated_cost": 7728
+        },
+        {
+          "conversation_id": "5c40ec5b",
+          "family": "longmemeval_s_full",
+          "turn_count": 481,
+          "truncated_turn_count": 481,
+          "target_turn_count": 16,
+          "estimated_cost": 7696
+        },
+        {
+          "conversation_id": "gpt4_a2d1d1f6",
+          "family": "longmemeval_s_full",
+          "turn_count": 478,
+          "truncated_turn_count": 478,
+          "target_turn_count": 16,
+          "estimated_cost": 7648
+        },
+        {
+          "conversation_id": "58470ed2",
+          "family": "longmemeval_s_full",
+          "turn_count": 473,
+          "truncated_turn_count": 473,
+          "target_turn_count": 16,
+          "estimated_cost": 7568
+        },
+        {
+          "conversation_id": "gpt4_9a159967",
+          "family": "longmemeval_s_full",
+          "turn_count": 472,
+          "truncated_turn_count": 472,
+          "target_turn_count": 16,
+          "estimated_cost": 7552
+        },
+        {
+          "conversation_id": "6e984302",
+          "family": "longmemeval_s_full",
+          "turn_count": 462,
+          "truncated_turn_count": 462,
+          "target_turn_count": 16,
+          "estimated_cost": 7392
+        },
+        {
+          "conversation_id": "fca762bc",
+          "family": "longmemeval_s_full",
+          "turn_count": 461,
+          "truncated_turn_count": 461,
+          "target_turn_count": 16,
+          "estimated_cost": 7376
+        },
+        {
+          "conversation_id": "gpt4_93f6379c",
+          "family": "longmemeval_s_full",
+          "turn_count": 447,
+          "truncated_turn_count": 447,
+          "target_turn_count": 16,
+          "estimated_cost": 7152
+        },
+        {
+          "conversation_id": "18bc8abd",
+          "family": "longmemeval_s_full",
+          "turn_count": 438,
+          "truncated_turn_count": 438,
+          "target_turn_count": 16,
+          "estimated_cost": 7008
+        }
+      ]
+    },
+    {
+      "shard_index": 12,
+      "estimated_cost": 190240,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "gpt4_7a0daae1",
+        "778164c6",
+        "gpt4_483dd43c",
+        "07b6f563",
+        "4dfccbf7",
+        "4b24c848",
+        "d23cf73b",
+        "982b5123_abs",
+        "b01defab",
+        "gpt4_59149c78",
+        "gpt4_2487a7cb",
+        "gpt4_88806d6e",
+        "76d63226",
+        "2ebe6c92",
+        "8fb83627",
+        "51b23612",
+        "80ec1f4f_abs",
+        "gpt4_af6db32f",
+        "6b7dfb22",
+        "7405e8b1",
+        "1c549ce4",
+        "gpt4_2f56ae70",
+        "gpt4_93159ced",
+        "fca70973"
+      ],
+      "items": [
+        {
+          "conversation_id": "gpt4_7a0daae1",
+          "family": "longmemeval_s_full",
+          "turn_count": 563,
+          "truncated_turn_count": 563,
+          "target_turn_count": 16,
+          "estimated_cost": 9008
+        },
+        {
+          "conversation_id": "778164c6",
+          "family": "longmemeval_s_full",
+          "turn_count": 544,
+          "truncated_turn_count": 544,
+          "target_turn_count": 16,
+          "estimated_cost": 8704
+        },
+        {
+          "conversation_id": "gpt4_483dd43c",
+          "family": "longmemeval_s_full",
+          "turn_count": 534,
+          "truncated_turn_count": 534,
+          "target_turn_count": 16,
+          "estimated_cost": 8544
+        },
+        {
+          "conversation_id": "07b6f563",
+          "family": "longmemeval_s_full",
+          "turn_count": 526,
+          "truncated_turn_count": 526,
+          "target_turn_count": 16,
+          "estimated_cost": 8416
+        },
+        {
+          "conversation_id": "4dfccbf7",
+          "family": "longmemeval_s_full",
+          "turn_count": 523,
+          "truncated_turn_count": 523,
+          "target_turn_count": 16,
+          "estimated_cost": 8368
+        },
+        {
+          "conversation_id": "4b24c848",
+          "family": "longmemeval_s_full",
+          "turn_count": 516,
+          "truncated_turn_count": 516,
+          "target_turn_count": 16,
+          "estimated_cost": 8256
+        },
+        {
+          "conversation_id": "d23cf73b",
+          "family": "longmemeval_s_full",
+          "turn_count": 514,
+          "truncated_turn_count": 514,
+          "target_turn_count": 16,
+          "estimated_cost": 8224
+        },
+        {
+          "conversation_id": "982b5123_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 507,
+          "truncated_turn_count": 507,
+          "target_turn_count": 16,
+          "estimated_cost": 8112
+        },
+        {
+          "conversation_id": "b01defab",
+          "family": "longmemeval_s_full",
+          "turn_count": 505,
+          "truncated_turn_count": 505,
+          "target_turn_count": 16,
+          "estimated_cost": 8080
+        },
+        {
+          "conversation_id": "gpt4_59149c78",
+          "family": "longmemeval_s_full",
+          "turn_count": 499,
+          "truncated_turn_count": 499,
+          "target_turn_count": 16,
+          "estimated_cost": 7984
+        },
+        {
+          "conversation_id": "gpt4_2487a7cb",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "gpt4_88806d6e",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "76d63226",
+          "family": "longmemeval_s_full",
+          "turn_count": 491,
+          "truncated_turn_count": 491,
+          "target_turn_count": 16,
+          "estimated_cost": 7856
+        },
+        {
+          "conversation_id": "2ebe6c92",
+          "family": "longmemeval_s_full",
+          "turn_count": 489,
+          "truncated_turn_count": 489,
+          "target_turn_count": 16,
+          "estimated_cost": 7824
+        },
+        {
+          "conversation_id": "8fb83627",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "51b23612",
+          "family": "longmemeval_s_full",
+          "turn_count": 483,
+          "truncated_turn_count": 483,
+          "target_turn_count": 16,
+          "estimated_cost": 7728
+        },
+        {
+          "conversation_id": "80ec1f4f_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 481,
+          "truncated_turn_count": 481,
+          "target_turn_count": 16,
+          "estimated_cost": 7696
+        },
+        {
+          "conversation_id": "gpt4_af6db32f",
+          "family": "longmemeval_s_full",
+          "turn_count": 478,
+          "truncated_turn_count": 478,
+          "target_turn_count": 16,
+          "estimated_cost": 7648
+        },
+        {
+          "conversation_id": "6b7dfb22",
+          "family": "longmemeval_s_full",
+          "turn_count": 473,
+          "truncated_turn_count": 473,
+          "target_turn_count": 16,
+          "estimated_cost": 7568
+        },
+        {
+          "conversation_id": "7405e8b1",
+          "family": "longmemeval_s_full",
+          "turn_count": 471,
+          "truncated_turn_count": 471,
+          "target_turn_count": 16,
+          "estimated_cost": 7536
+        },
+        {
+          "conversation_id": "1c549ce4",
+          "family": "longmemeval_s_full",
+          "turn_count": 464,
+          "truncated_turn_count": 464,
+          "target_turn_count": 16,
+          "estimated_cost": 7424
+        },
+        {
+          "conversation_id": "gpt4_2f56ae70",
+          "family": "longmemeval_s_full",
+          "turn_count": 460,
+          "truncated_turn_count": 460,
+          "target_turn_count": 16,
+          "estimated_cost": 7360
+        },
+        {
+          "conversation_id": "gpt4_93159ced",
+          "family": "longmemeval_s_full",
+          "turn_count": 446,
+          "truncated_turn_count": 446,
+          "target_turn_count": 16,
+          "estimated_cost": 7136
+        },
+        {
+          "conversation_id": "fca70973",
+          "family": "longmemeval_s_full",
+          "turn_count": 444,
+          "truncated_turn_count": 444,
+          "target_turn_count": 16,
+          "estimated_cost": 7104
+        }
+      ]
+    },
+    {
+      "shard_index": 13,
+      "estimated_cost": 190000,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "a08a253f",
+        "3c1045c8",
+        "d6062bb9",
+        "gpt4_731e37d7",
+        "60bf93ed_abs",
+        "4baee567",
+        "830ce83f",
+        "7a87bd0c",
+        "7e974930",
+        "8e91e7d9",
+        "gpt4_d84a3211",
+        "8aef76bc",
+        "0862e8bf",
+        "577d4d32",
+        "aae3761f",
+        "affe2881",
+        "88432d0a",
+        "0edc2aef",
+        "gpt4_194be4b3",
+        "gpt4_7abb270c",
+        "1da05512",
+        "a11281a2",
+        "a2f3aa27",
+        "f685340e"
+      ],
+      "items": [
+        {
+          "conversation_id": "a08a253f",
+          "family": "longmemeval_s_full",
+          "turn_count": 562,
+          "truncated_turn_count": 562,
+          "target_turn_count": 16,
+          "estimated_cost": 8992
+        },
+        {
+          "conversation_id": "3c1045c8",
+          "family": "longmemeval_s_full",
+          "turn_count": 544,
+          "truncated_turn_count": 544,
+          "target_turn_count": 16,
+          "estimated_cost": 8704
+        },
+        {
+          "conversation_id": "d6062bb9",
+          "family": "longmemeval_s_full",
+          "turn_count": 534,
+          "truncated_turn_count": 534,
+          "target_turn_count": 16,
+          "estimated_cost": 8544
+        },
+        {
+          "conversation_id": "gpt4_731e37d7",
+          "family": "longmemeval_s_full",
+          "turn_count": 527,
+          "truncated_turn_count": 527,
+          "target_turn_count": 16,
+          "estimated_cost": 8432
+        },
+        {
+          "conversation_id": "60bf93ed_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 523,
+          "truncated_turn_count": 523,
+          "target_turn_count": 16,
+          "estimated_cost": 8368
+        },
+        {
+          "conversation_id": "4baee567",
+          "family": "longmemeval_s_full",
+          "turn_count": 516,
+          "truncated_turn_count": 516,
+          "target_turn_count": 16,
+          "estimated_cost": 8256
+        },
+        {
+          "conversation_id": "830ce83f",
+          "family": "longmemeval_s_full",
+          "turn_count": 513,
+          "truncated_turn_count": 513,
+          "target_turn_count": 16,
+          "estimated_cost": 8208
+        },
+        {
+          "conversation_id": "7a87bd0c",
+          "family": "longmemeval_s_full",
+          "turn_count": 508,
+          "truncated_turn_count": 508,
+          "target_turn_count": 16,
+          "estimated_cost": 8128
+        },
+        {
+          "conversation_id": "7e974930",
+          "family": "longmemeval_s_full",
+          "turn_count": 504,
+          "truncated_turn_count": 504,
+          "target_turn_count": 16,
+          "estimated_cost": 8064
+        },
+        {
+          "conversation_id": "8e91e7d9",
+          "family": "longmemeval_s_full",
+          "turn_count": 500,
+          "truncated_turn_count": 500,
+          "target_turn_count": 16,
+          "estimated_cost": 8000
+        },
+        {
+          "conversation_id": "gpt4_d84a3211",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "8aef76bc",
+          "family": "longmemeval_s_full",
+          "turn_count": 494,
+          "truncated_turn_count": 494,
+          "target_turn_count": 16,
+          "estimated_cost": 7904
+        },
+        {
+          "conversation_id": "0862e8bf",
+          "family": "longmemeval_s_full",
+          "turn_count": 492,
+          "truncated_turn_count": 492,
+          "target_turn_count": 16,
+          "estimated_cost": 7872
+        },
+        {
+          "conversation_id": "577d4d32",
+          "family": "longmemeval_s_full",
+          "turn_count": 489,
+          "truncated_turn_count": 489,
+          "target_turn_count": 16,
+          "estimated_cost": 7824
+        },
+        {
+          "conversation_id": "aae3761f",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "affe2881",
+          "family": "longmemeval_s_full",
+          "turn_count": 483,
+          "truncated_turn_count": 483,
+          "target_turn_count": 16,
+          "estimated_cost": 7728
+        },
+        {
+          "conversation_id": "88432d0a",
+          "family": "longmemeval_s_full",
+          "turn_count": 481,
+          "truncated_turn_count": 481,
+          "target_turn_count": 16,
+          "estimated_cost": 7696
+        },
+        {
+          "conversation_id": "0edc2aef",
+          "family": "longmemeval_s_full",
+          "turn_count": 477,
+          "truncated_turn_count": 477,
+          "target_turn_count": 16,
+          "estimated_cost": 7632
+        },
+        {
+          "conversation_id": "gpt4_194be4b3",
+          "family": "longmemeval_s_full",
+          "turn_count": 476,
+          "truncated_turn_count": 476,
+          "target_turn_count": 16,
+          "estimated_cost": 7616
+        },
+        {
+          "conversation_id": "gpt4_7abb270c",
+          "family": "longmemeval_s_full",
+          "turn_count": 469,
+          "truncated_turn_count": 469,
+          "target_turn_count": 16,
+          "estimated_cost": 7504
+        },
+        {
+          "conversation_id": "1da05512",
+          "family": "longmemeval_s_full",
+          "turn_count": 464,
+          "truncated_turn_count": 464,
+          "target_turn_count": 16,
+          "estimated_cost": 7424
+        },
+        {
+          "conversation_id": "a11281a2",
+          "family": "longmemeval_s_full",
+          "turn_count": 459,
+          "truncated_turn_count": 459,
+          "target_turn_count": 16,
+          "estimated_cost": 7344
+        },
+        {
+          "conversation_id": "a2f3aa27",
+          "family": "longmemeval_s_full",
+          "turn_count": 450,
+          "truncated_turn_count": 450,
+          "target_turn_count": 16,
+          "estimated_cost": 7200
+        },
+        {
+          "conversation_id": "f685340e",
+          "family": "longmemeval_s_full",
+          "turn_count": 426,
+          "truncated_turn_count": 426,
+          "target_turn_count": 16,
+          "estimated_cost": 6816
+        }
+      ]
+    },
+    {
+      "shard_index": 14,
+      "estimated_cost": 189968,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "gpt4_7f6b06db",
+        "ed4ddc30",
+        "1a1907b4",
+        "19b5f2b3_abs",
+        "35a27287",
+        "gpt4_7ca326fa",
+        "94f70d80",
+        "c8090214_abs",
+        "afdc33df",
+        "gpt4_1e4a8aec",
+        "gpt4_f420262c",
+        "a1cc6108",
+        "36b9f61e",
+        "5a4f22c0",
+        "c4f10528",
+        "e831120c",
+        "d52b4f67",
+        "2788b940",
+        "gpt4_2f8be40d",
+        "gpt4_e061b84f",
+        "2698e78f_abs",
+        "b46e15ee",
+        "e56a43b9",
+        "5831f84d"
+      ],
+      "items": [
+        {
+          "conversation_id": "gpt4_7f6b06db",
+          "family": "longmemeval_s_full",
+          "turn_count": 560,
+          "truncated_turn_count": 560,
+          "target_turn_count": 16,
+          "estimated_cost": 8960
+        },
+        {
+          "conversation_id": "ed4ddc30",
+          "family": "longmemeval_s_full",
+          "turn_count": 545,
+          "truncated_turn_count": 545,
+          "target_turn_count": 16,
+          "estimated_cost": 8720
+        },
+        {
+          "conversation_id": "1a1907b4",
+          "family": "longmemeval_s_full",
+          "turn_count": 534,
+          "truncated_turn_count": 534,
+          "target_turn_count": 16,
+          "estimated_cost": 8544
+        },
+        {
+          "conversation_id": "19b5f2b3_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 529,
+          "truncated_turn_count": 529,
+          "target_turn_count": 16,
+          "estimated_cost": 8464
+        },
+        {
+          "conversation_id": "35a27287",
+          "family": "longmemeval_s_full",
+          "turn_count": 521,
+          "truncated_turn_count": 521,
+          "target_turn_count": 16,
+          "estimated_cost": 8336
+        },
+        {
+          "conversation_id": "gpt4_7ca326fa",
+          "family": "longmemeval_s_full",
+          "turn_count": 518,
+          "truncated_turn_count": 518,
+          "target_turn_count": 16,
+          "estimated_cost": 8288
+        },
+        {
+          "conversation_id": "94f70d80",
+          "family": "longmemeval_s_full",
+          "turn_count": 512,
+          "truncated_turn_count": 512,
+          "target_turn_count": 16,
+          "estimated_cost": 8192
+        },
+        {
+          "conversation_id": "c8090214_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 508,
+          "truncated_turn_count": 508,
+          "target_turn_count": 16,
+          "estimated_cost": 8128
+        },
+        {
+          "conversation_id": "afdc33df",
+          "family": "longmemeval_s_full",
+          "turn_count": 504,
+          "truncated_turn_count": 504,
+          "target_turn_count": 16,
+          "estimated_cost": 8064
+        },
+        {
+          "conversation_id": "gpt4_1e4a8aec",
+          "family": "longmemeval_s_full",
+          "turn_count": 500,
+          "truncated_turn_count": 500,
+          "target_turn_count": 16,
+          "estimated_cost": 8000
+        },
+        {
+          "conversation_id": "gpt4_f420262c",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "a1cc6108",
+          "family": "longmemeval_s_full",
+          "turn_count": 494,
+          "truncated_turn_count": 494,
+          "target_turn_count": 16,
+          "estimated_cost": 7904
+        },
+        {
+          "conversation_id": "36b9f61e",
+          "family": "longmemeval_s_full",
+          "turn_count": 492,
+          "truncated_turn_count": 492,
+          "target_turn_count": 16,
+          "estimated_cost": 7872
+        },
+        {
+          "conversation_id": "5a4f22c0",
+          "family": "longmemeval_s_full",
+          "turn_count": 489,
+          "truncated_turn_count": 489,
+          "target_turn_count": 16,
+          "estimated_cost": 7824
+        },
+        {
+          "conversation_id": "c4f10528",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "e831120c",
+          "family": "longmemeval_s_full",
+          "turn_count": 483,
+          "truncated_turn_count": 483,
+          "target_turn_count": 16,
+          "estimated_cost": 7728
+        },
+        {
+          "conversation_id": "d52b4f67",
+          "family": "longmemeval_s_full",
+          "turn_count": 481,
+          "truncated_turn_count": 481,
+          "target_turn_count": 16,
+          "estimated_cost": 7696
+        },
+        {
+          "conversation_id": "2788b940",
+          "family": "longmemeval_s_full",
+          "turn_count": 477,
+          "truncated_turn_count": 477,
+          "target_turn_count": 16,
+          "estimated_cost": 7632
+        },
+        {
+          "conversation_id": "gpt4_2f8be40d",
+          "family": "longmemeval_s_full",
+          "turn_count": 476,
+          "truncated_turn_count": 476,
+          "target_turn_count": 16,
+          "estimated_cost": 7616
+        },
+        {
+          "conversation_id": "gpt4_e061b84f",
+          "family": "longmemeval_s_full",
+          "turn_count": 469,
+          "truncated_turn_count": 469,
+          "target_turn_count": 16,
+          "estimated_cost": 7504
+        },
+        {
+          "conversation_id": "2698e78f_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 464,
+          "truncated_turn_count": 464,
+          "target_turn_count": 16,
+          "estimated_cost": 7424
+        },
+        {
+          "conversation_id": "b46e15ee",
+          "family": "longmemeval_s_full",
+          "turn_count": 459,
+          "truncated_turn_count": 459,
+          "target_turn_count": 16,
+          "estimated_cost": 7344
+        },
+        {
+          "conversation_id": "e56a43b9",
+          "family": "longmemeval_s_full",
+          "turn_count": 450,
+          "truncated_turn_count": 450,
+          "target_turn_count": 16,
+          "estimated_cost": 7200
+        },
+        {
+          "conversation_id": "5831f84d",
+          "family": "longmemeval_s_full",
+          "turn_count": 424,
+          "truncated_turn_count": 424,
+          "target_turn_count": 16,
+          "estimated_cost": 6784
+        }
+      ]
+    },
+    {
+      "shard_index": 15,
+      "estimated_cost": 190064,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "gpt4_fa19884d",
+        "edced276_abs",
+        "gpt4_1916e0ea",
+        "77eafa52",
+        "e3fc4d6e",
+        "gpt4_ec93e27f",
+        "b6019101",
+        "e493bb7c",
+        "b0479f84",
+        "gpt4_468eb063",
+        "031748ae",
+        "8752c811",
+        "3e321797",
+        "80ec1f4f",
+        "d24813b1",
+        "gpt4_59c863d7",
+        "gpt4_1e4a8aeb",
+        "3249768e",
+        "184da446",
+        "89527b6b",
+        "ad7109d1",
+        "gpt4_f420262d",
+        "0ddfec37_abs",
+        "6c49646a"
+      ],
+      "items": [
+        {
+          "conversation_id": "gpt4_fa19884d",
+          "family": "longmemeval_s_full",
+          "turn_count": 558,
+          "truncated_turn_count": 558,
+          "target_turn_count": 16,
+          "estimated_cost": 8928
+        },
+        {
+          "conversation_id": "edced276_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 546,
+          "truncated_turn_count": 546,
+          "target_turn_count": 16,
+          "estimated_cost": 8736
+        },
+        {
+          "conversation_id": "gpt4_1916e0ea",
+          "family": "longmemeval_s_full",
+          "turn_count": 535,
+          "truncated_turn_count": 535,
+          "target_turn_count": 16,
+          "estimated_cost": 8560
+        },
+        {
+          "conversation_id": "77eafa52",
+          "family": "longmemeval_s_full",
+          "turn_count": 529,
+          "truncated_turn_count": 529,
+          "target_turn_count": 16,
+          "estimated_cost": 8464
+        },
+        {
+          "conversation_id": "e3fc4d6e",
+          "family": "longmemeval_s_full",
+          "turn_count": 521,
+          "truncated_turn_count": 521,
+          "target_turn_count": 16,
+          "estimated_cost": 8336
+        },
+        {
+          "conversation_id": "gpt4_ec93e27f",
+          "family": "longmemeval_s_full",
+          "turn_count": 518,
+          "truncated_turn_count": 518,
+          "target_turn_count": 16,
+          "estimated_cost": 8288
+        },
+        {
+          "conversation_id": "b6019101",
+          "family": "longmemeval_s_full",
+          "turn_count": 512,
+          "truncated_turn_count": 512,
+          "target_turn_count": 16,
+          "estimated_cost": 8192
+        },
+        {
+          "conversation_id": "e493bb7c",
+          "family": "longmemeval_s_full",
+          "turn_count": 508,
+          "truncated_turn_count": 508,
+          "target_turn_count": 16,
+          "estimated_cost": 8128
+        },
+        {
+          "conversation_id": "b0479f84",
+          "family": "longmemeval_s_full",
+          "turn_count": 504,
+          "truncated_turn_count": 504,
+          "target_turn_count": 16,
+          "estimated_cost": 8064
+        },
+        {
+          "conversation_id": "gpt4_468eb063",
+          "family": "longmemeval_s_full",
+          "turn_count": 500,
+          "truncated_turn_count": 500,
+          "target_turn_count": 16,
+          "estimated_cost": 8000
+        },
+        {
+          "conversation_id": "031748ae",
+          "family": "longmemeval_s_full",
+          "turn_count": 496,
+          "truncated_turn_count": 496,
+          "target_turn_count": 16,
+          "estimated_cost": 7936
+        },
+        {
+          "conversation_id": "8752c811",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "3e321797",
+          "family": "longmemeval_s_full",
+          "turn_count": 492,
+          "truncated_turn_count": 492,
+          "target_turn_count": 16,
+          "estimated_cost": 7872
+        },
+        {
+          "conversation_id": "80ec1f4f",
+          "family": "longmemeval_s_full",
+          "turn_count": 489,
+          "truncated_turn_count": 489,
+          "target_turn_count": 16,
+          "estimated_cost": 7824
+        },
+        {
+          "conversation_id": "d24813b1",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "gpt4_59c863d7",
+          "family": "longmemeval_s_full",
+          "turn_count": 483,
+          "truncated_turn_count": 483,
+          "target_turn_count": 16,
+          "estimated_cost": 7728
+        },
+        {
+          "conversation_id": "gpt4_1e4a8aeb",
+          "family": "longmemeval_s_full",
+          "turn_count": 481,
+          "truncated_turn_count": 481,
+          "target_turn_count": 16,
+          "estimated_cost": 7696
+        },
+        {
+          "conversation_id": "3249768e",
+          "family": "longmemeval_s_full",
+          "turn_count": 477,
+          "truncated_turn_count": 477,
+          "target_turn_count": 16,
+          "estimated_cost": 7632
+        },
+        {
+          "conversation_id": "184da446",
+          "family": "longmemeval_s_full",
+          "turn_count": 475,
+          "truncated_turn_count": 475,
+          "target_turn_count": 16,
+          "estimated_cost": 7600
+        },
+        {
+          "conversation_id": "89527b6b",
+          "family": "longmemeval_s_full",
+          "turn_count": 469,
+          "truncated_turn_count": 469,
+          "target_turn_count": 16,
+          "estimated_cost": 7504
+        },
+        {
+          "conversation_id": "ad7109d1",
+          "family": "longmemeval_s_full",
+          "turn_count": 468,
+          "truncated_turn_count": 468,
+          "target_turn_count": 16,
+          "estimated_cost": 7488
+        },
+        {
+          "conversation_id": "gpt4_f420262d",
+          "family": "longmemeval_s_full",
+          "turn_count": 456,
+          "truncated_turn_count": 456,
+          "target_turn_count": 16,
+          "estimated_cost": 7296
+        },
+        {
+          "conversation_id": "0ddfec37_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 449,
+          "truncated_turn_count": 449,
+          "target_turn_count": 16,
+          "estimated_cost": 7184
+        },
+        {
+          "conversation_id": "6c49646a",
+          "family": "longmemeval_s_full",
+          "turn_count": 431,
+          "truncated_turn_count": 431,
+          "target_turn_count": 16,
+          "estimated_cost": 6896
+        }
+      ]
+    },
+    {
+      "shard_index": 16,
+      "estimated_cost": 183248,
+      "conversation_count": 23,
+      "conversation_ids": [
+        "4fd1909e",
+        "gpt4_5dcc0aab",
+        "9a707b82",
+        "fea54f57",
+        "gpt4_7bc6cf22",
+        "195a1a1b",
+        "c9f37c46",
+        "e66b632c",
+        "b3c15d39",
+        "gpt4_a1b77f9c",
+        "1faac195",
+        "9d25d4e0",
+        "4adc0475",
+        "8ebdbe50",
+        "gpt4_8c8961ae",
+        "gpt4_ab202e7f",
+        "gpt4_f2262a51",
+        "db467c8c",
+        "1de5cff2",
+        "a3332713",
+        "caf9ead2",
+        "3fdac837",
+        "gpt4_1a1dc16d"
+      ],
+      "items": [
+        {
+          "conversation_id": "4fd1909e",
+          "family": "longmemeval_s_full",
+          "turn_count": 556,
+          "truncated_turn_count": 556,
+          "target_turn_count": 16,
+          "estimated_cost": 8896
+        },
+        {
+          "conversation_id": "gpt4_5dcc0aab",
+          "family": "longmemeval_s_full",
+          "turn_count": 549,
+          "truncated_turn_count": 549,
+          "target_turn_count": 16,
+          "estimated_cost": 8784
+        },
+        {
+          "conversation_id": "9a707b82",
+          "family": "longmemeval_s_full",
+          "turn_count": 534,
+          "truncated_turn_count": 534,
+          "target_turn_count": 16,
+          "estimated_cost": 8544
+        },
+        {
+          "conversation_id": "fea54f57",
+          "family": "longmemeval_s_full",
+          "turn_count": 529,
+          "truncated_turn_count": 529,
+          "target_turn_count": 16,
+          "estimated_cost": 8464
+        },
+        {
+          "conversation_id": "gpt4_7bc6cf22",
+          "family": "longmemeval_s_full",
+          "turn_count": 521,
+          "truncated_turn_count": 521,
+          "target_turn_count": 16,
+          "estimated_cost": 8336
+        },
+        {
+          "conversation_id": "195a1a1b",
+          "family": "longmemeval_s_full",
+          "turn_count": 517,
+          "truncated_turn_count": 517,
+          "target_turn_count": 16,
+          "estimated_cost": 8272
+        },
+        {
+          "conversation_id": "c9f37c46",
+          "family": "longmemeval_s_full",
+          "turn_count": 513,
+          "truncated_turn_count": 513,
+          "target_turn_count": 16,
+          "estimated_cost": 8208
+        },
+        {
+          "conversation_id": "e66b632c",
+          "family": "longmemeval_s_full",
+          "turn_count": 508,
+          "truncated_turn_count": 508,
+          "target_turn_count": 16,
+          "estimated_cost": 8128
+        },
+        {
+          "conversation_id": "b3c15d39",
+          "family": "longmemeval_s_full",
+          "turn_count": 504,
+          "truncated_turn_count": 504,
+          "target_turn_count": 16,
+          "estimated_cost": 8064
+        },
+        {
+          "conversation_id": "gpt4_a1b77f9c",
+          "family": "longmemeval_s_full",
+          "turn_count": 500,
+          "truncated_turn_count": 500,
+          "target_turn_count": 16,
+          "estimated_cost": 8000
+        },
+        {
+          "conversation_id": "1faac195",
+          "family": "longmemeval_s_full",
+          "turn_count": 496,
+          "truncated_turn_count": 496,
+          "target_turn_count": 16,
+          "estimated_cost": 7936
+        },
+        {
+          "conversation_id": "9d25d4e0",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "4adc0475",
+          "family": "longmemeval_s_full",
+          "turn_count": 492,
+          "truncated_turn_count": 492,
+          "target_turn_count": 16,
+          "estimated_cost": 7872
+        },
+        {
+          "conversation_id": "8ebdbe50",
+          "family": "longmemeval_s_full",
+          "turn_count": 489,
+          "truncated_turn_count": 489,
+          "target_turn_count": 16,
+          "estimated_cost": 7824
+        },
+        {
+          "conversation_id": "gpt4_8c8961ae",
+          "family": "longmemeval_s_full",
+          "turn_count": 487,
+          "truncated_turn_count": 487,
+          "target_turn_count": 16,
+          "estimated_cost": 7792
+        },
+        {
+          "conversation_id": "gpt4_ab202e7f",
+          "family": "longmemeval_s_full",
+          "turn_count": 483,
+          "truncated_turn_count": 483,
+          "target_turn_count": 16,
+          "estimated_cost": 7728
+        },
+        {
+          "conversation_id": "gpt4_f2262a51",
+          "family": "longmemeval_s_full",
+          "turn_count": 481,
+          "truncated_turn_count": 481,
+          "target_turn_count": 16,
+          "estimated_cost": 7696
+        },
+        {
+          "conversation_id": "db467c8c",
+          "family": "longmemeval_s_full",
+          "turn_count": 477,
+          "truncated_turn_count": 477,
+          "target_turn_count": 16,
+          "estimated_cost": 7632
+        },
+        {
+          "conversation_id": "1de5cff2",
+          "family": "longmemeval_s_full",
+          "turn_count": 475,
+          "truncated_turn_count": 475,
+          "target_turn_count": 16,
+          "estimated_cost": 7600
+        },
+        {
+          "conversation_id": "a3332713",
+          "family": "longmemeval_s_full",
+          "turn_count": 469,
+          "truncated_turn_count": 469,
+          "target_turn_count": 16,
+          "estimated_cost": 7504
+        },
+        {
+          "conversation_id": "caf9ead2",
+          "family": "longmemeval_s_full",
+          "turn_count": 468,
+          "truncated_turn_count": 468,
+          "target_turn_count": 16,
+          "estimated_cost": 7488
+        },
+        {
+          "conversation_id": "3fdac837",
+          "family": "longmemeval_s_full",
+          "turn_count": 455,
+          "truncated_turn_count": 455,
+          "target_turn_count": 16,
+          "estimated_cost": 7280
+        },
+        {
+          "conversation_id": "gpt4_1a1dc16d",
+          "family": "longmemeval_s_full",
+          "turn_count": 455,
+          "truncated_turn_count": 455,
+          "target_turn_count": 16,
+          "estimated_cost": 7280
+        }
+      ]
+    },
+    {
+      "shard_index": 17,
+      "estimated_cost": 189600,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "8077ef71",
+        "36580ce8",
+        "e9327a54",
+        "07741c45",
+        "6aeb4375_abs",
+        "55241a1f",
+        "gpt4_21adecb5",
+        "f4f1d8a4_abs",
+        "gpt4_2ba83207",
+        "gpt4_f49edff3",
+        "2311e44b_abs",
+        "bc8a6e93_abs",
+        "51c32626",
+        "95bcc1c8",
+        "08e075c7",
+        "gpt4_2d58bcd6",
+        "c7dc5443",
+        "15745da0",
+        "d596882b",
+        "bc149d6b",
+        "gpt4_2655b836",
+        "6ae235be",
+        "6613b389",
+        "852ce960"
+      ],
+      "items": [
+        {
+          "conversation_id": "8077ef71",
+          "family": "longmemeval_s_full",
+          "turn_count": 556,
+          "truncated_turn_count": 556,
+          "target_turn_count": 16,
+          "estimated_cost": 8896
+        },
+        {
+          "conversation_id": "36580ce8",
+          "family": "longmemeval_s_full",
+          "turn_count": 547,
+          "truncated_turn_count": 547,
+          "target_turn_count": 16,
+          "estimated_cost": 8752
+        },
+        {
+          "conversation_id": "e9327a54",
+          "family": "longmemeval_s_full",
+          "turn_count": 535,
+          "truncated_turn_count": 535,
+          "target_turn_count": 16,
+          "estimated_cost": 8560
+        },
+        {
+          "conversation_id": "07741c45",
+          "family": "longmemeval_s_full",
+          "turn_count": 529,
+          "truncated_turn_count": 529,
+          "target_turn_count": 16,
+          "estimated_cost": 8464
+        },
+        {
+          "conversation_id": "6aeb4375_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 523,
+          "truncated_turn_count": 523,
+          "target_turn_count": 16,
+          "estimated_cost": 8368
+        },
+        {
+          "conversation_id": "55241a1f",
+          "family": "longmemeval_s_full",
+          "turn_count": 516,
+          "truncated_turn_count": 516,
+          "target_turn_count": 16,
+          "estimated_cost": 8256
+        },
+        {
+          "conversation_id": "gpt4_21adecb5",
+          "family": "longmemeval_s_full",
+          "turn_count": 513,
+          "truncated_turn_count": 513,
+          "target_turn_count": 16,
+          "estimated_cost": 8208
+        },
+        {
+          "conversation_id": "f4f1d8a4_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 508,
+          "truncated_turn_count": 508,
+          "target_turn_count": 16,
+          "estimated_cost": 8128
+        },
+        {
+          "conversation_id": "gpt4_2ba83207",
+          "family": "longmemeval_s_full",
+          "turn_count": 504,
+          "truncated_turn_count": 504,
+          "target_turn_count": 16,
+          "estimated_cost": 8064
+        },
+        {
+          "conversation_id": "gpt4_f49edff3",
+          "family": "longmemeval_s_full",
+          "turn_count": 500,
+          "truncated_turn_count": 500,
+          "target_turn_count": 16,
+          "estimated_cost": 8000
+        },
+        {
+          "conversation_id": "2311e44b_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 496,
+          "truncated_turn_count": 496,
+          "target_turn_count": 16,
+          "estimated_cost": 7936
+        },
+        {
+          "conversation_id": "bc8a6e93_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "51c32626",
+          "family": "longmemeval_s_full",
+          "turn_count": 492,
+          "truncated_turn_count": 492,
+          "target_turn_count": 16,
+          "estimated_cost": 7872
+        },
+        {
+          "conversation_id": "95bcc1c8",
+          "family": "longmemeval_s_full",
+          "turn_count": 489,
+          "truncated_turn_count": 489,
+          "target_turn_count": 16,
+          "estimated_cost": 7824
+        },
+        {
+          "conversation_id": "08e075c7",
+          "family": "longmemeval_s_full",
+          "turn_count": 486,
+          "truncated_turn_count": 486,
+          "target_turn_count": 16,
+          "estimated_cost": 7776
+        },
+        {
+          "conversation_id": "gpt4_2d58bcd6",
+          "family": "longmemeval_s_full",
+          "turn_count": 485,
+          "truncated_turn_count": 485,
+          "target_turn_count": 16,
+          "estimated_cost": 7760
+        },
+        {
+          "conversation_id": "c7dc5443",
+          "family": "longmemeval_s_full",
+          "turn_count": 480,
+          "truncated_turn_count": 480,
+          "target_turn_count": 16,
+          "estimated_cost": 7680
+        },
+        {
+          "conversation_id": "15745da0",
+          "family": "longmemeval_s_full",
+          "turn_count": 476,
+          "truncated_turn_count": 476,
+          "target_turn_count": 16,
+          "estimated_cost": 7616
+        },
+        {
+          "conversation_id": "d596882b",
+          "family": "longmemeval_s_full",
+          "turn_count": 476,
+          "truncated_turn_count": 476,
+          "target_turn_count": 16,
+          "estimated_cost": 7616
+        },
+        {
+          "conversation_id": "bc149d6b",
+          "family": "longmemeval_s_full",
+          "turn_count": 469,
+          "truncated_turn_count": 469,
+          "target_turn_count": 16,
+          "estimated_cost": 7504
+        },
+        {
+          "conversation_id": "gpt4_2655b836",
+          "family": "longmemeval_s_full",
+          "turn_count": 467,
+          "truncated_turn_count": 467,
+          "target_turn_count": 16,
+          "estimated_cost": 7472
+        },
+        {
+          "conversation_id": "6ae235be",
+          "family": "longmemeval_s_full",
+          "turn_count": 456,
+          "truncated_turn_count": 456,
+          "target_turn_count": 16,
+          "estimated_cost": 7296
+        },
+        {
+          "conversation_id": "6613b389",
+          "family": "longmemeval_s_full",
+          "turn_count": 454,
+          "truncated_turn_count": 454,
+          "target_turn_count": 16,
+          "estimated_cost": 7264
+        },
+        {
+          "conversation_id": "852ce960",
+          "family": "longmemeval_s_full",
+          "turn_count": 398,
+          "truncated_turn_count": 398,
+          "target_turn_count": 16,
+          "estimated_cost": 6368
+        }
+      ]
+    },
+    {
+      "shard_index": 18,
+      "estimated_cost": 190128,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "078150f1",
+        "15745da0_abs",
+        "37d43f65",
+        "89941a93",
+        "ce6d2d27",
+        "71315a70",
+        "1e043500",
+        "gpt4_e414231e",
+        "1a8a66a6",
+        "gpt4_c27434e8",
+        "29f2956b_abs",
+        "b9cfe692",
+        "7527f7e2",
+        "bbf86515",
+        "0977f2af",
+        "19b5f2b3",
+        "1568498a",
+        "gpt4_a56e767c",
+        "ccb36322",
+        "8979f9ec",
+        "cc06de0d",
+        "cc6d1ec1",
+        "5025383b",
+        "8c18457d"
+      ],
+      "items": [
+        {
+          "conversation_id": "078150f1",
+          "family": "longmemeval_s_full",
+          "turn_count": 553,
+          "truncated_turn_count": 553,
+          "target_turn_count": 16,
+          "estimated_cost": 8848
+        },
+        {
+          "conversation_id": "15745da0_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 549,
+          "truncated_turn_count": 549,
+          "target_turn_count": 16,
+          "estimated_cost": 8784
+        },
+        {
+          "conversation_id": "37d43f65",
+          "family": "longmemeval_s_full",
+          "turn_count": 535,
+          "truncated_turn_count": 535,
+          "target_turn_count": 16,
+          "estimated_cost": 8560
+        },
+        {
+          "conversation_id": "89941a93",
+          "family": "longmemeval_s_full",
+          "turn_count": 530,
+          "truncated_turn_count": 530,
+          "target_turn_count": 16,
+          "estimated_cost": 8480
+        },
+        {
+          "conversation_id": "ce6d2d27",
+          "family": "longmemeval_s_full",
+          "turn_count": 523,
+          "truncated_turn_count": 523,
+          "target_turn_count": 16,
+          "estimated_cost": 8368
+        },
+        {
+          "conversation_id": "71315a70",
+          "family": "longmemeval_s_full",
+          "turn_count": 516,
+          "truncated_turn_count": 516,
+          "target_turn_count": 16,
+          "estimated_cost": 8256
+        },
+        {
+          "conversation_id": "1e043500",
+          "family": "longmemeval_s_full",
+          "turn_count": 512,
+          "truncated_turn_count": 512,
+          "target_turn_count": 16,
+          "estimated_cost": 8192
+        },
+        {
+          "conversation_id": "gpt4_e414231e",
+          "family": "longmemeval_s_full",
+          "turn_count": 509,
+          "truncated_turn_count": 509,
+          "target_turn_count": 16,
+          "estimated_cost": 8144
+        },
+        {
+          "conversation_id": "1a8a66a6",
+          "family": "longmemeval_s_full",
+          "turn_count": 503,
+          "truncated_turn_count": 503,
+          "target_turn_count": 16,
+          "estimated_cost": 8048
+        },
+        {
+          "conversation_id": "gpt4_c27434e8",
+          "family": "longmemeval_s_full",
+          "turn_count": 502,
+          "truncated_turn_count": 502,
+          "target_turn_count": 16,
+          "estimated_cost": 8032
+        },
+        {
+          "conversation_id": "29f2956b_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 496,
+          "truncated_turn_count": 496,
+          "target_turn_count": 16,
+          "estimated_cost": 7936
+        },
+        {
+          "conversation_id": "b9cfe692",
+          "family": "longmemeval_s_full",
+          "turn_count": 494,
+          "truncated_turn_count": 494,
+          "target_turn_count": 16,
+          "estimated_cost": 7904
+        },
+        {
+          "conversation_id": "7527f7e2",
+          "family": "longmemeval_s_full",
+          "turn_count": 492,
+          "truncated_turn_count": 492,
+          "target_turn_count": 16,
+          "estimated_cost": 7872
+        },
+        {
+          "conversation_id": "bbf86515",
+          "family": "longmemeval_s_full",
+          "turn_count": 489,
+          "truncated_turn_count": 489,
+          "target_turn_count": 16,
+          "estimated_cost": 7824
+        },
+        {
+          "conversation_id": "0977f2af",
+          "family": "longmemeval_s_full",
+          "turn_count": 486,
+          "truncated_turn_count": 486,
+          "target_turn_count": 16,
+          "estimated_cost": 7776
+        },
+        {
+          "conversation_id": "19b5f2b3",
+          "family": "longmemeval_s_full",
+          "turn_count": 484,
+          "truncated_turn_count": 484,
+          "target_turn_count": 16,
+          "estimated_cost": 7744
+        },
+        {
+          "conversation_id": "1568498a",
+          "family": "longmemeval_s_full",
+          "turn_count": 480,
+          "truncated_turn_count": 480,
+          "target_turn_count": 16,
+          "estimated_cost": 7680
+        },
+        {
+          "conversation_id": "gpt4_a56e767c",
+          "family": "longmemeval_s_full",
+          "turn_count": 479,
+          "truncated_turn_count": 479,
+          "target_turn_count": 16,
+          "estimated_cost": 7664
+        },
+        {
+          "conversation_id": "ccb36322",
+          "family": "longmemeval_s_full",
+          "turn_count": 473,
+          "truncated_turn_count": 473,
+          "target_turn_count": 16,
+          "estimated_cost": 7568
+        },
+        {
+          "conversation_id": "8979f9ec",
+          "family": "longmemeval_s_full",
+          "turn_count": 471,
+          "truncated_turn_count": 471,
+          "target_turn_count": 16,
+          "estimated_cost": 7536
+        },
+        {
+          "conversation_id": "cc06de0d",
+          "family": "longmemeval_s_full",
+          "turn_count": 464,
+          "truncated_turn_count": 464,
+          "target_turn_count": 16,
+          "estimated_cost": 7424
+        },
+        {
+          "conversation_id": "cc6d1ec1",
+          "family": "longmemeval_s_full",
+          "turn_count": 459,
+          "truncated_turn_count": 459,
+          "target_turn_count": 16,
+          "estimated_cost": 7344
+        },
+        {
+          "conversation_id": "5025383b",
+          "family": "longmemeval_s_full",
+          "turn_count": 448,
+          "truncated_turn_count": 448,
+          "target_turn_count": 16,
+          "estimated_cost": 7168
+        },
+        {
+          "conversation_id": "8c18457d",
+          "family": "longmemeval_s_full",
+          "turn_count": 436,
+          "truncated_turn_count": 436,
+          "target_turn_count": 16,
+          "estimated_cost": 6976
+        }
+      ]
+    },
+    {
+      "shard_index": 19,
+      "estimated_cost": 190192,
+      "conversation_count": 24,
+      "conversation_ids": [
+        "7161e7e2",
+        "e47becba",
+        "gpt4_7de946e7",
+        "3d86fd0a",
+        "dad224aa",
+        "07741c44",
+        "8a137a7f",
+        "gpt4_0a05b494",
+        "505af2f5",
+        "26bdc477",
+        "70b3e69b",
+        "caf03d32",
+        "c4ea545c",
+        "c8c3f81d",
+        "0a995998",
+        "6071bd76",
+        "2698e78f",
+        "gpt4_d12ceb0e",
+        "gpt4_fe651585",
+        "c5e8278d",
+        "545bd2b5",
+        "gpt4_4edbafa2",
+        "gpt4_e072b769",
+        "71a3fd6b"
+      ],
+      "items": [
+        {
+          "conversation_id": "7161e7e2",
+          "family": "longmemeval_s_full",
+          "turn_count": 552,
+          "truncated_turn_count": 552,
+          "target_turn_count": 16,
+          "estimated_cost": 8832
+        },
+        {
+          "conversation_id": "e47becba",
+          "family": "longmemeval_s_full",
+          "turn_count": 552,
+          "truncated_turn_count": 552,
+          "target_turn_count": 16,
+          "estimated_cost": 8832
+        },
+        {
+          "conversation_id": "gpt4_7de946e7",
+          "family": "longmemeval_s_full",
+          "turn_count": 535,
+          "truncated_turn_count": 535,
+          "target_turn_count": 16,
+          "estimated_cost": 8560
+        },
+        {
+          "conversation_id": "3d86fd0a",
+          "family": "longmemeval_s_full",
+          "turn_count": 528,
+          "truncated_turn_count": 528,
+          "target_turn_count": 16,
+          "estimated_cost": 8448
+        },
+        {
+          "conversation_id": "dad224aa",
+          "family": "longmemeval_s_full",
+          "turn_count": 523,
+          "truncated_turn_count": 523,
+          "target_turn_count": 16,
+          "estimated_cost": 8368
+        },
+        {
+          "conversation_id": "07741c44",
+          "family": "longmemeval_s_full",
+          "turn_count": 515,
+          "truncated_turn_count": 515,
+          "target_turn_count": 16,
+          "estimated_cost": 8240
+        },
+        {
+          "conversation_id": "8a137a7f",
+          "family": "longmemeval_s_full",
+          "turn_count": 514,
+          "truncated_turn_count": 514,
+          "target_turn_count": 16,
+          "estimated_cost": 8224
+        },
+        {
+          "conversation_id": "gpt4_0a05b494",
+          "family": "longmemeval_s_full",
+          "turn_count": 508,
+          "truncated_turn_count": 508,
+          "target_turn_count": 16,
+          "estimated_cost": 8128
+        },
+        {
+          "conversation_id": "505af2f5",
+          "family": "longmemeval_s_full",
+          "turn_count": 503,
+          "truncated_turn_count": 503,
+          "target_turn_count": 16,
+          "estimated_cost": 8048
+        },
+        {
+          "conversation_id": "26bdc477",
+          "family": "longmemeval_s_full",
+          "turn_count": 500,
+          "truncated_turn_count": 500,
+          "target_turn_count": 16,
+          "estimated_cost": 8000
+        },
+        {
+          "conversation_id": "70b3e69b",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "caf03d32",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "c4ea545c",
+          "family": "longmemeval_s_full",
+          "turn_count": 492,
+          "truncated_turn_count": 492,
+          "target_turn_count": 16,
+          "estimated_cost": 7872
+        },
+        {
+          "conversation_id": "c8c3f81d",
+          "family": "longmemeval_s_full",
+          "turn_count": 489,
+          "truncated_turn_count": 489,
+          "target_turn_count": 16,
+          "estimated_cost": 7824
+        },
+        {
+          "conversation_id": "0a995998",
+          "family": "longmemeval_s_full",
+          "turn_count": 486,
+          "truncated_turn_count": 486,
+          "target_turn_count": 16,
+          "estimated_cost": 7776
+        },
+        {
+          "conversation_id": "6071bd76",
+          "family": "longmemeval_s_full",
+          "turn_count": 484,
+          "truncated_turn_count": 484,
+          "target_turn_count": 16,
+          "estimated_cost": 7744
+        },
+        {
+          "conversation_id": "2698e78f",
+          "family": "longmemeval_s_full",
+          "turn_count": 480,
+          "truncated_turn_count": 480,
+          "target_turn_count": 16,
+          "estimated_cost": 7680
+        },
+        {
+          "conversation_id": "gpt4_d12ceb0e",
+          "family": "longmemeval_s_full",
+          "turn_count": 479,
+          "truncated_turn_count": 479,
+          "target_turn_count": 16,
+          "estimated_cost": 7664
+        },
+        {
+          "conversation_id": "gpt4_fe651585",
+          "family": "longmemeval_s_full",
+          "turn_count": 473,
+          "truncated_turn_count": 473,
+          "target_turn_count": 16,
+          "estimated_cost": 7568
+        },
+        {
+          "conversation_id": "c5e8278d",
+          "family": "longmemeval_s_full",
+          "turn_count": 471,
+          "truncated_turn_count": 471,
+          "target_turn_count": 16,
+          "estimated_cost": 7536
+        },
+        {
+          "conversation_id": "545bd2b5",
+          "family": "longmemeval_s_full",
+          "turn_count": 463,
+          "truncated_turn_count": 463,
+          "target_turn_count": 16,
+          "estimated_cost": 7408
+        },
+        {
+          "conversation_id": "gpt4_4edbafa2",
+          "family": "longmemeval_s_full",
+          "turn_count": 461,
+          "truncated_turn_count": 461,
+          "target_turn_count": 16,
+          "estimated_cost": 7376
+        },
+        {
+          "conversation_id": "gpt4_e072b769",
+          "family": "longmemeval_s_full",
+          "turn_count": 446,
+          "truncated_turn_count": 446,
+          "target_turn_count": 16,
+          "estimated_cost": 7136
+        },
+        {
+          "conversation_id": "71a3fd6b",
+          "family": "longmemeval_s_full",
+          "turn_count": 441,
+          "truncated_turn_count": 441,
+          "target_turn_count": 16,
+          "estimated_cost": 7056
+        }
+      ]
+    },
+    {
+      "shard_index": 20,
+      "estimated_cost": 183232,
+      "conversation_count": 23,
+      "conversation_ids": [
+        "cf22b7bf",
+        "1c0ddc50",
+        "d851d5ba",
+        "c2ac3c61",
+        "c7cf7dfd",
+        "3f1e9474",
+        "5d3d2817",
+        "gpt4_fa19884c",
+        "726462e0",
+        "370a8ff4",
+        "af082822",
+        "cc5ded98",
+        "gpt4_372c3eed_abs",
+        "f8c5f88b",
+        "8464fc84",
+        "6b168ec8",
+        "2bf43736",
+        "2133c1b5_abs",
+        "22d2cb42",
+        "gpt4_2312f94c",
+        "gpt4_372c3eed",
+        "8cf51dda",
+        "gpt4_65aabe59"
+      ],
+      "items": [
+        {
+          "conversation_id": "cf22b7bf",
+          "family": "longmemeval_s_full",
+          "turn_count": 552,
+          "truncated_turn_count": 552,
+          "target_turn_count": 16,
+          "estimated_cost": 8832
+        },
+        {
+          "conversation_id": "1c0ddc50",
+          "family": "longmemeval_s_full",
+          "turn_count": 550,
+          "truncated_turn_count": 550,
+          "target_turn_count": 16,
+          "estimated_cost": 8800
+        },
+        {
+          "conversation_id": "d851d5ba",
+          "family": "longmemeval_s_full",
+          "turn_count": 535,
+          "truncated_turn_count": 535,
+          "target_turn_count": 16,
+          "estimated_cost": 8560
+        },
+        {
+          "conversation_id": "c2ac3c61",
+          "family": "longmemeval_s_full",
+          "turn_count": 530,
+          "truncated_turn_count": 530,
+          "target_turn_count": 16,
+          "estimated_cost": 8480
+        },
+        {
+          "conversation_id": "c7cf7dfd",
+          "family": "longmemeval_s_full",
+          "turn_count": 522,
+          "truncated_turn_count": 522,
+          "target_turn_count": 16,
+          "estimated_cost": 8352
+        },
+        {
+          "conversation_id": "3f1e9474",
+          "family": "longmemeval_s_full",
+          "turn_count": 517,
+          "truncated_turn_count": 517,
+          "target_turn_count": 16,
+          "estimated_cost": 8272
+        },
+        {
+          "conversation_id": "5d3d2817",
+          "family": "longmemeval_s_full",
+          "turn_count": 512,
+          "truncated_turn_count": 512,
+          "target_turn_count": 16,
+          "estimated_cost": 8192
+        },
+        {
+          "conversation_id": "gpt4_fa19884c",
+          "family": "longmemeval_s_full",
+          "turn_count": 509,
+          "truncated_turn_count": 509,
+          "target_turn_count": 16,
+          "estimated_cost": 8144
+        },
+        {
+          "conversation_id": "726462e0",
+          "family": "longmemeval_s_full",
+          "turn_count": 503,
+          "truncated_turn_count": 503,
+          "target_turn_count": 16,
+          "estimated_cost": 8048
+        },
+        {
+          "conversation_id": "370a8ff4",
+          "family": "longmemeval_s_full",
+          "turn_count": 500,
+          "truncated_turn_count": 500,
+          "target_turn_count": 16,
+          "estimated_cost": 8000
+        },
+        {
+          "conversation_id": "af082822",
+          "family": "longmemeval_s_full",
+          "turn_count": 497,
+          "truncated_turn_count": 497,
+          "target_turn_count": 16,
+          "estimated_cost": 7952
+        },
+        {
+          "conversation_id": "cc5ded98",
+          "family": "longmemeval_s_full",
+          "turn_count": 495,
+          "truncated_turn_count": 495,
+          "target_turn_count": 16,
+          "estimated_cost": 7920
+        },
+        {
+          "conversation_id": "gpt4_372c3eed_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 492,
+          "truncated_turn_count": 492,
+          "target_turn_count": 16,
+          "estimated_cost": 7872
+        },
+        {
+          "conversation_id": "f8c5f88b",
+          "family": "longmemeval_s_full",
+          "turn_count": 489,
+          "truncated_turn_count": 489,
+          "target_turn_count": 16,
+          "estimated_cost": 7824
+        },
+        {
+          "conversation_id": "8464fc84",
+          "family": "longmemeval_s_full",
+          "turn_count": 486,
+          "truncated_turn_count": 486,
+          "target_turn_count": 16,
+          "estimated_cost": 7776
+        },
+        {
+          "conversation_id": "6b168ec8",
+          "family": "longmemeval_s_full",
+          "turn_count": 484,
+          "truncated_turn_count": 484,
+          "target_turn_count": 16,
+          "estimated_cost": 7744
+        },
+        {
+          "conversation_id": "2bf43736",
+          "family": "longmemeval_s_full",
+          "turn_count": 480,
+          "truncated_turn_count": 480,
+          "target_turn_count": 16,
+          "estimated_cost": 7680
+        },
+        {
+          "conversation_id": "2133c1b5_abs",
+          "family": "longmemeval_s_full",
+          "turn_count": 478,
+          "truncated_turn_count": 478,
+          "target_turn_count": 16,
+          "estimated_cost": 7648
+        },
+        {
+          "conversation_id": "22d2cb42",
+          "family": "longmemeval_s_full",
+          "turn_count": 475,
+          "truncated_turn_count": 475,
+          "target_turn_count": 16,
+          "estimated_cost": 7600
+        },
+        {
+          "conversation_id": "gpt4_2312f94c",
+          "family": "longmemeval_s_full",
+          "turn_count": 469,
+          "truncated_turn_count": 469,
+          "target_turn_count": 16,
+          "estimated_cost": 7504
+        },
+        {
+          "conversation_id": "gpt4_372c3eed",
+          "family": "longmemeval_s_full",
+          "turn_count": 467,
+          "truncated_turn_count": 467,
+          "target_turn_count": 16,
+          "estimated_cost": 7472
+        },
+        {
+          "conversation_id": "8cf51dda",
+          "family": "longmemeval_s_full",
+          "turn_count": 456,
+          "truncated_turn_count": 456,
+          "target_turn_count": 16,
+          "estimated_cost": 7296
+        },
+        {
+          "conversation_id": "gpt4_65aabe59",
+          "family": "longmemeval_s_full",
+          "turn_count": 454,
+          "truncated_turn_count": 454,
+          "target_turn_count": 16,
+          "estimated_cost": 7264
+        }
+      ]
+    }
+  ]
+}

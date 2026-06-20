@@ -1,0 +1,19 @@
+{
+  "status": "running",
+  "updated_at": "2026-06-20T05:08:02",
+  "model_key": "qwen25_15b",
+  "num_conversations_total": 24,
+  "num_conversations_completed": 3,
+  "completed_conversation_ids": [
+    "a3045048",
+    "38146c39",
+    "e25c3b8d"
+  ],
+  "num_evaluation_rows": 900,
+  "num_behavior_rows": 570,
+  "target_turn_stride": 4,
+  "max_target_turns": 20,
+  "max_turns_per_conversation": null,
+  "skip_conversations": 0,
+  "conversation_ids_path": "results/reviewer_fixes/shard_plans/reviewer_fixes/fullLME/shard_7_ids.txt"
+}

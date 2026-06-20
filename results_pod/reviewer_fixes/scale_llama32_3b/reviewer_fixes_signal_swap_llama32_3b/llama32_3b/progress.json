@@ -1,0 +1,22 @@
+{
+  "status": "complete",
+  "updated_at": "2026-06-20T03:43:34",
+  "model_key": "llama32_3b",
+  "num_conversations_total": 8,
+  "num_conversations_completed": 9,
+  "completed_conversation_ids": [
+    "stress_retrieval_launch_packet",
+    "stress_retrieval_travel_itinerary",
+    "stress_retrieval_medication_case",
+    "stress_longdep_two_lines",
+    "stress_longdep_csv_items",
+    "stress_longdep_one_sentence",
+    "stress_code_python_function",
+    "stress_code_js_fetch_helper",
+    "stress_code_sql_query"
+  ],
+  "num_evaluation_rows": 540,
+  "num_behavior_rows": 270,
+  "summary_path": "results/reviewer_fixes/scale_llama32_3b/reviewer_fixes_signal_swap_llama32_3b/llama32_3b/summary.json",
+  "report_path": "results/reviewer_fixes/scale_llama32_3b/reviewer_fixes_signal_swap_llama32_3b/llama32_3b/report.md"
+}

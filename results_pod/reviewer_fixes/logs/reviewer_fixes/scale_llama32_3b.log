@@ -1,0 +1,83 @@
+[study] Starting Paper 3 study 'reviewer_fixes_signal_swap_llama32_3b' in results/reviewer_fixes/scale_llama32_3b/reviewer_fixes_signal_swap_llama32_3b
+[study] Models=llama32_3b budgets=0.20,0.35,0.50 policies=uniform,semantic,geometry,geometry_keep_compress_drop,semantic_keep_compress_drop
+[study] Running model llama32_3b...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files:  50%|█████     | 1/2 [00:12<00:12, 12.46s/it]Fetching 2 files: 100%|██████████| 2/2 [00:12<00:00,  6.23s/it]
+Loading weights:   0%|          | 0/254 [00:00<?, ?it/s]Loading weights: 100%|██████████| 254/254 [00:00<00:00, 7344.93it/s]
+[llama32_3b] Starting Paper 3 run with 9 conversations, 36 target turns, 5 policies, 3 budgets (~540 policy evaluations).
+[llama32_3b] Model=meta-llama/Llama-3.2-3B-Instruct device=cuda max_input_tokens=768 segment_span=2 target_turn_stride=1 max_target_turns=None max_turns_per_conversation=None skip_conversations=0 conversation_ids_path=None
+llama32_3b conversations:   0%|          | 0/9 [00:00<?, ?it/s][llama32_3b] starting conversation 1/9 id=stress_retrieval_launch_packet turns=8 sampled_targets=4
+[extract_conversation] start study llama32_3b stress_retrieval_launch_packet turns=8
+[extract_conversation] study llama32_3b stress_retrieval_launch_packet turns 8/8
+[extract_conversation] done study llama32_3b stress_retrieval_launch_packet
+[extract_cache] stored study llama32_3b stress_retrieval_launch_packet path=/workspace/RT/results/paper3/extract_cache/meta-llama_Llama-3.2-3B-Instruct/stress_retrieval_launch_packet_94f0601a68532aae.npz
+llama32_3b conversations:   0%|          | 0/9 [00:01<?, ?it/s, stress_retrieval_launch_packet turns=8 sampled_targets=4 rows=0]llama32_3b conversations:  11%|█         | 1/9 [00:04<00:35,  4.47s/it, stress_retrieval_launch_packet turns=8 sampled_targets=4 rows=0][llama32_3b] starting conversation 2/9 id=stress_retrieval_travel_itinerary turns=8 sampled_targets=4
+[extract_conversation] start study llama32_3b stress_retrieval_travel_itinerary turns=8
+[extract_conversation] study llama32_3b stress_retrieval_travel_itinerary turns 8/8
+[extract_conversation] done study llama32_3b stress_retrieval_travel_itinerary
+[extract_cache] stored study llama32_3b stress_retrieval_travel_itinerary path=/workspace/RT/results/paper3/extract_cache/meta-llama_Llama-3.2-3B-Instruct/stress_retrieval_travel_itinerary_70ce26e1c523eca0.npz
+llama32_3b conversations:  11%|█         | 1/9 [00:05<00:35,  4.47s/it, stress_retrieval_travel_itinerary turns=8 sampled_targets=4 rows=60]llama32_3b conversations:  11%|█         | 1/9 [00:06<00:51,  6.39s/it, stress_retrieval_travel_itinerary turns=8 sampled_targets=4 rows=60]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/RT/paper3_codec/study.py", line 437, in <module>
+    main()
+  File "/workspace/RT/paper3_codec/study.py", line 330, in main
+    result = run_codec_pilot(
+             ^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper3_codec/run_paper3.py", line 1258, in run_codec_pilot
+    compressed = extractor.score_messages(messages, max_input_tokens=max_input_tokens)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/RT/paper1_geometry/modeling.py", line 332, in score_messages
+    hidden_state = outputs.hidden_states[self.state_layer][0, -1].detach().to(self.torch.float32).cpu().numpy()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+[study] Starting Paper 3 study 'reviewer_fixes_signal_swap_llama32_3b' in results/reviewer_fixes/scale_llama32_3b/reviewer_fixes_signal_swap_llama32_3b
+[study] Models=llama32_3b budgets=0.20,0.35,0.50 policies=uniform,semantic,geometry,geometry_keep_compress_drop,semantic_keep_compress_drop
+[study] Running model llama32_3b...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/254 [00:00<?, ?it/s]Loading weights: 100%|██████████| 254/254 [00:00<00:00, 8970.49it/s]
+[llama32_3b] Starting Paper 3 run with 9 conversations, 36 target turns, 5 policies, 3 budgets (~540 policy evaluations).
+[llama32_3b] Model=meta-llama/Llama-3.2-3B-Instruct device=cuda max_input_tokens=768 segment_span=2 target_turn_stride=1 max_target_turns=None max_turns_per_conversation=None skip_conversations=0 conversation_ids_path=None
+[llama32_3b] resuming from partial outputs: completed=1 remaining=8 rows=60 behavior_rows=30
+llama32_3b conversations:   0%|          | 0/8 [00:00<?, ?it/s][llama32_3b] starting conversation 1/8 id=stress_retrieval_travel_itinerary turns=8 sampled_targets=4
+[extract_cache] hit study llama32_3b stress_retrieval_travel_itinerary path=/workspace/RT/results/paper3/extract_cache/meta-llama_Llama-3.2-3B-Instruct/stress_retrieval_travel_itinerary_70ce26e1c523eca0.npz
+llama32_3b conversations:   0%|          | 0/8 [00:00<?, ?it/s, stress_retrieval_travel_itinerary turns=8 sampled_targets=4 rows=60]llama32_3b conversations:  12%|█▎        | 1/8 [00:03<00:22,  3.26s/it, stress_retrieval_travel_itinerary turns=8 sampled_targets=4 rows=60][llama32_3b] starting conversation 2/8 id=stress_retrieval_medication_case turns=8 sampled_targets=4
+[extract_conversation] start study llama32_3b stress_retrieval_medication_case turns=8
+[extract_conversation] study llama32_3b stress_retrieval_medication_case turns 8/8
+[extract_conversation] done study llama32_3b stress_retrieval_medication_case
+[extract_cache] stored study llama32_3b stress_retrieval_medication_case path=/workspace/RT/results/paper3/extract_cache/meta-llama_Llama-3.2-3B-Instruct/stress_retrieval_medication_case_3abbd7cb8a10dfce.npz
+llama32_3b conversations:  12%|█▎        | 1/8 [00:04<00:22,  3.26s/it, stress_retrieval_medication_case turns=8 sampled_targets=4 rows=120]llama32_3b conversations:  25%|██▌       | 2/8 [00:07<00:22,  3.80s/it, stress_retrieval_medication_case turns=8 sampled_targets=4 rows=120][llama32_3b] starting conversation 3/8 id=stress_longdep_two_lines turns=8 sampled_targets=4
+[extract_conversation] start study llama32_3b stress_longdep_two_lines turns=8
+[extract_conversation] study llama32_3b stress_longdep_two_lines turns 8/8
+[extract_conversation] done study llama32_3b stress_longdep_two_lines
+[extract_cache] stored study llama32_3b stress_longdep_two_lines path=/workspace/RT/results/paper3/extract_cache/meta-llama_Llama-3.2-3B-Instruct/stress_longdep_two_lines_33590f402d7d08d7.npz
+llama32_3b conversations:  25%|██▌       | 2/8 [00:08<00:22,  3.80s/it, stress_longdep_two_lines turns=8 sampled_targets=4 rows=180]        llama32_3b conversations:  38%|███▊      | 3/8 [00:11<00:18,  3.80s/it, stress_longdep_two_lines turns=8 sampled_targets=4 rows=180][llama32_3b] starting conversation 4/8 id=stress_longdep_csv_items turns=8 sampled_targets=4
+[extract_conversation] start study llama32_3b stress_longdep_csv_items turns=8
+[extract_conversation] study llama32_3b stress_longdep_csv_items turns 8/8
+[extract_conversation] done study llama32_3b stress_longdep_csv_items
+[extract_cache] stored study llama32_3b stress_longdep_csv_items path=/workspace/RT/results/paper3/extract_cache/meta-llama_Llama-3.2-3B-Instruct/stress_longdep_csv_items_16773bc42d3307b5.npz
+llama32_3b conversations:  38%|███▊      | 3/8 [00:12<00:18,  3.80s/it, stress_longdep_csv_items turns=8 sampled_targets=4 rows=240]llama32_3b conversations:  50%|█████     | 4/8 [00:15<00:15,  3.81s/it, stress_longdep_csv_items turns=8 sampled_targets=4 rows=240][llama32_3b] starting conversation 5/8 id=stress_longdep_one_sentence turns=8 sampled_targets=4
+[extract_conversation] start study llama32_3b stress_longdep_one_sentence turns=8
+[extract_conversation] study llama32_3b stress_longdep_one_sentence turns 8/8
+[extract_conversation] done study llama32_3b stress_longdep_one_sentence
+[extract_cache] stored study llama32_3b stress_longdep_one_sentence path=/workspace/RT/results/paper3/extract_cache/meta-llama_Llama-3.2-3B-Instruct/stress_longdep_one_sentence_4928a5f8371a7ff0.npz
+llama32_3b conversations:  50%|█████     | 4/8 [00:16<00:15,  3.81s/it, stress_longdep_one_sentence turns=8 sampled_targets=4 rows=300]llama32_3b conversations:  62%|██████▎   | 5/8 [00:18<00:11,  3.84s/it, stress_longdep_one_sentence turns=8 sampled_targets=4 rows=300][llama32_3b] starting conversation 6/8 id=stress_code_python_function turns=8 sampled_targets=4
+[extract_conversation] start study llama32_3b stress_code_python_function turns=8
+[extract_conversation] study llama32_3b stress_code_python_function turns 8/8
+[extract_conversation] done study llama32_3b stress_code_python_function
+[extract_cache] stored study llama32_3b stress_code_python_function path=/workspace/RT/results/paper3/extract_cache/meta-llama_Llama-3.2-3B-Instruct/stress_code_python_function_96aa5b078b6c29ba.npz
+llama32_3b conversations:  62%|██████▎   | 5/8 [00:19<00:11,  3.84s/it, stress_code_python_function turns=8 sampled_targets=4 rows=360]llama32_3b conversations:  75%|███████▌  | 6/8 [00:22<00:07,  3.90s/it, stress_code_python_function turns=8 sampled_targets=4 rows=360][llama32_3b] starting conversation 7/8 id=stress_code_js_fetch_helper turns=8 sampled_targets=4
+[extract_conversation] start study llama32_3b stress_code_js_fetch_helper turns=8
+[extract_conversation] study llama32_3b stress_code_js_fetch_helper turns 8/8
+[extract_conversation] done study llama32_3b stress_code_js_fetch_helper
+[extract_cache] stored study llama32_3b stress_code_js_fetch_helper path=/workspace/RT/results/paper3/extract_cache/meta-llama_Llama-3.2-3B-Instruct/stress_code_js_fetch_helper_479843e3c99dc439.npz
+llama32_3b conversations:  75%|███████▌  | 6/8 [00:24<00:07,  3.90s/it, stress_code_js_fetch_helper turns=8 sampled_targets=4 rows=420]llama32_3b conversations:  88%|████████▊ | 7/8 [00:27<00:03,  3.97s/it, stress_code_js_fetch_helper turns=8 sampled_targets=4 rows=420][llama32_3b] starting conversation 8/8 id=stress_code_sql_query turns=8 sampled_targets=4
+[extract_conversation] start study llama32_3b stress_code_sql_query turns=8
+[extract_conversation] study llama32_3b stress_code_sql_query turns 8/8
+[extract_conversation] done study llama32_3b stress_code_sql_query
+[extract_cache] stored study llama32_3b stress_code_sql_query path=/workspace/RT/results/paper3/extract_cache/meta-llama_Llama-3.2-3B-Instruct/stress_code_sql_query_a026c168af230584.npz
+llama32_3b conversations:  88%|████████▊ | 7/8 [00:28<00:03,  3.97s/it, stress_code_sql_query turns=8 sampled_targets=4 rows=480]      [llama32_3b] Completed 8/8 conversations; rows=540 behavior_rows=270
+llama32_3b conversations: 100%|██████████| 8/8 [00:31<00:00,  3.99s/it, stress_code_sql_query turns=8 sampled_targets=4 rows=480]llama32_3b conversations: 100%|██████████| 8/8 [00:31<00:00,  3.89s/it, stress_code_sql_query turns=8 sampled_targets=4 rows=480]
+[study] Completed model llama32_3b: 540 eval rows, 270 behavior rows
+[study] Wrote Paper 3 study outputs to results/reviewer_fixes/scale_llama32_3b/reviewer_fixes_signal_swap_llama32_3b
