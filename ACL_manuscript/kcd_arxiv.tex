@@ -105,11 +105,20 @@ first-class design decision in conversational memory compression.
 
 Deployed conversational systems face a hard constraint: as sessions grow,
 the full conversation history quickly exceeds a fixed context window.
+This is not merely a capacity problem: even when context fits, language models
+struggle to uniformly exploit information distributed across long histories,
+with performance degrading sharply for content appearing in the middle
+\citep{liu-etal-2024-lost}.
 Memory compression---selecting, condensing, or dropping prior turns to stay
 within a token budget---is therefore a core engineering challenge.
-Most prior work treats this as a single-objective problem: minimize the loss
-on held-out continuations, or equivalently, preserve behavioral quality
-as measured by answer NLL \citep{jiang-etal-2024-longllmlingua, pan-etal-2024-llmlingua2}.
+An alternative is retrieval augmentation \citep{lewis-etal-2020-retrieval}
+or hierarchical memory management \citep{packer-etal-2023-memgpt},
+but these require external indexes or architectural changes;
+we focus on in-context compression that operates purely at inference time.
+Most prior compression work treats this as a single-objective problem:
+minimize the loss on held-out continuations, or equivalently, preserve
+behavioral quality as measured by answer NLL
+\citep{jiang-etal-2024-longllmlingua, pan-etal-2024-llmlingua2}.
 
 We argue this framing is incomplete.
 Two distinct quantities are affected by compression:
@@ -193,13 +202,19 @@ The sequence $(\hv_1, \hv_2, \ldots, \hv_T)$ traces a trajectory on $\Sph^{d-1}$
 \paragraph{Compact structure.}
 We quantify intrinsic dimensionality via \emph{Rank-95}:
 the number of principal components explaining $95\%$ of variance
-in the centered trajectory matrix, normalized by the sequence length.
+in the centered trajectory matrix, normalized by the sequence length
+\citep{roy-vetterli-2007-effective}.
 We observe that real conversation trajectories are highly compact
 (Rank-95 $\approx 1.05$--$1.53$), whereas shuffled controls---which
 break temporal ordering---achieve Rank-95 $\approx 1.46$--$1.80$
 (Table~\ref{tab:geometry}).
-This compact structure is consistent across model families and
-motivates transported geometry as a discriminative signal.
+Low intrinsic dimensionality is a well-established property of transformer
+representations \citep{li-etal-2018-measuring, aghajanyan-etal-2021-intrinsic}
+and of contextual embeddings more broadly \citep{ethayarajh-2019-contextual,
+cai-etal-2021-isotropy}; our finding extends this to the \emph{temporal
+trajectory} of conversation-state hidden states, which is both more compact
+and more structured than a shuffled baseline.
+This motivates transported geometry as a discriminative signal.
 
 \paragraph{Geometric distortion predicts decoder drift.}
 For a compressed context $c_\pi$ under compression policy $\pi$,
@@ -224,7 +239,8 @@ displacement in the tangent space at $\hv_t$ is:
 \]
 where $\Log_{\hv_t}(\cdot)$ is the Riemannian logarithm map and
 $\PT_{\hv_t \to \hv_{\text{ref}}}(\cdot)$ is parallel transport to
-a reference point $\hv_{\text{ref}}$ (taken as the mean of the trajectory).
+a reference point $\hv_{\text{ref}}$ taken as the Fr\'{e}chet mean
+of the trajectory \citep{afsari-2011-riemannian}.
 Per-turn geometric features---curvature, subspace energy, alignment---are
 derived from $\uv_t$.
 
@@ -617,14 +633,18 @@ and the logit $\ell_2$ advantage of semantic is not significant at any budget
 This is the opposite of the Qwen pattern.
 
 We attribute this to pretraining regime differences.
-Qwen2.5 models undergo heavy instruction-following finetuning
-that produces discriminative per-turn geometry: user instructions
+Instruction-following finetuning via RLHF or instruction tuning
+\citep{ouyang-etal-2022-training, wei-etal-2022-finetuned}
+reshapes the model's representational geometry to respond more sharply
+to directive content (user instructions, constraints, factual assertions).
+Qwen2.5 models undergo heavy such finetuning,
+producing discriminative per-turn geometry where user instructions
 reliably move the hidden state more than assistant echoes.
-Llama-3.2-3B's broader text training does not produce this property;
+Llama-3.2-3B's training does not produce this property to the same degree;
 the geometric signature of constraint-critical turns is weaker,
 making semantic similarity the more reliable selection criterion.
-The scope condition is about model representation structure,
-not parameter count.
+The scope condition is therefore about the model's representational structure
+induced by its training regime, not parameter count.
 
 \subsection{Length Dependence}
 
@@ -705,10 +725,19 @@ approach for task-agnostic prompt compression.
 compact memory representations; our approach operates at inference time
 without modifying model weights.
 \citet{he-etal-2025-pretraining} train a context compressor as a preprocessing step.
-\citet{nawrot-etal-2024-dynamic} introduce dynamic memory compression
-for efficient LLM inference via key-value cache compression.
-Our work differs in operating at the turn level rather than token or
-key-value cache level, and in introducing dual-objective evaluation.
+
+A complementary line of work compresses the KV cache at the \emph{token} level
+during generation.
+\citet{zhang-etal-2023-h2o} retain ``heavy hitter'' tokens---those with the
+largest cumulative attention mass---discarding the rest dynamically.
+\citet{li-etal-2024-snapkv} identify which prompt tokens the model will attend
+to before generation begins and snap the cache accordingly.
+\citet{cai-etal-2024-pyramidkv} vary the cache budget across transformer layers
+in a pyramidal schedule.
+\citet{nawrot-etal-2024-dynamic} learn to merge and evict KV slots during training.
+All four operate at sub-token granularity within the KV cache;
+our \kcd{} codec operates at turn granularity and introduces a dual geometric--behavioral
+evaluation objective that none of these methods consider.
 
 \paragraph{Conversational memory and benchmarks.}
 \citet{xu-etal-2022-beyond} introduce Multi-Session Conversations (MSC),
@@ -728,17 +757,37 @@ inspired by cognitive science.
 \citet{wang-etal-2025-hymem} introduce HyMem, a hybrid memory architecture
 with dynamic retrieval scheduling.
 
+\paragraph{Retrieval and external memory.}
+An orthogonal strategy is to externalise history into a retrieval index.
+\citet{lewis-etal-2020-retrieval} introduce retrieval-augmented generation (RAG),
+which retrieves relevant documents at query time rather than compressing
+the context window.
+\citet{packer-etal-2023-memgpt} treat the LLM context window as a fast memory
+tier and implement page-in/page-out semantics to a slower external store.
+Our approach is complementary: we compress within the context window at
+inference time without an external index or modified architecture,
+and we measure the geometric cost of compression decisions---a cost that
+retrieval-based systems incur implicitly when summarising or dropping history.
+
 \paragraph{Hidden-state geometry in language models.}
-\citet{huh-etal-2024-platonic} observe convergence of representations across
-model families toward a common geometric structure, motivating
-cross-model geometric analysis.
+Transformer representations are known to occupy a compact, anisotropic subspace.
+\citet{ethayarajh-2019-contextual} show that contextualized embeddings are far
+from isotropic: upper-layer representations are highly context-specific,
+with less than $5\%$ of variance explained by static word identity.
+\citet{cai-etal-2021-isotropy} further characterize the cluster structure of
+this embedding space and introduce a rigorous isotropy measure.
+These findings motivate our Rank-95 metric, which quantifies how compactly
+conversation trajectories occupy $\mathbb{S}^{d-1}$;
+the theoretical basis for such dimensionality measures is established in
+\citet{li-etal-2018-measuring} and \citet{aghajanyan-etal-2021-intrinsic}.
+\citet{huh-etal-2024-platonic} observe cross-model convergence of representations
+toward a shared geometric structure, motivating our cross-architecture comparisons.
 \citet{xiao-etal-2023-efficient} identify attention sinks---tokens that
-accumulate disproportionate attention mass---which we account for in our
-hidden-state extraction via sink-corrected attention weights.
-Recent work on intrinsic dimensionality of transformer representations
-\citep{anagnostidis-etal-2022-signal} provides theoretical grounding for
-the low Rank-95 values we observe ($1.05$--$1.53$).
-To our knowledge, we are the first to use \emph{transported geometry}
+accumulate disproportionate attention mass---which we correct for in
+hidden-state extraction.
+\citet{anagnostidis-etal-2022-signal} provide theoretical grounding
+for the low Rank-95 values we observe ($1.05$--$1.53$).
+To our knowledge, we are the first to use \emph{parallel-transported geometry}
 on conversation-state trajectories as a turn-selection signal.
 
 % ---------------------------------------------------------------
