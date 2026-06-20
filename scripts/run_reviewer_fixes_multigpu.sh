@@ -53,8 +53,16 @@ export PYTHON_BIN
 RUN_PREFIX="${RUN_PREFIX:-reviewer_fixes}"
 MODEL_KEY="${MODEL_KEY:-qwen25_15b}"
 BUDGETS="${BUDGETS:-0.20,0.35,0.50}"
-JOB_MULTIPLIER="${JOB_MULTIPLIER:-2}"
-WORKERS_PER_GPU="${WORKERS_PER_GPU:-1}"
+# ── Throughput knobs (L40S × 7, 46GB each, Qwen25-1.5B ~3GB weights) ──────────
+# WORKERS_PER_GPU: geometry phase. Each worker ~5GB active VRAM (weights+KV).
+#   46GB / 5GB ≈ 9 theoretical max; 4 is the practical sweet spot.
+WORKERS_PER_GPU="${WORKERS_PER_GPU:-4}"
+# JOB_MULTIPLIER: shards per GPU. More shards = finer load balancing but
+#   more model-load overhead. 4 × GPU_COUNT shards keeps overhead low while
+#   allowing fast workers to pick up a second shard.
+JOB_MULTIPLIER="${JOB_MULTIPLIER:-4}"
+# GEN_BATCH_SIZE: QA generation batch (1 worker/GPU, 46GB free → batch 32 fine).
+GEN_BATCH_SIZE="${GEN_BATCH_SIZE:-32}"
 GPU_PREFLIGHT_RETRIES="${GPU_PREFLIGHT_RETRIES:-6}"
 GPU_PREFLIGHT_SLEEP="${GPU_PREFLIGHT_SLEEP:-10}"
 SKIP_DOWNLOAD="${SKIP_DOWNLOAD:-0}"
@@ -68,6 +76,7 @@ MSC_KCD_LIMIT="${MSC_KCD_LIMIT:-50}"
 # Cache root for .npz hidden-state extractions (set to a large volume on RunPod)
 # e.g. EXTRACT_CACHE_ROOT=/workspace/cache (needs 30GB+ for LME-100)
 [[ -n "${EXTRACT_CACHE_ROOT:-}" ]] && export EXTRACT_CACHE_ROOT
+export GEN_BATCH_SIZE
 
 HARDSET_INPUT="paper1_geometry/assets/paper2_behavior_stress_conversations.jsonl"
 MSC_INPUT="benchmarks/msc_valid_normalized.jsonl"
@@ -93,6 +102,7 @@ die() { log "FATAL: $*"; exit 1; }
 
 log "Run prefix: $RUN_PREFIX"
 log "Model: $MODEL_KEY  Budgets: $BUDGETS"
+log "Throughput: WORKERS_PER_GPU=$WORKERS_PER_GPU  JOB_MULTIPLIER=$JOB_MULTIPLIER  GEN_BATCH_SIZE=$GEN_BATCH_SIZE"
 log "Log: $MAIN_LOG"
 
 # ── GPU detection ─────────────────────────────────────────────────────────────
@@ -543,7 +553,7 @@ if [[ -f "$LME_MERGED_DIR/evaluation_rows.csv" ]] && [[ -n "${LONGMEM_INPUT_SUBS
         --model-key $MODEL_KEY \
         --output-dir $qa_shard_dir \
         --max-input-tokens 1024 \
-        --max-new-tokens 128 \
+        --max-new-tokens 64 \
         --conversation-ids-path $ids_file"
   done
   QA_PENDING=$(ls "$QUEUE_PENDING"/*.job 2>/dev/null | wc -l | tr -d ' ')
