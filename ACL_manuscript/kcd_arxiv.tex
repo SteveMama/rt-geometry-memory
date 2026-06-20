@@ -337,6 +337,26 @@ TF-IDF             & 617.4 & 610.5 & 594.0 & 3.249 & 3.074 & 2.930 \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig3_budget_logit_l2.pdf}
+\caption{Logit $\ell_2$ vs.\ budget for all policies.
+\emph{Left}: external baselines on MSC ($n{=}1{,}000$ conv).
+LongLLMLingua incurs $+103$--$161$ logit $\ell_2$ above uniform despite modest NLL gains.
+\emph{Right}: KCD signal variants ($n{=}50$ conv). Sem-QCG achieves
+$636.4$ at $B{=}0.50$---below the uniform baseline of $682.8$ (dotted line).}
+\label{fig:logit_l2}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig4_budget_nll.pdf}
+\caption{Answer NLL vs.\ budget. Sem-QCG achieves best behavioral quality at
+all budgets among KCD variants on MSC ($n{=}50$ conv), confirming that
+query-conditioned geometry does not sacrifice behavioral fidelity for geometric gain.}
+\label{fig:nll}
+\end{figure}
+
 Table~\ref{tab:baselines} shows a striking dissociation.
 \textsc{LongLLMLingua} achieves the \emph{lowest} NLL at budget $0.20$
 ($3.114$ vs.\ uniform $3.361$) but the \emph{highest} logit $\ell_2$
@@ -541,6 +561,17 @@ Geometry detects this signature; cosine similarity does not,
 because the semantic content of an instruction and its echo
 can be similar while their geometric roles are opposite.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig5_support_turn_rescue.pdf}
+\caption{Support-turn rescue analysis on the hard stress set ($n{=}36$ conversations,
+budget $B{=}0.35$).
+\emph{Left}: overall rescue counts relative to uniform.
+\emph{Right}: breakdown by turn family.
+Geo-KCD rescues $2.4\times$ more constraint-critical turns than Sem-KCD.}
+\label{fig:rescue}
+\end{figure}
+
 % ---------------------------------------------------------------
 \section{Scope Conditions}
 \label{sec:scope}
@@ -642,6 +673,19 @@ For very long conversations ($>400$ turns), semantic similarity
 is the more stable selection criterion.
 Signal design should be conditioned on expected conversation length.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig6_scope_conditions.pdf}
+\caption{Scope condition map.
+Rows: model family. Columns: conversation length regime.
+\emph{Green (Sem-QCG wins both)}: query-conditioned geometry resolves the
+geometry-behavior tradeoff on Qwen + short conversations.
+\emph{Orange (Semantic best)}: semantic scoring dominates on Llama and on
+long conversations where per-turn geometry is noisy.
+Right panel summarizes the 2$\times$2 grid.}
+\label{fig:scope}
+\end{figure}
+
 % ---------------------------------------------------------------
 \section{Related Work}
 \label{sec:related}
@@ -730,6 +774,18 @@ controls ($p \leq 0.012$), confirming temporal ordering creates compact geometry
 ($\rho = 0.989$--$0.994$, $p < 0.001$), confirming geometric distortion
 is a meaningful proxy for representational harm.
 These properties hold across architectures and parameter scales.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig2_geometry_characterization.pdf}
+\caption{Geometry characterization across model families.
+\emph{Left}: Rank-95 for real vs.\ shuffled conversation trajectories.
+Real trajectories are significantly more compact ($p \leq 0.012$).
+\emph{Right}: Pearson $\rho$ between per-turn geometric distortion and
+logit $\ell_2$ ($\rho = 0.989$--$0.994$, all $p{<}0.001$).}
+\label{fig:geomchar}
+\end{figure}
+
 
 % ---------------------------------------------------------------
 \section{Limitations}
