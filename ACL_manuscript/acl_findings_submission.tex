@@ -343,22 +343,22 @@ LongMemEval-S (100 full-length conversations, 400--600 turns each) provides a cr
 
 \begin{table}[t]
 \centering
-\caption{KCD on LongMemEval-S (\pname{qwen25\_15b}, 100 full-length conversations). Lower is better. NLL improvements vs.\ uniform are significant at conversation level for all KCD policies ($p<0.05$).}
+\caption{KCD on LongMemEval-S (\pname{qwen25\_15b}, 100 full-length conversations, binding-budget variant: recent-window\,=\,0). Lower is better. NLL improvements vs.\ uniform are significant at conversation level for all KCD policies at $B{\in}\{0.20,0.35\}$ ($p{<}0.001$).}
 \label{tab:lme}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccccc}
 \toprule
 Policy & L2@.20 & L2@.35 & L2@.50 & NLL@.20 & NLL@.35 & NLL@.50 \\
 \midrule
-Uniform & 1732.8 & 1763.1 & 1705.1 & 0.167 & 0.139 & 0.119 \\
-Geometry-KCD & 1751.0 & 1704.5 & 1692.4 & 0.123 & 0.118 & 0.114 \\
-Semantic-KCD & 1740.4 & 1693.6 & 1714.2 & 0.114 & 0.112 & 0.112 \\
-\pname{sem\_query\_cond\_KCD} & 1740.7 & 1743.9 & 1696.9 & 0.124 & 0.122 & 0.112 \\
+Uniform & 1750.7 & 1781.8 & 1714.2 & 0.222 & 0.191 & 0.141 \\
+Geometry-KCD & 1763.0 & 1701.3 & \textbf{1683.4} & 0.135 & 0.109 & 0.096 \\
+Semantic-KCD & \textbf{1750.6} & \textbf{1700.5} & 1717.9 & \textbf{0.100} & \textbf{0.096} & \textbf{0.094} \\
+\pname{sem\_query\_cond\_KCD} & 1755.9 & 1748.1 & 1705.0 & 0.108 & 0.105 & 0.099 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-All KCD policies significantly improve answer NLL over uniform on LME-S across all budgets. The geometry advantage seen on MSC does not replicate at conversation level: at budget 0.35, \pname{sem\_query\_cond\_KCD} is directionally worse than \pname{semantic\_KCD} on logit L2 ($\Delta=+50.3$, $p=0.011$ conv). At budget 0.50 the differences are not significant at conversation level.
+All KCD policies significantly improve answer NLL over uniform on LME-S at budgets 0.20--0.35 ($p{<}0.001$, conversation-level), with \pname{semantic\_KCD} achieving the largest behavioral gain ($\Delta\mathrm{NLL}=-0.122$ at $B{=}0.20$ vs.\ uniform). The geometry advantage seen on MSC does not replicate: at budget 0.35, \pname{sem\_query\_cond\_KCD} is significantly worse than \pname{semantic\_KCD} on logit L2 ($\Delta=+47.6$, $p_\mathrm{conv}=0.018$, $p_\mathrm{row}{<}0.001$). At budget 0.50 the geometry differences are not significant at conversation level ($p=0.629$).
 
 The behavioral improvement without geometric advantage is informative. On 400--600 turn conversations, the geometric signal is noisier: the query-conditioned scoring must separate relevant from irrelevant turns across hundreds of candidates rather than dozens, and the signal-to-noise ratio degrades. The behavioral result still holds because the semantic shortlisting component---which operates at a coarser granularity---remains discriminative. We interpret this as evidence that the geometry signal requires sufficient conversation-turn resolution to be effective: it is reliable on MSC-length conversations (20--100 turns), where each turn carries a distinguishable geometric signature, but its benefit diminishes on much longer conversations where turns compete in a crowded representational space.
 

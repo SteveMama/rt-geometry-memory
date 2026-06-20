@@ -692,7 +692,7 @@ induced by its training regime, not parameter count.
 \begin{table}[t]
 \centering
 \caption{Cross-benchmark results on \lme{} ($n{=}100$ full-length conversations,
-400--600 turns, Qwen2.5-1.5B). Lower is better.}
+400--600 turns, Qwen2.5-1.5B, binding-budget variant: recent-window\,=\,0). Lower is better.}
 \label{tab:lme}
 \setlength{\tabcolsep}{5pt}
 \begin{tabular}{lcccccc}
@@ -701,10 +701,10 @@ induced by its training regime, not parameter count.
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
 Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ \\
 \midrule
-Uniform   & 1732.8 & 1763.1 & 1705.1 & 0.167 & 0.139 & 0.119 \\
-\geokcd{} & 1751.0 & 1704.5 & \textbf{1692.4} & 0.123 & 0.118 & 0.114 \\
-\semkcd{} & \textbf{1740.4} & \textbf{1693.6} & 1714.2 & \textbf{0.114} & \textbf{0.112} & \textbf{0.112} \\
-\semqcg{} & 1740.7 & 1743.9 & 1696.9 & 0.124 & 0.122 & 0.112 \\
+Uniform   & 1750.7 & 1781.8 & 1714.2 & 0.222 & 0.191 & 0.141 \\
+\geokcd{} & 1763.0 & 1701.3 & \textbf{1683.4} & 0.135 & 0.109 & 0.096 \\
+\semkcd{} & \textbf{1750.6} & \textbf{1700.5} & 1717.9 & \textbf{0.100} & \textbf{0.096} & \textbf{0.094} \\
+\semqcg{} & 1755.9 & 1748.1 & 1705.0 & 0.108 & 0.105 & 0.099 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -718,7 +718,9 @@ confirming that turn-level selection generalizes across benchmarks.
 
 However, the geometry advantage does \emph{not} replicate at conversation level.
 At budget $0.35$, \semqcg{} is significantly \emph{worse} than \semkcd{}
-on logit $\ell_2$: $\Delta{+}50.3$, $p_\text{conv} = 0.011$.
+on logit $\ell_2$: $\Delta{=}{+}47.6$, $p_\text{conv} = 0.018$, $p_\text{row} < 0.001$.
+On behavior, \semkcd{} achieves the best NLL across all budgets
+($0.100$ at $B{=}0.20$, vs.\ $0.222$ for uniform; $p<0.001$).
 This reversal has a natural explanation:
 in 400--600 turn conversations, each turn's geometric signature is competing
 with hundreds of other turns in a crowded representational space.
@@ -1034,9 +1036,9 @@ Positive $\Delta$ logit L2 means \semqcg{} is geometrically \emph{worse}.}
 \toprule
 Budget & $\Delta$ L2 (row) & $p_\text{row}$ & $\Delta$ L2 (conv) & $p_\text{conv}$ & $\Delta$ NLL (conv) & $p_\text{conv}$ \\
 \midrule
-$0.20$ & $+0.26$  & $0.973$ & $+0.26$  & $0.988$ & $+0.010$ & $0.623$ \\
-$0.35$ & $+50.31$ & ${<}0.001$ & $+50.31$ & $0.011$ & $+0.010$ & $0.819$ \\
-$0.50$ & $-17.35$ & $0.025$ & $-17.35$ & $0.517$ & $\approx 0$ & $0.683$ \\
+$0.20$ & $+5.2$  & $0.476$ & $+5.2$  & $0.742$ & $+0.010$ & $0.738$ \\
+$0.35$ & $+47.6$ & ${<}0.001$ & $+47.6$ & $0.018$ & $+0.012$ & $0.001$ \\
+$0.50$ & $-12.9$ & $0.108$ & $-12.9$ & $0.629$ & $+0.006$ & ${<}0.001$ \\
 \bottomrule
 \end{tabular}
 \end{table}
