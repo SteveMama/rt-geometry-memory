@@ -206,7 +206,7 @@ for ((s=0; s<JOB_SHARDS; s++)); do
       --input-path $HARDSET_INPUT \
       --families long_dependency,retrieval_heavy,code_conversation \
       --budgets $BUDGETS \
-      --policies uniform,longllmlingua,geometry_keep_compress_drop,semantic_keep_compress_drop \
+      --policies uniform,longllmlingua,recency,lexical_tfidf,recency_keep_compress_drop \
       --recent-window 2 \
       --min-history 4 \
       --max-input-tokens 768 \
@@ -286,7 +286,7 @@ if [[ -f "$MSC_INPUT" ]]; then
         --model-keys $MODEL_KEY \
         --input-path $MSC_INPUT \
         --budgets $BUDGETS \
-        --policies uniform,longllmlingua,semantic,budget_aware_semantic_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop \
+        --policies uniform,longllmlingua,recency,lexical_tfidf,recency_keep_compress_drop \
         --recent-window 2 \
         --min-history 4 \
         --max-input-tokens 1024 \
