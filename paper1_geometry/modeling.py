@@ -174,17 +174,18 @@ class ConversationStateExtractor:
                 f"but the current environment has {self.transformers_version}. "
                 "Upgrade transformers or choose a compatible model preset."
             )
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        hf_name = self.model_spec.model_name if self.model_spec is not None else model_name
+        self.tokenizer = AutoTokenizer.from_pretrained(hf_name)
         if self.tokenizer.pad_token is None and self.tokenizer.eos_token is not None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
         load_kwargs: dict[str, Any] = {"torch_dtype": self.dtype}
         if self._flash_attn_available() and "cuda" in str(self.device):
             load_kwargs["attn_implementation"] = "flash_attention_2"
-        self.model = AutoModelForCausalLM.from_pretrained(model_name, **load_kwargs)
+        self.model = AutoModelForCausalLM.from_pretrained(hf_name, **load_kwargs)
         self.model.to(self.device)
         self.model.eval()
-        self.model_name = model_name
+        self.model_name = hf_name
 
     def _choose_device(self) -> str:
         if self.torch.cuda.is_available():
