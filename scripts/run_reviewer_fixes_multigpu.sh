@@ -59,6 +59,15 @@ GPU_PREFLIGHT_RETRIES="${GPU_PREFLIGHT_RETRIES:-6}"
 GPU_PREFLIGHT_SLEEP="${GPU_PREFLIGHT_SLEEP:-10}"
 SKIP_DOWNLOAD="${SKIP_DOWNLOAD:-0}"
 SKIP_PUSH="${SKIP_PUSH:-0}"
+# Max conversations for LME subset (150 is ACL-credible; 500 needs 150GB+ disk)
+LME_CONV_LIMIT="${LME_CONV_LIMIT:-150}"
+# Max conversations for Llama-3.2-3B scale validation on MSC
+LLAMA_CONV_LIMIT="${LLAMA_CONV_LIMIT:-50}"
+# Max conversations for MSC KCD geometry study (paper3_codec.study on MSC)
+MSC_KCD_LIMIT="${MSC_KCD_LIMIT:-50}"
+# Cache root for .npz hidden-state extractions (set to a large volume on RunPod)
+# e.g. EXTRACT_CACHE_ROOT=/workspace/cache (needs 50GB+ for LME-150)
+[[ -n "${EXTRACT_CACHE_ROOT:-}" ]] && export EXTRACT_CACHE_ROOT
 
 HARDSET_INPUT="paper1_geometry/assets/paper2_behavior_stress_conversations.jsonl"
 MSC_INPUT="benchmarks/msc_valid_normalized.jsonl"
@@ -186,6 +195,47 @@ fi
 
 [[ -f "$HARDSET_INPUT" ]] || die "hard stress set missing: $HARDSET_INPUT"
 
+# ── Create benchmark subsets ──────────────────────────────────────────────────
+# LME subset: first LME_CONV_LIMIT conversations (manages disk usage)
+if [[ -f "$LONGMEM_INPUT" ]] && [[ "${LME_CONV_LIMIT:-0}" -gt 0 ]]; then
+  LONGMEM_INPUT_SUBSET="benchmarks/longmemeval_s_subset_${LME_CONV_LIMIT}.jsonl"
+  if [[ ! -f "$LONGMEM_INPUT_SUBSET" ]]; then
+    head -n "$LME_CONV_LIMIT" "$LONGMEM_INPUT" > "$LONGMEM_INPUT_SUBSET"
+    actual_count=$(wc -l < "$LONGMEM_INPUT_SUBSET" | tr -d ' ')
+    log "Created LME subset: $LONGMEM_INPUT_SUBSET ($actual_count conversations)"
+  else
+    log "LME subset already present: $LONGMEM_INPUT_SUBSET"
+  fi
+else
+  LONGMEM_INPUT_SUBSET="${LONGMEM_INPUT:-}"
+fi
+
+# MSC Llama subset for Llama-3.2-3B scale validation
+if [[ -f "$MSC_INPUT" ]] && [[ "${LLAMA_CONV_LIMIT:-0}" -gt 0 ]]; then
+  MSC_LLAMA_SUBSET="benchmarks/msc_llama_subset_${LLAMA_CONV_LIMIT}.jsonl"
+  if [[ ! -f "$MSC_LLAMA_SUBSET" ]]; then
+    head -n "$LLAMA_CONV_LIMIT" "$MSC_INPUT" > "$MSC_LLAMA_SUBSET"
+    log "Created MSC Llama subset: $MSC_LLAMA_SUBSET ($LLAMA_CONV_LIMIT conversations)"
+  else
+    log "MSC Llama subset already present: $MSC_LLAMA_SUBSET"
+  fi
+else
+  MSC_LLAMA_SUBSET="${MSC_INPUT:-}"
+fi
+
+# MSC KCD subset for geometry study (paper3_codec.study on MSC)
+if [[ -f "$MSC_INPUT" ]] && [[ "${MSC_KCD_LIMIT:-0}" -gt 0 ]]; then
+  MSC_KCD_SUBSET="benchmarks/msc_kcd_subset_${MSC_KCD_LIMIT}.jsonl"
+  if [[ ! -f "$MSC_KCD_SUBSET" ]]; then
+    head -n "$MSC_KCD_LIMIT" "$MSC_INPUT" > "$MSC_KCD_SUBSET"
+    log "Created MSC KCD subset: $MSC_KCD_SUBSET ($MSC_KCD_LIMIT conversations)"
+  else
+    log "MSC KCD subset already present: $MSC_KCD_SUBSET"
+  fi
+else
+  MSC_KCD_SUBSET="${MSC_INPUT:-}"
+fi
+
 # ── Step 2: Enqueue jobs ──────────────────────────────────────────────────────
 log "=== STEP 2: Planning jobs ==="
 
@@ -218,9 +268,12 @@ done
 MERGE_SPECS+=("baselines_hardset|$(IFS=,; echo "${HS_SHARD_DIRS[*]}")")
 
 # ── 2b. Full LongMemEval-S: geometry_KCD + baselines (no 40-turn cap) ─────────
-if [[ -f "$LONGMEM_INPUT" ]]; then
-  log "Planning: full LongMemEval-S study"
-  plan_dir_lme="$(plan_shards "$LONGMEM_INPUT" "fullLME")"
+# Uses LONGMEM_INPUT_SUBSET (default: first 150 conversations) to control disk usage.
+# Each 400-600-turn LME conversation generates ~300MB of .npz hidden-state cache;
+# 150 conversations ≈ 45GB — set EXTRACT_CACHE_ROOT to a volume with 50GB+ free.
+if [[ -n "${LONGMEM_INPUT_SUBSET:-}" ]] && [[ -f "$LONGMEM_INPUT_SUBSET" ]]; then
+  log "Planning: LongMemEval-S KCD study (subset: $LONGMEM_INPUT_SUBSET)"
+  plan_dir_lme="$(plan_shards "$LONGMEM_INPUT_SUBSET" "fullLME")"
   declare -a LME_SHARD_DIRS=()
   for ((s=0; s<JOB_SHARDS; s++)); do
     ids_file="$plan_dir_lme/shard_${s}_ids.txt"
@@ -231,10 +284,10 @@ if [[ -f "$LONGMEM_INPUT" ]]; then
       "$PYTHON_BIN -m paper3_codec.study \
         --study-name ${RUN_PREFIX}_lme_shard${s}of${JOB_SHARDS} \
         --model-keys $MODEL_KEY \
-        --input-path $LONGMEM_INPUT \
+        --input-path $LONGMEM_INPUT_SUBSET \
         --families longmemeval_s_full \
         --budgets $BUDGETS \
-        --policies uniform,semantic,geometry,geometry_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop \
+        --policies uniform,geometry_keep_compress_drop,semantic_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop \
         --recent-window 2 \
         --min-history 4 \
         --max-input-tokens 1024 \
@@ -246,30 +299,45 @@ if [[ -f "$LONGMEM_INPUT" ]]; then
   done
   MERGE_SPECS+=("fullLME|$(IFS=,; echo "${LME_SHARD_DIRS[*]}")")
 else
-  log "WARNING: $LONGMEM_INPUT not found, skipping full LME study"
+  log "WARNING: LME input not found, skipping LME study (download first or set SKIP_DOWNLOAD=0)"
 fi
 
-# ── 2c. Llama-3.2-3B signal comparison (second 3B model) ─────────────────────
-if [[ -n "${HF_TOKEN:-}${HUGGING_FACE_HUB_TOKEN:-}" ]]; then
-  log "Planning: Llama-3.2-3B scale validation (second 3B model)"
-  shard_dir_llama="results/reviewer_fixes/scale_llama32_3b/${RUN_PREFIX}_signal_swap_llama32_3b"
-  enqueue_job "scale_llama32_3b" "$shard_dir_llama" \
-    "$PYTHON_BIN -m paper3_codec.study \
-      --study-name ${RUN_PREFIX}_signal_swap_llama32_3b \
-      --model-keys llama32_3b \
-      --input-path $HARDSET_INPUT \
-      --families long_dependency,retrieval_heavy,code_conversation \
-      --budgets $BUDGETS \
-      --policies uniform,semantic,geometry,geometry_keep_compress_drop,semantic_keep_compress_drop \
-      --recent-window 2 \
-      --min-history 4 \
-      --max-input-tokens 768 \
-      --segment-span 2 \
-      --output-root results/reviewer_fixes/scale_llama32_3b"
-  MERGE_SPECS+=("scale_llama32_3b|$shard_dir_llama")
-else
+# ── 2c. Llama-3.2-3B scale validation — sharded on MSC subset ─────────────────
+# Runs on MSC (LLAMA_CONV_LIMIT conversations, default 50) sharded across all GPUs.
+# Previous run used only 9 hardset conversations — not enough for statistical power.
+# 50 MSC conversations gives credible scale validation comparable to LoCoMo (50 convos, ACL 2024).
+if [[ -n "${HF_TOKEN:-}${HUGGING_FACE_HUB_TOKEN:-}" ]] && [[ -f "${MSC_LLAMA_SUBSET:-}" ]]; then
+  log "Planning: Llama-3.2-3B scale validation on MSC subset ($LLAMA_CONV_LIMIT conversations)"
+  plan_dir_llama="$(plan_shards "$MSC_LLAMA_SUBSET" "llama32_3b_msc")"
+  declare -a LLAMA_SHARD_DIRS=()
+  for ((s=0; s<JOB_SHARDS; s++)); do
+    ids_file="$plan_dir_llama/shard_${s}_ids.txt"
+    [[ -s "$ids_file" ]] || continue
+    shard_dir="results/reviewer_fixes/scale_llama32_3b/${RUN_PREFIX}_llama32_3b_shard${s}of${JOB_SHARDS}"
+    LLAMA_SHARD_DIRS+=("$shard_dir")
+    enqueue_job "scale_llama32_3b_s${s}" "$shard_dir" \
+      "$PYTHON_BIN -m paper3_codec.study \
+        --study-name ${RUN_PREFIX}_llama32_3b_shard${s}of${JOB_SHARDS} \
+        --model-keys llama32_3b \
+        --input-path $MSC_LLAMA_SUBSET \
+        --families msc_valid \
+        --budgets $BUDGETS \
+        --policies uniform,geometry_keep_compress_drop,semantic_keep_compress_drop \
+        --recent-window 2 \
+        --min-history 4 \
+        --max-input-tokens 1024 \
+        --segment-span 2 \
+        --target-turn-stride 2 \
+        --max-target-turns 16 \
+        --output-root results/reviewer_fixes/scale_llama32_3b \
+        --conversation-ids-path $ids_file"
+  done
+  MERGE_SPECS+=("scale_llama32_3b|$(IFS=,; echo "${LLAMA_SHARD_DIRS[*]}")")
+elif [[ -z "${HF_TOKEN:-}${HUGGING_FACE_HUB_TOKEN:-}" ]]; then
   log "WARNING: no HF_TOKEN set, skipping Llama-3.2-3B (gated model)"
   log "  Set HF_TOKEN=hf_xxx to enable the second 3B model"
+else
+  log "WARNING: MSC input not found for Llama-3.2-3B, skipping"
 fi
 
 # ── 2d. MSC baselines with longllmlingua ─────────────────────────────────────
@@ -299,6 +367,41 @@ if [[ -f "$MSC_INPUT" ]]; then
         --conversation-ids-path $ids_file"
   done
   MERGE_SPECS+=("baselines_msc|$(IFS=,; echo "${MSC_SHARD_DIRS[*]}")")
+fi
+
+# ── 2e. MSC KCD geometry study (paper3_codec.study on MSC subset) ─────────────
+# Runs geometry KCD policies on MSC (MSC_KCD_LIMIT conversations, default 50).
+# This gives geometry_keep_compress_drop vs baselines on MSC — completing the
+# two-benchmark comparison needed for the paper's main claim.
+if [[ -n "${MSC_KCD_SUBSET:-}" ]] && [[ -f "$MSC_KCD_SUBSET" ]]; then
+  log "Planning: MSC KCD geometry study ($MODEL_KEY, $MSC_KCD_LIMIT conversations)"
+  plan_dir_msc_kcd="$(plan_shards "$MSC_KCD_SUBSET" "kcd_msc")"
+  declare -a MSC_KCD_SHARD_DIRS=()
+  for ((s=0; s<JOB_SHARDS; s++)); do
+    ids_file="$plan_dir_msc_kcd/shard_${s}_ids.txt"
+    [[ -s "$ids_file" ]] || continue
+    shard_dir="results/reviewer_fixes/kcd_msc/${RUN_PREFIX}_kcd_msc_shard${s}of${JOB_SHARDS}"
+    MSC_KCD_SHARD_DIRS+=("$shard_dir")
+    enqueue_job "kcd_msc_s${s}" "$shard_dir" \
+      "$PYTHON_BIN -m paper3_codec.study \
+        --study-name ${RUN_PREFIX}_kcd_msc_shard${s}of${JOB_SHARDS} \
+        --model-keys $MODEL_KEY \
+        --input-path $MSC_KCD_SUBSET \
+        --families msc_valid \
+        --budgets $BUDGETS \
+        --policies uniform,geometry_keep_compress_drop,semantic_keep_compress_drop,semantic_query_conditioned_geometry_keep_compress_drop \
+        --recent-window 2 \
+        --min-history 4 \
+        --max-input-tokens 1024 \
+        --segment-span 2 \
+        --target-turn-stride 2 \
+        --max-target-turns 16 \
+        --output-root results/reviewer_fixes/kcd_msc \
+        --conversation-ids-path $ids_file"
+  done
+  MERGE_SPECS+=("kcd_msc|$(IFS=,; echo "${MSC_KCD_SHARD_DIRS[*]}")")
+else
+  log "WARNING: MSC KCD subset not found, skipping MSC KCD geometry study"
 fi
 
 PENDING_COUNT=$(ls "$QUEUE_PENDING"/*.job 2>/dev/null | wc -l | tr -d ' ')
@@ -395,7 +498,16 @@ for spec in "${MERGE_SPECS[@]}"; do
         --shard-dirs "$dirs" || log "WARNING: merge failed for fullLME"
       ;;
     scale_llama32_3b)
-      log "(llama32_3b is a single-shard job, no merge needed)"
+      "$PYTHON_BIN" -m paper3_codec.merge_study_shards \
+        --study-name "${RUN_PREFIX}_llama32_3b_merged" \
+        --output-root results/reviewer_fixes/scale_llama32_3b \
+        --shard-dirs "$dirs" || log "WARNING: merge failed for scale_llama32_3b"
+      ;;
+    kcd_msc)
+      "$PYTHON_BIN" -m paper3_codec.merge_study_shards \
+        --study-name "${RUN_PREFIX}_kcd_msc_merged" \
+        --output-root results/reviewer_fixes/kcd_msc \
+        --shard-dirs "$dirs" || log "WARNING: merge failed for kcd_msc"
       ;;
   esac
 done
@@ -407,7 +519,8 @@ for study_dir in \
     "results/reviewer_fixes/baselines/${RUN_PREFIX}_baselines_hardset_merged" \
     "results/reviewer_fixes/baselines/${RUN_PREFIX}_baselines_msc_merged" \
     "results/reviewer_fixes/fullLME/${RUN_PREFIX}_fullLME_merged" \
-    "results/reviewer_fixes/scale_llama32_3b/${RUN_PREFIX}_signal_swap_llama32_3b"; do
+    "results/reviewer_fixes/scale_llama32_3b/${RUN_PREFIX}_llama32_3b_merged" \
+    "results/reviewer_fixes/kcd_msc/${RUN_PREFIX}_kcd_msc_merged"; do
   [[ -f "$study_dir/evaluation_rows.csv" ]] || continue
   log "Pairwise report: $study_dir"
   bash scripts/run_paper3_pairwise_report.sh "$study_dir" || log "WARNING: pairwise report failed for $study_dir"
@@ -472,6 +585,7 @@ git add \
   paper1_geometry/modeling.py \
   scripts/install_reviewer_deps.sh \
   scripts/run_reviewer_fixes_multigpu.sh \
+  current_fixes_2026-06-20.md \
   2>/dev/null || true
 
 if git diff --cached --quiet; then
