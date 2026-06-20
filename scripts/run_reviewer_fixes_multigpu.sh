@@ -419,7 +419,7 @@ else
   log "WARNING: MSC KCD subset not found, skipping MSC KCD geometry study"
 fi
 
-PENDING_COUNT=$(ls "$QUEUE_PENDING"/*.job 2>/dev/null | wc -l | tr -d ' ')
+PENDING_COUNT=$(ls "$QUEUE_PENDING"/*.job 2>/dev/null | wc -l | tr -d ' ') || PENDING_COUNT=0
 log "Enqueued $PENDING_COUNT jobs across $GPU_COUNT GPUs"
 
 # ── Step 3: GPU worker pool ───────────────────────────────────────────────────
@@ -561,7 +561,7 @@ if [[ -f "$LME_MERGED_DIR/evaluation_rows.csv" ]] && [[ -n "${LONGMEM_INPUT_SUBS
         --max-new-tokens 64 \
         --conversation-ids-path $ids_file"
   done
-  QA_PENDING=$(ls "$QUEUE_PENDING"/*.job 2>/dev/null | wc -l | tr -d ' ')
+  QA_PENDING=$(ls "$QUEUE_PENDING"/*.job 2>/dev/null | wc -l | tr -d ' ') || QA_PENDING=0
   log "Enqueued $QA_PENDING QA generation shards (1 worker per GPU for generation)"
   # QA generation: 1 worker per GPU — each loads the full model, WORKERS_PER_GPU
   # would OOM (3 × Qwen25-1.5B ≈ 9GB+ on top of generation activations).
@@ -613,7 +613,7 @@ SUMMARY_FILE="results/reviewer_fixes/summary_${RUN_PREFIX}.md"
   echo "Model: $MODEL_KEY | Budgets: $BUDGETS | GPUs: $GPU_COUNT"
   echo ""
   echo "## Jobs"
-  echo "- Done: $(ls "$QUEUE_DONE"/*.job 2>/dev/null | wc -l | tr -d ' ')"
+  echo "- Done: $(ls "$QUEUE_DONE"/*.job 2>/dev/null | wc -l | tr -d ' ' || echo 0)"
   echo "- Failed (geometry): $FAILED_COUNT"
   echo "- Failed (QA gen): ${QA_FAILED_COUNT:-0}"
   echo ""
