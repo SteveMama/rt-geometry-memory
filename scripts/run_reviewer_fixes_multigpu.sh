@@ -59,14 +59,14 @@ GPU_PREFLIGHT_RETRIES="${GPU_PREFLIGHT_RETRIES:-6}"
 GPU_PREFLIGHT_SLEEP="${GPU_PREFLIGHT_SLEEP:-10}"
 SKIP_DOWNLOAD="${SKIP_DOWNLOAD:-0}"
 SKIP_PUSH="${SKIP_PUSH:-0}"
-# Max conversations for LME subset (150 is ACL-credible; 500 needs 150GB+ disk)
-LME_CONV_LIMIT="${LME_CONV_LIMIT:-150}"
+# Max conversations for LME subset (100 conversations, ~30GB .npz cache)
+LME_CONV_LIMIT="${LME_CONV_LIMIT:-100}"
 # Max conversations for Llama-3.2-3B scale validation on MSC
 LLAMA_CONV_LIMIT="${LLAMA_CONV_LIMIT:-50}"
 # Max conversations for MSC KCD geometry study (paper3_codec.study on MSC)
 MSC_KCD_LIMIT="${MSC_KCD_LIMIT:-50}"
 # Cache root for .npz hidden-state extractions (set to a large volume on RunPod)
-# e.g. EXTRACT_CACHE_ROOT=/workspace/cache (needs 50GB+ for LME-150)
+# e.g. EXTRACT_CACHE_ROOT=/workspace/cache (needs 30GB+ for LME-100)
 [[ -n "${EXTRACT_CACHE_ROOT:-}" ]] && export EXTRACT_CACHE_ROOT
 
 HARDSET_INPUT="paper1_geometry/assets/paper2_behavior_stress_conversations.jsonl"
@@ -513,19 +513,22 @@ for spec in "${MERGE_SPECS[@]}"; do
 done
 
 # ── Step 4.5: QA accuracy generation on merged LME study ─────────────────────
-# Replays retained_turn_indices from evaluation_rows.csv, generates free-form
-# answers, and scores with EM / token-F1 / containment. Runs after the LME
-# merge so the generation can use the complete merged CSV.
-# Output: results/reviewer_fixes/lme_qa/<shard>/qa_rows.csv
-# These files are later consumed by scripts/run_llm_judge_eval.py (locally,
-# after downloading from the pod) using Gemini 2.5 Flash + Llama-3-70B.
+# Replays the exact turn selections recorded in evaluation_rows.csv (via
+# retained_turn_indices), generates a free-form answer for each compressed
+# context, and scores it with exact match, token F1, and containment vs the
+# gold answer. No LLM judge needed — token F1 is the behavioral metric.
+#
+# Uses 1 worker per GPU regardless of WORKERS_PER_GPU because each generation
+# worker loads the full model into VRAM; multiple loaders per GPU would OOM.
 log "=== STEP 4.5: QA accuracy generation (LME) ==="
 
 LME_MERGED_DIR="results/reviewer_fixes/fullLME/${RUN_PREFIX}_fullLME_merged"
+LME_QA_MERGED_DIR="results/reviewer_fixes/lme_qa/${RUN_PREFIX}_lme_qa_merged"
+
 if [[ -f "$LME_MERGED_DIR/evaluation_rows.csv" ]] && [[ -n "${LONGMEM_INPUT_SUBSET:-}" ]] && [[ -f "$LONGMEM_INPUT_SUBSET" ]]; then
   log "Planning: QA generation on merged LME study ($LME_MERGED_DIR)"
   plan_dir_qa="$(plan_shards "$LONGMEM_INPUT_SUBSET" "lme_qa")"
-  # Clear queue for second worker pass
+  # Clear queue for second worker pass (geometry jobs are all in DONE/FAILED)
   rm -f "$QUEUE_PENDING"/*.job "$QUEUE_RUNNING"/*.job 2>/dev/null || true
   declare -a QA_SHARD_DIRS=()
   for ((s=0; s<JOB_SHARDS; s++)); do
@@ -544,17 +547,19 @@ if [[ -f "$LME_MERGED_DIR/evaluation_rows.csv" ]] && [[ -n "${LONGMEM_INPUT_SUBS
         --conversation-ids-path $ids_file"
   done
   QA_PENDING=$(ls "$QUEUE_PENDING"/*.job 2>/dev/null | wc -l | tr -d ' ')
-  log "Enqueued $QA_PENDING QA generation shards"
-  # Second worker pool pass
+  log "Enqueued $QA_PENDING QA generation shards (1 worker per GPU for generation)"
+  # QA generation: 1 worker per GPU — each loads the full model, WORKERS_PER_GPU
+  # would OOM (3 × Qwen25-1.5B ≈ 9GB+ on top of generation activations).
   declare -a QA_WORKER_PIDS=()
   for ((i=0; i<GPU_COUNT; i++)); do
-    for ((w=0; w<WORKERS_PER_GPU; w++)); do
-      worker_loop "${GPU_INDICES[$i]}" &
-      QA_WORKER_PIDS+=("$!")
-    done
+    worker_loop "${GPU_INDICES[$i]}" &
+    QA_WORKER_PIDS+=("$!")
   done
   for pid in "${QA_WORKER_PIDS[@]}"; do wait "$pid" || true; done
-  # Merge QA shards
+  # Count QA failures
+  QA_FAILED_COUNT=$(ls "$QUEUE_FAILED"/*.job 2>/dev/null | wc -l | tr -d ' ')
+  [[ "$QA_FAILED_COUNT" -gt 0 ]] && log "WARNING: $QA_FAILED_COUNT QA generation shards failed"
+  # Merge QA shards into single qa_rows.csv + qa_report.md
   if [[ ${#QA_SHARD_DIRS[@]} -gt 0 ]]; then
     log "Merging QA shards..."
     "$PYTHON_BIN" -m june_fixes.qa_accuracy.merge_qa_shards \
@@ -564,7 +569,8 @@ if [[ -f "$LME_MERGED_DIR/evaluation_rows.csv" ]] && [[ -n "${LONGMEM_INPUT_SUBS
       || log "WARNING: QA shard merge failed"
   fi
 else
-  log "Skipping QA generation: LME merged study not found or LME input missing"
+  log "Skipping QA generation: LME merged study not found or input missing"
+  log "  (geometry study must complete first — run full pipeline to get QA results)"
 fi
 
 # ── Step 5: Run pairwise reports ──────────────────────────────────────────────
@@ -584,6 +590,7 @@ done
 # ── Step 6: Summarize results ─────────────────────────────────────────────────
 log "=== STEP 6: Writing summary ==="
 
+TOTAL_FAILED=$(( FAILED_COUNT + ${QA_FAILED_COUNT:-0} ))
 SUMMARY_FILE="results/reviewer_fixes/summary_${RUN_PREFIX}.md"
 {
   echo "# Reviewer Fix Results — $RUN_PREFIX"
@@ -592,14 +599,24 @@ SUMMARY_FILE="results/reviewer_fixes/summary_${RUN_PREFIX}.md"
   echo ""
   echo "## Jobs"
   echo "- Done: $(ls "$QUEUE_DONE"/*.job 2>/dev/null | wc -l | tr -d ' ')"
-  echo "- Failed: $FAILED_COUNT"
+  echo "- Failed (geometry): $FAILED_COUNT"
+  echo "- Failed (QA gen): ${QA_FAILED_COUNT:-0}"
   echo ""
-  echo "## Output dirs"
+  echo "## Geometry study outputs"
   for spec in "${MERGE_SPECS[@]}"; do
     [[ -n "$spec" ]] || continue
     IFS='|' read -r tag _ <<< "$spec"
     echo "- $tag"
   done
+  echo ""
+  echo "## QA accuracy output (token F1 / EM / containment)"
+  if [[ -f "$LME_QA_MERGED_DIR/qa_report.md" ]]; then
+    echo "- lme_qa: $LME_QA_MERGED_DIR/qa_report.md"
+    echo ""
+    cat "$LME_QA_MERGED_DIR/qa_report.md"
+  else
+    echo "- lme_qa: not yet generated"
+  fi
   echo ""
   echo "## Logs"
   echo "Main log: $MAIN_LOG"
@@ -620,11 +637,12 @@ fi
 [[ -n "${GITHUB_USER:-}" ]] || die "Set GITHUB_USER before running (needed for git push)"
 [[ -n "${GITHUB_TOKEN:-}" ]] || die "Set GITHUB_TOKEN before running (needed for git push)"
 
-COMMIT_MSG="Add reviewer-fix results: longllmlingua baseline, full LME, llama32_3b scale
+COMMIT_MSG="Add reviewer-fix results: LME KCD, MSC KCD, Llama-3B scale, QA eval
 
-- LongLLMLingua (question-aware) baseline on hard stress set and MSC
-- Full LongMemEval-S study (no 40-turn truncation cap removed)
-- Llama-3.2-3B second 3B model signal comparison
+- LongMemEval-S KCD study (${LME_CONV_LIMIT} conversations, full turn length)
+- MSC KCD geometry study (${MSC_KCD_LIMIT} conversations)
+- Llama-3.2-3B scale validation on MSC (${LLAMA_CONV_LIMIT} conversations)
+- QA accuracy generation: token F1 / EM / containment per policy/budget
 - Run prefix: $RUN_PREFIX | GPUs: $GPU_COUNT | $(date +%Y-%m-%d)
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
@@ -637,6 +655,8 @@ git add \
   results/reviewer_fixes/ \
   "$SUMMARY_FILE" \
   june_fixes/baselines/baseline_study.py \
+  june_fixes/qa_accuracy/qa_accuracy_study.py \
+  june_fixes/qa_accuracy/merge_qa_shards.py \
   paper1_geometry/modeling.py \
   scripts/install_reviewer_deps.sh \
   scripts/run_reviewer_fixes_multigpu.sh \
@@ -658,7 +678,7 @@ log "Results: results/reviewer_fixes/"
 log "Summary: $SUMMARY_FILE"
 log "Main log: $MAIN_LOG"
 
-if [[ "$FAILED_COUNT" -gt 0 ]]; then
-  log "Re-run this script to retry $FAILED_COUNT failed jobs (completed shards are cached)"
+if [[ "$TOTAL_FAILED" -gt 0 ]]; then
+  log "Re-run this script to retry $TOTAL_FAILED failed jobs (completed shards are cached)"
   exit 1
 fi
