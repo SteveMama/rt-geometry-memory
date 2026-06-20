@@ -1,0 +1,440 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, system-ui, sans-serif); font-size: 15px; line-height: 1.7; color: var(--color-text-primary); padding: 2rem 0; max-width: 860px; margin: 0 auto; }
+h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.3rem; }
+h2 { font-size: 18px; font-weight: 500; margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+h3 { font-size: 15px; font-weight: 500; margin: 1.5rem 0 0.4rem; }
+h4 { font-size: 13px; font-weight: 500; margin: 1rem 0 0.3rem; color: var(--color-text-secondary); }
+p { margin-bottom: 0.7rem; color: var(--color-text-secondary); font-size: 14px; }
+.meta { font-size: 13px; color: var(--color-text-tertiary); margin-bottom: 2rem; }
+.kicker { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 0.4rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 0.75rem 0 1.25rem; }
+th { text-align: left; font-weight: 500; font-size: 12px; color: var(--color-text-secondary); padding: 6px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+td { padding: 6px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); vertical-align: top; font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg, 12px); padding: 1.25rem; margin-bottom: 1rem; }
+.tip { border-left: 3px solid #1D9E75; border-radius: 0; background: var(--color-background-secondary); padding: 0.6rem 1rem; margin: 0.75rem 0 1.25rem; font-size: 13px; color: var(--color-text-primary); }
+.warn { border-left: 3px solid #D85A30; border-radius: 0; background: var(--color-background-secondary); padding: 0.6rem 1rem; margin: 0.75rem 0 1.25rem; font-size: 13px; color: var(--color-text-primary); }
+.info { border-left: 3px solid #378ADD; border-radius: 0; background: var(--color-background-secondary); padding: 0.6rem 1rem; margin: 0.75rem 0 1.25rem; font-size: 13px; color: var(--color-text-primary); }
+
+.phase { display: flex; gap: 0; flex-direction: column; margin: 1rem 0 1.5rem; }
+.phase-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.phase-row:last-child { border-bottom: none; }
+.phase-num { width: 24px; height: 24px; border-radius: 50%; background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; color: var(--color-text-secondary); }
+.phase-body { flex: 1; }
+.phase-title { font-weight: 500; font-size: 14px; color: var(--color-text-primary); }
+.phase-sub { font-size: 13px; color: var(--color-text-secondary); margin-top: 2px; }
+
+.badge { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 4px; font-weight: 500; }
+.bg { background: #E1F5EE; color: #0F6E56; }
+.br { background: #FAECE7; color: #993C1D; }
+.bb { background: #E6F1FB; color: #185FA5; }
+.ba { background: #FAEEDA; color: #854F0B; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0.75rem 0 1.5rem; }
+@media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+.checklist { list-style: none; margin: 0.5rem 0 1.5rem; }
+.checklist li { padding: 5px 0; font-size: 13px; color: var(--color-text-secondary); display: flex; gap: 8px; align-items: flex-start; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.checklist li:last-child { border-bottom: none; }
+.check-icon { width: 16px; height: 16px; border-radius: 3px; border: 0.5px solid var(--color-border-secondary); flex-shrink: 0; margin-top: 3px; }
+
+.section-map { display: grid; grid-template-columns: 1fr; gap: 4px; margin: 0.75rem 0 1.5rem; }
+.section-row { display: flex; gap: 12px; align-items: flex-start; padding: 8px 10px; border-radius: 6px; background: var(--color-background-secondary); font-size: 13px; }
+.section-label { font-weight: 500; color: var(--color-text-primary); min-width: 200px; flex-shrink: 0; }
+.section-desc { color: var(--color-text-secondary); }
+
+code { font-family: var(--font-mono, monospace); font-size: 12px; background: var(--color-background-secondary); padding: 1px 5px; border-radius: 3px; }
+pre { font-family: var(--font-mono, monospace); font-size: 12px; background: var(--color-background-secondary); padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 0.75rem 0 1.25rem; line-height: 1.5; color: var(--color-text-secondary); }
+
+.toc { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 2rem; }
+.toc a { color: var(--color-text-secondary); text-decoration: none; font-size: 13px; display: block; padding: 2px 0; }
+.toc a:hover { color: var(--color-text-primary); }
+.toc-group { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-tertiary); font-weight: 500; margin-top: 0.75rem; margin-bottom: 2px; }
+.overflow { overflow-x: auto; }
+
+.claim-row { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13px; }
+.claim-row:last-child { border-bottom: none; }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Complete process document for writing and submitting the KCD codec arXiv paper</h2>
+
+<div class="kicker">Internal process document · 2026-06-20</div>
+<h1>Writing the arXiv Paper — Complete Process</h1>
+<p class="meta">KCD Codec · Signal-Conditioned Memory Compression · Target: cs.CL + cs.LG</p>
+
+<div class="toc">
+  <div class="toc-group">What a paper needs</div>
+  <a href="#sections">Mandatory sections</a>
+  <a href="#reviewer">What reviewers score</a>
+  <a href="#style">Style rules</a>
+  <div class="toc-group">Our paper</div>
+  <a href="#structure">Full section structure</a>
+  <a href="#contributions">Contributions and abstract</a>
+  <a href="#tables">Tables and figures plan</a>
+  <a href="#related">Related work to cite</a>
+  <div class="toc-group">Submission</div>
+  <a href="#submission">arXiv submission steps</a>
+  <a href="#claims">What we can and cannot claim</a>
+  <a href="#checklist">Pre-submission checklist</a>
+  <a href="#numbers">Quick-reference numbers</a>
+</div>
+
+<!-- ==================== MANDATORY SECTIONS ==================== -->
+<h2 id="sections">Mandatory sections</h2>
+<p>Every NLP paper needs these. Missing any of them risks desk rejection at a venue or confused readers on arXiv.</p>
+
+<div class="section-map">
+  <div class="section-row"><span class="section-label">Abstract</span><span class="section-desc">Self-contained: motivation → gap → method → finding → implication. ≤250 words. ≤1920 characters for the arXiv metadata field. Write last.</span></div>
+  <div class="section-row"><span class="section-label">Introduction</span><span class="section-desc">Answer "why" before "how". State 3–4 numbered contributions explicitly. Roadmap at the end.</span></div>
+  <div class="section-row"><span class="section-label">Related Work</span><span class="section-desc">Theme-grouped — NOT a list. Draw conclusions. Identify the gap your work fills. Three groups for us: prompt compression, memory benchmarks, hidden-state geometry.</span></div>
+  <div class="section-row"><span class="section-label">Method / Background</span><span class="section-desc">KCD codec math, ternary action space, budget constraint, all three scoring signals defined formally. Self-contained. Every symbol defined on first use.</span></div>
+  <div class="section-row"><span class="section-label">Experiments</span><span class="section-desc">Datasets (MSC, LME, hardset), models (Qwen 1.5B, 3B, Llama 3B), baselines (uniform, recency, LongLLMLingua), metrics (logit L2, answer NLL), ALL hyperparameters.</span></div>
+  <div class="section-row"><span class="section-label">Results</span><span class="section-desc">Tables + narrative. State significance level. Row-level vs conversation-level clearly labeled. Report ALL results including unflattering ones (scope conditions are a contribution, not a failure).</span></div>
+  <div class="section-row"><span class="section-label">Analysis / Discussion</span><span class="section-desc">Why do the results look the way they do? Mechanism (support-turn rescue). Scope conditions (architecture, length). Geometry-behavior divergence implications.</span></div>
+  <div class="section-row" style="border-left: 2px solid #D85A30; padding-left: 8px;"><span class="section-label">Limitations</span><span class="section-desc">Required at ACL/ARR; good practice for arXiv. Must be explicit. Three paragraphs: architecture-dependence, length-dependence, oracle metric circularity.</span></div>
+  <div class="section-row"><span class="section-label">Conclusion</span><span class="section-desc">1–2 paragraphs. Restate main finding. No new claims.</span></div>
+  <div class="section-row"><span class="section-label">References</span><span class="section-desc">All cited. Published versions preferred over preprints. Use ACL Anthology for NLP papers.</span></div>
+</div>
+
+<div class="tip">Write in this order: Method → Results → Experiments → Discussion → Related Work → Introduction → Abstract. Never write the Introduction or Abstract first — you don't know what you found yet.</div>
+
+<!-- ==================== REVIEWER ==================== -->
+<h2 id="reviewer">What reviewers score</h2>
+<p>ARR (ACL/EMNLP) uses three axes. Soundness is the hard gate — low soundness cannot be rescued by excitement.</p>
+
+<div class="two-col">
+  <div class="card">
+    <div class="kicker">Soundness — what kills it</div>
+    <table style="margin:0">
+      <tr><td><code>M2</code></td><td>Reproducibility details missing (hyperparams, seeds, splits)</td></tr>
+      <tr><td><code>M4</code></td><td>Unmotivated model or dataset selection</td></tr>
+      <tr><td><code>R1</code></td><td>No statistical significance testing</td></tr>
+      <tr><td><code>R2</code></td><td>Overclaimed generalizations</td></tr>
+      <tr><td><code>R5</code></td><td>Missing significance tests</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="kicker">Excitement — what kills it</div>
+    <table style="margin:0">
+      <tr><td><code>G1</code></td><td>Unclear research question</td></tr>
+      <tr><td><code>G3</code></td><td>Missing or misrepresented related work</td></tr>
+      <tr><td>—</td><td>Contribution presented as bigger than it is</td></tr>
+      <tr><td>—</td><td>No clear "so what" — implications not stated</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="warn">Biased review heuristics reviewers are explicitly told to avoid (and that you should not worry about): "results seem obvious in retrospect", "method is too simple", "not state-of-the-art on all benchmarks", "could add experiment X". Do not pre-emptively pad the paper to block these.</div>
+
+<!-- ==================== STYLE ==================== -->
+<h2 id="style">Style rules</h2>
+<div class="two-col">
+  <div>
+    <h4>Language</h4>
+    <table style="margin:0">
+      <tr><td>Say "use" not "utilize"</td></tr>
+      <tr><td>Say "new" not "novel"</td></tr>
+      <tr><td>Lowercase: "large language models", "transformer", "attention"</td></tr>
+      <tr><td>Short sentences — split anything over 30 words</td></tr>
+      <tr><td>No vacuous words: "distinct", "significant" (without a p-value)</td></tr>
+    </table>
+  </div>
+  <div>
+    <h4>Formatting</h4>
+    <table style="margin:0">
+      <tr><td>Tables: <code>\toprule</code> / <code>\midrule</code> / <code>\bottomrule</code></td></tr>
+      <tr><td>Bold best result per row</td></tr>
+      <tr><td>Report mean ± std or 95% CI — not just point estimates</td></tr>
+      <tr><td><code>\citep{}</code> parenthetical · <code>\citet{}</code> textual</td></tr>
+      <tr><td>Figures: vector PDF only (no PNG/JPEG for diagrams)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== STRUCTURE ==================== -->
+<h2 id="structure">Full section structure</h2>
+
+<div class="section-map">
+  <div class="section-row"><span class="section-label">§1 Introduction</span><span class="section-desc">The compression design space → geometry-behavior divergence observation → this paper's approach → 4 numbered contributions → roadmap</span></div>
+  <div class="section-row"><span class="section-label">§2 Background</span><span class="section-desc">Conversation state geometry (Rank-95, transported motion, ρ=0.994) · KCD codec formulation (ternary action, budget constraint) · three scoring signals defined mathematically</span></div>
+  <div class="section-row"><span class="section-label">§3 Geometry-Behavior Divergence</span><span class="section-desc">Setup (MSC 1000-conv, Qwen2.5-1.5B) · Table 2: all baselines · LongLLMLingua: +103–161 L2, −0.07–0.18 NLL · Implication: dual-objective evaluation necessary</span></div>
+  <div class="section-row"><span class="section-label">§4 Signal Variant Comparison</span><span class="section-desc">Setup (MSC 50-conv, three KCD variants) · Table 3+4: sem_qcg wins both metrics at budget ≥0.35 · Δ−113.7 L2, Δ−0.056 NLL at 0.50, both p&lt;0.001 · Mechanism: query-conditioned projection</span></div>
+  <div class="section-row"><span class="section-label">§5 Constraint-Critical Memory</span><span class="section-desc">Synthetic hardset motivation · Table 5: signal-swap 1.5B + 3B · Table 6: support-turn rescue (17/36 vs 7/36) · NLL damage grows with scale (+1.126 nats at 3B)</span></div>
+  <div class="section-row"><span class="section-label">§6 Scope Conditions</span><span class="section-desc">§6.1 Architecture: Llama-3.2-3B reversal (semantic wins NLL p≤0.026 all budgets) · §6.2 Length: LME 100-conv sem_qcg worse at 0.35 (p=0.011) · §6.3 When geometry helps</span></div>
+  <div class="section-row"><span class="section-label">§7 Related Work</span><span class="section-desc">Prompt/context compression · Conversational memory benchmarks · Hidden-state geometry in LLMs</span></div>
+  <div class="section-row"><span class="section-label">§8 Discussion</span><span class="section-desc">Implications for compression system design · Geometry as complementary signal</span></div>
+  <div class="section-row" style="border-left: 2px solid #D85A30; padding-left: 8px;"><span class="section-label">§9 Limitations</span><span class="section-desc">Architecture-dependence · Length-dependence · Oracle metric circularity</span></div>
+  <div class="section-row"><span class="section-label">§10 Conclusion</span><span class="section-desc">1–2 paragraphs. Restate main finding. No new claims.</span></div>
+</div>
+
+<!-- ==================== CONTRIBUTIONS ==================== -->
+<h2 id="contributions">Contributions and abstract</h2>
+
+<h3>4 numbered contributions (paste into Introduction §1)</h3>
+<div class="card">
+  <p style="margin-bottom:8px; font-size:14px; color:var(--color-text-primary)"><strong>1.</strong> We demonstrate geometry-behavior divergence at scale: methods optimizing NLL can catastrophically degrade hidden-state geometric fidelity (+103–161 logit L2 units), motivating dual-objective evaluation of memory compression.</p>
+  <p style="margin-bottom:8px; font-size:14px; color:var(--color-text-primary)"><strong>2.</strong> We introduce sem_qcg, a query-conditioned geometry signal within a semantic shortlist, and show it is the only KCD variant achieving simultaneously best geometric fidelity AND behavioral quality on MSC (Δ−113.7 L2, Δ−0.056 NLL vs semantic at budget 0.50, both p&lt;0.001).</p>
+  <p style="margin-bottom:8px; font-size:14px; color:var(--color-text-primary)"><strong>3.</strong> We characterize two scope conditions — architecture-dependence and length-dependence — that bound where geometry-based signals add value over semantic scoring.</p>
+  <p style="margin-bottom:0; font-size:14px; color:var(--color-text-primary)"><strong>4.</strong> We provide a support-turn rescue mechanism account explaining why geometry works on constraint-critical memory: user instructions produce larger hidden-state displacement than semantically similar assistant echoes (17/36 rescues vs 7/36 for semantic).</p>
+</div>
+
+<h3>Abstract draft (238 words)</h3>
+<div class="card" style="font-size:14px; color:var(--color-text-primary); line-height:1.7">
+Multi-turn conversation compression must balance two distinct objectives: preserving the geometric structure of the model's hidden-state representation (geometric fidelity) and maintaining behavioral output quality. We show these objectives can diverge — LongLLMLingua, a method optimizing for answer likelihood, incurs logit L2 penalties of +103–161 units relative to uniform sampling while providing only marginal NLL improvement on MSC (1,000 conversations, 163k evaluation rows). We introduce the Keep/Compress/Drop (KCD) codec, a sparse ternary turn-selection framework, and study three scoring signals: geometry-based, semantic-based, and query-conditioned geometry within a semantic shortlist (sem_qcg). On MSC (50 conversations, Qwen2.5-1.5B), sem_qcg achieves logit L2 lower than uniform sampling at budget 0.50 — more geometrically faithful than random retention — while simultaneously improving answer NLL (both p&lt;0.001, conversation-level signflip). On a synthetic constraint-critical stress set, geometry-based scoring outperforms semantic scoring by up to +1.1 nats NLL (p&lt;0.001 at 3B scale), an effect that grows with model size. We identify two scope conditions: the geometry advantage is architecture-dependent (present on Qwen2.5 but reversed on Llama-3.2-3B) and length-dependent (degrades on 400–600 turn conversations). Together, these results establish geometry-behavior divergence as a real and consequential phenomenon, and demonstrate that turn scoring signal is a first-class design decision in conversational memory compression.
+</div>
+
+<!-- ==================== TABLES / FIGURES ==================== -->
+<h2 id="tables">Tables and figures plan</h2>
+
+<h3>Tables</h3>
+<div class="overflow">
+<table>
+  <tr><th>#</th><th>Content</th><th>Section</th><th>Data source</th></tr>
+  <tr><td>1</td><td>Geometry characterization: Rank-95, Corr(d_geo,Δℓ), 3 models</td><td>§2</td><td>paper1_geometry results</td></tr>
+  <tr><td>2</td><td>MSC 1000-conv: all 5 baselines, logit L2 + NLL at 3 budgets</td><td>§3</td><td>reviewer_fixes_baselines_msc_merged</td></tr>
+  <tr><td>3</td><td>MSC 50-conv: 4 KCD variants, logit L2 + NLL at 3 budgets</td><td>§4</td><td>reviewer_fixes_kcd_msc_merged</td></tr>
+  <tr><td>4</td><td>Pairwise: sem_qcg vs semantic_KCD, row+conv Δ and p at 3 budgets</td><td>§4</td><td>kcd_msc_merged/pairwise_summary.json</td></tr>
+  <tr><td>5</td><td>Hardset signal-swap: qwen25_15b + qwen25_3b, Δ logit L2 + Δ NLL at 3 budgets</td><td>§5</td><td>hardset results (prior experiments)</td></tr>
+  <tr><td>6</td><td>Support-turn rescue counts: geometry vs semantic, 36 conversations</td><td>§5</td><td>hardset analysis results</td></tr>
+  <tr><td>7</td><td>LME 100-conv: all KCD variants, logit L2 + NLL + pairwise p-values</td><td>§6</td><td>reviewer_fixes_fullLME_merged</td></tr>
+  <tr><td>8</td><td>Llama-3.2-3B: semantic vs geometry, logit L2 + NLL at 3 budgets</td><td>§6</td><td>reviewer_fixes_llama32_3b_merged</td></tr>
+</table>
+</div>
+
+<h3>Figures</h3>
+<div class="overflow">
+<table>
+  <tr><th>#</th><th>What it shows</th><th>Format</th><th>Section</th></tr>
+  <tr><td>1</td><td>Geometry-behavior divergence schematic: two objectives pulling in different directions</td><td>TikZ diagram</td><td>§1 / §3</td></tr>
+  <tr><td>2</td><td>Rank-95: real trajectory vs shuffled baseline for one conversation (line plot)</td><td>matplotlib PDF</td><td>§2</td></tr>
+  <tr><td>3</td><td>Budget vs logit L2 curves: all MSC signal variants on one chart</td><td>matplotlib PDF</td><td>§4</td></tr>
+  <tr><td>4</td><td>Budget vs answer NLL curves: all MSC signal variants</td><td>matplotlib PDF</td><td>§4</td></tr>
+  <tr><td>5</td><td>Support-turn rescue bar chart: geometry vs semantic across conversation families</td><td>matplotlib PDF</td><td>§5</td></tr>
+  <tr><td>6</td><td>Scope condition map: 2×2 grid (architecture × conversation length) with winning signal</td><td>TikZ / matplotlib</td><td>§6</td></tr>
+</table>
+</div>
+
+<!-- ==================== RELATED WORK ==================== -->
+<h2 id="related">Related work to cite</h2>
+
+<h3>Prompt and context compression</h3>
+<div class="overflow">
+<table>
+  <tr><th>Paper</th><th>Venue</th><th>Cite for</th></tr>
+  <tr><td>LongLLMLingua — Jiang et al. (2023) arXiv:2310.06839</td><td>ACL 2024</td><td>Our adversarial baseline demonstrating geometry-behavior divergence</td></tr>
+  <tr><td>LLMLingua-2 — Pan et al. (2024)</td><td>ACL 2024</td><td>Semantic token-level compression baseline family</td></tr>
+  <tr><td>Pretraining Context Compressor</td><td>ACL 2025</td><td>Trained compression — trained vs heuristic comparison</td></tr>
+  <tr><td>R³Mem — arXiv:2502.15957</td><td>2025</td><td>Reversible compression balancing retention vs retrieval trade-off</td></tr>
+  <tr><td>Prompt Compression Survey — arXiv:2410.12388</td><td>2024</td><td>Overview positioning our work</td></tr>
+</table>
+</div>
+
+<h3>Conversational memory and benchmarks</h3>
+<div class="overflow">
+<table>
+  <tr><th>Paper</th><th>Venue</th><th>Cite for</th></tr>
+  <tr><td>LongMemEval — Wu et al. (2024) arXiv:2410.10813</td><td>ICLR 2025</td><td>Cross-benchmark dataset; 5 memory ability types</td></tr>
+  <tr><td>MSC / Multi-Session Conversations — Xu et al. (2021)</td><td>ACL 2022</td><td>Primary train/eval dataset</td></tr>
+  <tr><td>LoCoMo — Maharana et al. (2024)</td><td>ACL 2024</td><td>Very-long-term conversational memory evaluation</td></tr>
+  <tr><td>Memory for LLM Agents survey — arXiv:2603.07670</td><td>2026</td><td>Background taxonomy: context-resident compression family</td></tr>
+  <tr><td>HyMem — arXiv:2602.13933</td><td>2025</td><td>Related hybrid memory architecture</td></tr>
+  <tr><td>R³Mem — arXiv:2502.15957</td><td>2025</td><td>Compression bridging retention and retrieval</td></tr>
+</table>
+</div>
+
+<h3>Hidden-state geometry and representations</h3>
+<div class="overflow">
+<table>
+  <tr><th>Paper</th><th>Cite for</th></tr>
+  <tr><td>Platonic Representation Hypothesis — Huh et al. (2024)</td><td>Motivation: convergence of representation across models supports geometry as meaningful signal</td></tr>
+  <tr><td>StreamingLLM / Attention Sink — Xiao et al. (2023)</td><td>Sink-corrected attention weights in our ConversationStateExtractor</td></tr>
+  <tr><td>Intrinsic dimensionality of transformer representations (various 2021–2023)</td><td>Background for low Rank-95 finding</td></tr>
+</table>
+</div>
+
+<!-- ==================== SUBMISSION ==================== -->
+<h2 id="submission">arXiv submission steps</h2>
+
+<div class="phase">
+  <div class="phase-row">
+    <div class="phase-num">1</div>
+    <div class="phase-body">
+      <div class="phase-title">Account and endorsement</div>
+      <div class="phase-sub">Register at arxiv.org. First-time cs.CL submitters may need endorsement from an established author. Institutional email often auto-endorses. To request: find a recent cs.CL author, send title + abstract.</div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-num">2</div>
+    <div class="phase-body">
+      <div class="phase-title">Choose LaTeX template</div>
+      <div class="phase-sub">Use ACL 2025 official style files (same for arXiv preprint and conference submission). Template: <code>acl_latex.tex</code> from acl-org GitHub. For standalone arXiv: <code>\documentclass[11pt]{article}</code> + <code>\usepackage{arxiv}</code> also works.</div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-num">3</div>
+    <div class="phase-body">
+      <div class="phase-title">Write the paper (see section plan above)</div>
+      <div class="phase-sub">Writing order: Method → Results → Experiments → Discussion → Related Work → Introduction → Abstract. Get at least one external read before submitting.</div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-num">4</div>
+    <div class="phase-body">
+      <div class="phase-title">Local compilation</div>
+      <div class="phase-sub">Run: <code>pdflatex main.tex</code> → <code>bibtex main</code> → <code>pdflatex main.tex</code> → <code>pdflatex main.tex</code>. This generates the <code>.bbl</code> file. arXiv does NOT run bibtex — the .bbl must be included.</div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-num">5</div>
+    <div class="phase-body">
+      <div class="phase-title">Package for upload</div>
+      <div class="phase-sub">Create a .zip with: <code>main.tex</code>, <code>main.bbl</code>, <code>acl_natbib.bst</code>, <code>acl.sty</code>, all figures as PDF, <code>appendix.tex</code> if separate. Do NOT include: <code>.aux</code>, <code>.log</code>, compiled <code>.pdf</code>. Max 50MB.</div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-num">6</div>
+    <div class="phase-body">
+      <div class="phase-title">Fill metadata on arXiv</div>
+      <div class="phase-sub">Title (exact), Authors (name + affiliation in parens, city+country only), Abstract (≤1920 chars — check with a character counter), Primary category: <code>cs.CL</code>, Cross-list: <code>cs.LG</code>, License: CC BY 4.0.</div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-num">7</div>
+    <div class="phase-body">
+      <div class="phase-title">Review and submit</div>
+      <div class="phase-sub">arXiv recompiles server-side — review the generated PDF carefully. Check: figures present, fonts correct (no bitmap substitution), bibliography complete. Announcements daily at 20:00 ET Sun–Thu. Submit before 14:00 ET to appear that night.</div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-num">8</div>
+    <div class="phase-body">
+      <div class="phase-title">After submission</div>
+      <div class="phase-sub">Paper gets arXiv ID (e.g. <code>2406.XXXXX</code>). ACL venues allow arXiv posting at any time (policy updated 2024). Revisions: submit v2 via "Replace" — all versions remain accessible.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CLAIMS ==================== -->
+<h2 id="claims">What we can and cannot claim</h2>
+
+<div class="two-col">
+  <div>
+    <h3>Can claim <span class="badge bg">strong evidence</span></h3>
+    <div style="margin-top:8px">
+      <div class="claim-row"><span class="badge bg" style="margin-top:2px">✓</span><span>Geometry-behavior divergence is real at scale (MSC 1000-conv, p&lt;0.001)</span></div>
+      <div class="claim-row"><span class="badge bg" style="margin-top:2px">✓</span><span>sem_qcg wins both metrics on MSC simultaneously (p&lt;0.001 conv, both objectives)</span></div>
+      <div class="claim-row"><span class="badge bg" style="margin-top:2px">✓</span><span>Geometry beats semantic on constraint-critical memory at both 1.5B and 3B</span></div>
+      <div class="claim-row"><span class="badge bg" style="margin-top:2px">✓</span><span>NLL damage from wrong signal grows with model scale (0.628 → 1.126 nats)</span></div>
+      <div class="claim-row"><span class="badge bg" style="margin-top:2px">✓</span><span>Support-turn rescue mechanism is reproducible (17/36 vs 7/36)</span></div>
+      <div class="claim-row"><span class="badge bg" style="margin-top:2px">✓</span><span>All KCD policies improve NLL vs uniform on LME (p&lt;0.05 conv)</span></div>
+    </div>
+  </div>
+  <div>
+    <h3>Cannot claim <span class="badge br">evidence is bounded</span></h3>
+    <div style="margin-top:8px">
+      <div class="claim-row"><span class="badge br" style="margin-top:2px">✗</span><span>Geometry universally better than semantic — falsified by Llama-3.2-3B</span></div>
+      <div class="claim-row"><span class="badge br" style="margin-top:2px">✗</span><span>sem_qcg works on very long conversations — falsified by LME at 0.35 (p=0.011)</span></div>
+      <div class="claim-row"><span class="badge br" style="margin-top:2px">✗</span><span>Gate 1 validates geometry on answer-NLL harm — fails on LME</span></div>
+      <div class="claim-row"><span class="badge br" style="margin-top:2px">✗</span><span>QA accuracy improves — LME QA proxy metric is invalid</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="tip">Frame scope conditions as contributions. The paper contributes: (1) a dual-objective evaluation framework that catches what single-metric evaluation misses, (2) a characterization of when geometry adds value, (3) two informative negatives identifying failure modes.</div>
+
+<!-- ==================== CHECKLIST ==================== -->
+<h2 id="checklist">Pre-submission checklist</h2>
+
+<div class="two-col">
+  <div>
+    <h4>Content</h4>
+    <ul class="checklist">
+      <li><div class="check-icon"></div>Every claim in Introduction has a pointer to a result</li>
+      <li><div class="check-icon"></div>All hyperparameters reported (budgets, batch size, seeds)</li>
+      <li><div class="check-icon"></div>Every Δ in results tables has a p-value</li>
+      <li><div class="check-icon"></div>Row-level vs conversation-level clearly labeled throughout</li>
+      <li><div class="check-icon"></div>Limitations section present and honest (3 paragraphs)</li>
+      <li><div class="check-icon"></div>Ethics / broader impact statement included</li>
+      <li><div class="check-icon"></div>Code/data availability statement included</li>
+      <li><div class="check-icon"></div>All 4 contributions delivered in results</li>
+    </ul>
+  </div>
+  <div>
+    <h4>Formatting and submission</h4>
+    <ul class="checklist">
+      <li><div class="check-icon"></div>Bold best result per row in every table</li>
+      <li><div class="check-icon"></div>All figures have self-contained captions</li>
+      <li><div class="check-icon"></div>Proofread: no "novel", "utilize", no sentences &gt;30 words</li>
+      <li><div class="check-icon"></div>Abstract ≤1920 characters (paste into counter)</li>
+      <li><div class="check-icon"></div>Local compile clean — no LaTeX errors or warnings</li>
+      <li><div class="check-icon"></div>.bbl file included in submission zip</li>
+      <li><div class="check-icon"></div>Categories set: cs.CL primary, cs.LG cross-list</li>
+      <li><div class="check-icon"></div>Server-compiled PDF reviewed before final submit</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== WRITING PHASE PLAN ==================== -->
+<h2>Writing phase plan</h2>
+
+<div class="phase">
+  <div class="phase-row">
+    <div class="phase-num" style="background:#E1F5EE; color:#0F6E56">A</div>
+    <div class="phase-body">
+      <div class="phase-title">Phase A — Figures first</div>
+      <div class="phase-sub">Fig 1 (divergence schematic), Fig 2 (Rank-95 trajectory), Fig 3+4 (budget curves from pairwise_summary.json), Fig 5 (rescue bar chart), Fig 6 (scope map). Figures drive the narrative — build them before writing prose.</div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-num" style="background:#E1F5EE; color:#0F6E56">B</div>
+    <div class="phase-body">
+      <div class="phase-title">Phase B — Core sections</div>
+      <div class="phase-sub">§2 Background (math-heavy, define all notation) → §3 Divergence → §4 Signal variants → §5 Hardset → §6 Scope conditions → §7 Related work → §8 Discussion → §9 Limitations</div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-num" style="background:#E1F5EE; color:#0F6E56">C</div>
+    <div class="phase-body">
+      <div class="phase-title">Phase C — Frame sections (write after core is stable)</div>
+      <div class="phase-sub">§1 Introduction (4 numbered contributions, roadmap) → Abstract (compress from Introduction + Results, ≤250 words)</div>
+    </div>
+  </div>
+  <div class="phase-row">
+    <div class="phase-num" style="background:#E1F5EE; color:#0F6E56">D</div>
+    <div class="phase-body">
+      <div class="phase-title">Phase D — Polish and submit</div>
+      <div class="phase-sub">Run full pre-submission checklist → external read → compile clean → package zip → set metadata → review server PDF → submit</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== QUICK NUMBERS ==================== -->
+<h2 id="numbers">Quick-reference numbers</h2>
+<p>Every number here is significant (p&lt;0.05 at conversation level unless noted).</p>
+
+<div class="overflow">
+<table>
+  <tr><th>Claim</th><th>Number</th><th>p (conv)</th></tr>
+  <tr><td>LongLLMLingua logit L2 above uniform @0.20</td><td>+103.2</td><td>&lt;0.001</td></tr>
+  <tr><td>LongLLMLingua logit L2 above uniform @0.50</td><td>+160.9</td><td>&lt;0.001</td></tr>
+  <tr><td>sem_qcg logit L2 vs uniform @0.50 (MSC)</td><td>636.4 vs 682.8 (−46.4)</td><td>&lt;0.001</td></tr>
+  <tr><td>sem_qcg Δ L2 vs semantic_KCD @0.35 (MSC 50-conv)</td><td>−17.05</td><td>0.005</td></tr>
+  <tr><td>sem_qcg Δ L2 vs semantic_KCD @0.50 (MSC 50-conv)</td><td>−113.70</td><td>&lt;0.001</td></tr>
+  <tr><td>sem_qcg Δ NLL vs semantic_KCD @0.20 (MSC 50-conv)</td><td>−0.034 nats</td><td>0.012</td></tr>
+  <tr><td>sem_qcg Δ NLL vs semantic_KCD @0.35 (MSC 50-conv)</td><td>−0.049 nats</td><td>0.003</td></tr>
+  <tr><td>sem_qcg Δ NLL vs semantic_KCD @0.50 (MSC 50-conv)</td><td>−0.056 nats</td><td>0.004</td></tr>
+  <tr><td>Geometry vs semantic Δ NLL @0.20 (hardset 1.5B)</td><td>−0.195 nats (sem worse)</td><td>0.001</td></tr>
+  <tr><td>Geometry vs semantic Δ NLL @0.50 (hardset 3B)</td><td>−1.126 nats (sem worse)</td><td>0.0003</td></tr>
+  <tr><td>sem_qcg worse than semantic on LME @0.35</td><td>+50.3 L2</td><td>0.011</td></tr>
+  <tr><td>Semantic Δ NLL vs geometry (Llama-3.2-3B @0.20)</td><td>−0.091 nats</td><td>0.007</td></tr>
+  <tr><td>Semantic Δ NLL vs geometry (Llama-3.2-3B @0.35)</td><td>−0.099 nats</td><td>0.026</td></tr>
+  <tr><td>Semantic Δ NLL vs geometry (Llama-3.2-3B @0.50)</td><td>−0.121 nats</td><td>0.009</td></tr>
+  <tr><td>Rank-95 real vs shuffled (qwen25_15b)</td><td>1.167 vs 1.458</td><td>0.0008</td></tr>
+  <tr><td>Corr(d_geo, Δℓ) (qwen25_15b)</td><td>0.994</td><td>&lt;0.001</td></tr>
+  <tr><td>Support-turn rescue: geometry vs semantic @0.35</td><td>17/36 vs 7/36</td><td>mechanism</td></tr>
+</table>
+</div>
