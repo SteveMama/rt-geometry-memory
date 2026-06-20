@@ -70,6 +70,7 @@ DEFAULT_POLICIES = (
     "lexical_tfidf",
     "recency_keep_compress_drop",
     "llmlingua2",
+    "longllmlingua",
 )
 
 _WORD_RE = re.compile(r"[a-z0-9']+")
@@ -142,9 +143,60 @@ class LLMLinguaCompressor:
         except Exception as exc:  # noqa: BLE001 - optional dependency
             print(f"[baseline_study] llmlingua unavailable, skipping policy: {exc}", flush=True)
 
-    def compress(self, text: str, rate: float) -> str:
+    def compress(self, text: str, rate: float, question: str | None = None) -> str:
         assert self.compressor is not None
-        result = self.compressor.compress_prompt(text, rate=max(min(rate, 0.99), 0.05))
+        kwargs: dict[str, Any] = {"rate": max(min(rate, 0.99), 0.05)}
+        if question:
+            kwargs["question"] = question
+        result = self.compressor.compress_prompt(text, **kwargs)
+        return str(result.get("compressed_prompt", text))
+
+
+class LongLLMLinguaCompressor:
+    """Question-aware LongLLMLingua compressor (ACL 2024).
+
+    Uses the target-turn content as the ``question`` for coarse-to-fine
+    dynamic compression. This is the key mechanism distinguishing
+    LongLLMLingua from LLMLingua-2: importance scores are re-ranked
+    conditioned on the query rather than computed unconditionally.
+
+    Loads llmlingua-2 (the publicly available, non-gated model) with
+    question-conditioning enabled. Falls back to question-unaware
+    llmlingua-2 if question parameter is rejected by an older version.
+    """
+
+    def __init__(self) -> None:
+        self.compressor = None
+        self.available = False
+        try:
+            from llmlingua import PromptCompressor  # type: ignore
+
+            self.compressor = PromptCompressor(
+                model_name="microsoft/llmlingua-2-xlm-roberta-large-meetingbank",
+                use_llmlingua2=True,
+            )
+            self.available = True
+        except Exception as exc:  # noqa: BLE001
+            print(f"[baseline_study] longllmlingua unavailable, skipping: {exc}", flush=True)
+
+    def compress(self, text: str, rate: float, question: str) -> str:
+        assert self.compressor is not None
+        rate = max(min(rate, 0.99), 0.05)
+        try:
+            result = self.compressor.compress_prompt(
+                text,
+                question=question,
+                rate=rate,
+                condition_in_question="after_condition",
+                reorder_context="sort",
+                dynamic_context_compression_ratio=0.3,
+                condition_compare=True,
+                context_budget="+100",
+                rank_method="longllmlingua",
+            )
+        except TypeError:
+            # older llmlingua versions don't support all kwargs — fall back
+            result = self.compressor.compress_prompt(text, question=question, rate=rate)
         return str(result.get("compressed_prompt", text))
 
 
@@ -156,6 +208,7 @@ def _llmlingua_messages(
     budget_fraction: float,
     compressor: LLMLinguaCompressor,
 ) -> list[dict[str, str]]:
+    """LLMLingua-2 (no question awareness)."""
     prefix_turn_count = target_turn
     recent_start = max(prefix_turn_count - recent_window, 0)
     older_text = "\n".join(
@@ -167,6 +220,52 @@ def _llmlingua_messages(
         messages.append({"role": "system", "content": conversation.system_prompt})
     if older_text.strip():
         compressed = compressor.compress(older_text, rate=budget_fraction)
+        messages.append(
+            {
+                "role": "system",
+                "content": "Compressed conversation memory:\n" + compressed,
+            }
+        )
+    for idx in range(recent_start, prefix_turn_count):
+        turn = conversation.turns[idx]
+        messages.append({"role": turn.role, "content": turn.content})
+    messages.append(
+        {
+            "role": conversation.turns[target_turn].role,
+            "content": conversation.turns[target_turn].content,
+        }
+    )
+    return messages
+
+
+def _longllmlingua_messages(
+    conversation: ConversationRecord,
+    *,
+    target_turn: int,
+    recent_window: int,
+    budget_fraction: float,
+    compressor: LongLLMLinguaCompressor,
+) -> list[dict[str, str]]:
+    """LongLLMLingua with question-conditioned compression (ACL 2024).
+
+    The target turn content is passed as the question so that the
+    compressor re-ranks older turns by their relevance to the query.
+    This is the key mechanism: a user constraint turn scores higher
+    than its semantically-similar assistant echo when the question
+    makes the constraint salient.
+    """
+    prefix_turn_count = target_turn
+    recent_start = max(prefix_turn_count - recent_window, 0)
+    older_text = "\n".join(
+        f"{conversation.turns[idx].role}: {conversation.turns[idx].content}"
+        for idx in range(recent_start)
+    )
+    question = conversation.turns[target_turn].content
+    messages: list[dict[str, str]] = []
+    if conversation.system_prompt:
+        messages.append({"role": "system", "content": conversation.system_prompt})
+    if older_text.strip():
+        compressed = compressor.compress(older_text, rate=budget_fraction, question=question)
         messages.append(
             {
                 "role": "system",
@@ -233,6 +332,10 @@ def run_baseline_study(args: argparse.Namespace) -> None:
     compressor = LLMLinguaCompressor() if "llmlingua2" in policies else None
     if compressor is not None and not compressor.available:
         policies = [item for item in policies if item != "llmlingua2"]
+
+    long_compressor = LongLLMLinguaCompressor() if "longllmlingua" in policies else None
+    if long_compressor is not None and not long_compressor.available:
+        policies = [item for item in policies if item != "longllmlingua"]
 
     output_dir: Path = args.output_root / args.study_name
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -305,6 +408,24 @@ def run_baseline_study(args: argparse.Namespace) -> None:
                                 recent_window=args.recent_window,
                                 budget_fraction=budget,
                                 compressor=compressor,  # type: ignore[arg-type]
+                            )
+                            selection = PolicySelection(
+                                retained_turn_indices=list(
+                                    range(
+                                        max(prefix_turn_count - args.recent_window, 0),
+                                        prefix_turn_count,
+                                    )
+                                ),
+                                retained_fraction=float("nan"),
+                                retained_cost_fraction=float(budget),
+                            )
+                        elif policy_name == "longllmlingua":
+                            messages = _longllmlingua_messages(
+                                conversation,
+                                target_turn=target_turn,
+                                recent_window=args.recent_window,
+                                budget_fraction=budget,
+                                compressor=long_compressor,  # type: ignore[arg-type]
                             )
                             selection = PolicySelection(
                                 retained_turn_indices=list(

@@ -177,10 +177,11 @@ class ConversationStateExtractor:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         if self.tokenizer.pad_token is None and self.tokenizer.eos_token is not None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype=self.dtype,
-        )
+
+        load_kwargs: dict[str, Any] = {"torch_dtype": self.dtype}
+        if self._flash_attn_available() and "cuda" in str(self.device):
+            load_kwargs["attn_implementation"] = "flash_attention_2"
+        self.model = AutoModelForCausalLM.from_pretrained(model_name, **load_kwargs)
         self.model.to(self.device)
         self.model.eval()
         self.model_name = model_name
@@ -195,11 +196,23 @@ class ConversationStateExtractor:
     def _choose_dtype(self, dtype: str) -> Any:
         if dtype == "float16":
             return self.torch.float16
+        if dtype == "bfloat16":
+            return self.torch.bfloat16
         if dtype == "float32":
             return self.torch.float32
+        if "cuda" in str(self.device):
+            return self.torch.bfloat16
         if self.device == "mps":
             return self.torch.float16
         return self.torch.float32
+
+    @staticmethod
+    def _flash_attn_available() -> bool:
+        try:
+            import flash_attn  # noqa: F401
+            return True
+        except ImportError:
+            return False
 
     def _tokenize_messages(
         self,
