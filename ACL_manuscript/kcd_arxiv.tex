@@ -22,6 +22,8 @@
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
+\emergencystretch=2em   % allow minor inter-word stretch to avoid overfull hboxes
+
 \hypersetup{
     colorlinks=true,
     linkcolor=blue!70!black,
@@ -164,8 +166,8 @@ $+0.63$ nats at 1.5B to $+1.13$ nats at 3B.
     why geometry works on constraint-critical memory: user instructions produce
     larger hidden-state displacement than semantically similar assistant echoes
     ($17/36$ conversations rescued by geometry versus $7/36$ by semantic).
-  \item We characterize two \textbf{scope conditions}---architecture-dependence
-    (Llama-3.2-3B reversal) and length-dependence (400--600 turn conversations)---
+  \item We characterize two \textbf{scope conditions}
+    (architecture-dependence and conversation length-dependence)
     that bound where geometry-based signals add value.
 \end{enumerate}
 
@@ -614,14 +616,14 @@ and the logit $\ell_2$ advantage of semantic is not significant at any budget
 ($p \geq 0.14$).
 This is the opposite of the Qwen pattern.
 
-We attribute this to differences in pretraining regime:
+We attribute this to pretraining regime differences.
 Qwen2.5 models undergo heavy instruction-following finetuning
-that produces discriminative per-turn geometry---user instructions
+that produces discriminative per-turn geometry: user instructions
 reliably move the hidden state more than assistant echoes.
-Llama-3.2-3B's broader text training does not produce this property:
+Llama-3.2-3B's broader text training does not produce this property;
 the geometric signature of constraint-critical turns is weaker,
 making semantic similarity the more reliable selection criterion.
-The scope condition is therefore about model representation structure,
+The scope condition is about model representation structure,
 not parameter count.
 
 \subsection{Length Dependence}
@@ -892,10 +894,10 @@ All 1{,}000 conversations used for baseline comparison;
 100 full-length conversations, 400--600 turns each.
 No truncation applied (evaluating compression policies, not context window limits).
 
-\textbf{Hard stress set}: 9 synthetic conversations
-(3 long-dependency, 3 retrieval-heavy, 3 code-conversation),
-$540$ evaluation rows, hand-constructed by the authors.
-Designed to maximize signal-to-noise difficulty for support-turn detection.
+\textbf{Hard stress set}: 9 synthetic conversations across three families
+(long-dependency, retrieval-heavy, code-conversation),
+$540$ evaluation rows, hand-constructed by the authors
+to maximize signal-to-noise difficulty for support-turn detection.
 
 \subsection{Compression Parameters}
 Budget fractions: $B \in \{0.20, 0.35, 0.50\}$.
