@@ -67,6 +67,7 @@ GPU_PREFLIGHT_RETRIES="${GPU_PREFLIGHT_RETRIES:-6}"
 GPU_PREFLIGHT_SLEEP="${GPU_PREFLIGHT_SLEEP:-10}"
 SKIP_DOWNLOAD="${SKIP_DOWNLOAD:-0}"
 SKIP_PUSH="${SKIP_PUSH:-0}"
+SKIP_BASELINES="${SKIP_BASELINES:-0}"
 # Max conversations for LME subset (100 conversations, ~30GB .npz cache)
 LME_CONV_LIMIT="${LME_CONV_LIMIT:-100}"
 # Max conversations for Llama-3.2-3B scale validation on MSC
@@ -252,6 +253,9 @@ log "=== STEP 2: Planning jobs ==="
 declare -a MERGE_SPECS=()
 
 # ── 2a. Hard stress set: longllmlingua baseline (Experiment 1 extension) ──────
+if [[ "$SKIP_BASELINES" == "1" ]]; then
+  log "SKIP_BASELINES=1, skipping hardset and MSC baselines"
+else
 log "Planning: longllmlingua baseline on hard stress set"
 plan_dir_hs="$(plan_shards "$HARDSET_INPUT" "baselines_hardset")"
 declare -a HS_SHARD_DIRS=()
@@ -378,6 +382,7 @@ if [[ -f "$MSC_INPUT" ]]; then
   done
   MERGE_SPECS+=("baselines_msc|$(IFS=,; echo "${MSC_SHARD_DIRS[*]}")")
 fi
+fi  # end SKIP_BASELINES
 
 # ── 2e. MSC KCD geometry study (paper3_codec.study on MSC subset) ─────────────
 # Runs geometry KCD policies on MSC (MSC_KCD_LIMIT conversations, default 50).
