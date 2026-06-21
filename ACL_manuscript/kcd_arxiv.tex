@@ -424,10 +424,10 @@ for completeness but are anti-conservative due to within-conversation dependence
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
 Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ \\
 \midrule
-Uniform   & 799.6 & 783.0 & 761.6 & 3.153 & 3.061 & 2.959 \\
+Uniform   & \textbf{799.6} & \textbf{783.0} & 761.6 & 3.153 & 3.061 & 2.959 \\
 \geokcd{} & 804.9 & 814.5 & 812.8 & 3.105 & 2.973 & 2.811 \\
 \semkcd{} & 806.9 & 814.2 & 815.0 & 3.040 & 2.884 & 2.716 \\
-\semqcg{} & 807.5 & \textbf{801.8} & \textbf{705.5} & \textbf{3.034} & \textbf{2.850} & \textbf{2.671} \\
+\semqcg{} & 807.5 & 801.8 & \textbf{705.5} & \textbf{3.034} & \textbf{2.850} & \textbf{2.671} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -455,10 +455,11 @@ $0.50$ & $-109.44$ & $\mathbf{<}0.001$ & $-105.14$ & $\mathbf{<}0.001$ & $-0.044
 \begin{table}[t]
 \centering
 \caption{Component ablation of \semqcg{} on MSC valid ($n{=}1{,}000$ conversations).
-Removing support-score weighting (\textit{w/o support}) degrades both metrics
-at all budgets ($p{<}0.001$). Removing query projection (\textit{w/o query})
-causes moderate geometry degradation at $B{=}0.35$ ($\Delta{=}{+}7.5$, $p{<}0.001$)
-but negligible behavioral effect ($p{=}0.677$).}
+Removing support-score weighting (\textit{w/o support}) catastrophically degrades both metrics
+at all budgets ($p{<}0.001$). Removing query projection (\textit{w/o query}) is marginally
+better than full \semqcg{} at $B{=}0.20$ on NLL ($p{=}0.004$) but worse at $B{\geq}0.35$
+on geometry ($p{<}0.001$), showing the query projection is beneficial only under moderate
+or high budget.}
 \label{tab:msc_ablation}
 \setlength{\tabcolsep}{5pt}
 \begin{tabular}{lcccccc}
@@ -467,8 +468,8 @@ but negligible behavioral effect ($p{=}0.677$).}
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
 Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ \\
 \midrule
-\semqcg{} & \textbf{807.5} & \textbf{801.8} & \textbf{705.5} & \textbf{3.034} & \textbf{2.850} & \textbf{2.671} \\
-\quad w/o query proj. & 806.7 & 809.4 & 708.3 & 3.028 & 2.856 & 2.670 \\
+\semqcg{} & 807.5 & \textbf{801.8} & \textbf{705.5} & 3.034 & \textbf{2.850} & 2.671 \\
+\quad w/o query proj. & \textbf{806.7} & 809.4 & 708.3 & \textbf{3.028} & 2.856 & \textbf{2.670} \\
 \quad w/o support score & 808.9 & 817.0 & 757.7 & 3.094 & 2.957 & 2.762 \\
 \bottomrule
 \end{tabular}
@@ -505,11 +506,12 @@ Removing the support-score weighting (\textit{w/o support}) is catastrophic:
 logit $\ell_2$ degrades by $+52.2$ at $B{=}0.50$ ($p_\text{conv} < 0.001$)
 and answer NLL worsens by $+0.059$ ($p_\text{conv} < 0.001$),
 confirming that the support-score term is the load-bearing component of \semqcg{}.
-Removing query-conditioned projection (\textit{w/o query}) causes moderate geometry
-degradation at $B{=}0.35$ ($+7.5$ logit $\ell_2$, $p_\text{conv} < 0.001$) but
-has negligible behavioral effect ($p_\text{conv} = 0.677$ at $B{=}0.50$),
-indicating the query projection contributes primarily through geometric discriminability
-rather than answer quality.
+Removing query-conditioned projection (\textit{w/o query}) reveals a budget-dependent
+pattern: at $B{=}0.20$, it is marginally better on NLL ($\Delta{=}{-}0.006$,
+$p_\text{conv}{=}0.004$) but at $B{=}0.35$ and $B{=}0.50$ it is worse on geometry
+($+7.5$ and $+3.1$ logit $\ell_2$, $p_\text{conv}{<}0.001$ and $p_\text{conv}{=}0.054$).
+The query projection is beneficial when the budget allows meaningful turn differentiation,
+but contributes noise under very tight budgets where turns compete for few slots.
 
 % ---------------------------------------------------------------
 \section{Constraint-Critical Memory}

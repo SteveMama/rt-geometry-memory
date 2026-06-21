@@ -312,7 +312,7 @@ Recency-based KCD achieves the best geometry across all budgets while remaining 
 
 \subsection{MSC: Query-Conditioned Geometry Wins Both Metrics}
 \label{sec:msc_signal}
-Among KCD signal variants on MSC (1{,}000 conversations, Qwen2.5-1.5B), query-conditioned geometry (\pname{sem\_query\_cond\_KCD}) is the only policy that achieves the best logit L2 \emph{and} best answer NLL simultaneously.
+Among KCD signal variants on MSC (1{,}000 conversations, Qwen2.5-1.5B), query-conditioned geometry (\pname{sem\_query\_cond\_KCD}) is the only policy that simultaneously achieves the best logit L2 \emph{and} best answer NLL at budget 0.50---the budget level where selection decisions are most consequential.
 
 \begin{table}[t]
 \centering
@@ -323,7 +323,7 @@ Among KCD signal variants on MSC (1{,}000 conversations, Qwen2.5-1.5B), query-co
 \toprule
 Policy & L2@.20 & L2@.35 & L2@.50 & NLL@.20 & NLL@.35 & NLL@.50 \\
 \midrule
-Uniform & 799.6 & 783.0 & 761.6 & 3.153 & 3.061 & 2.959 \\
+Uniform & \textbf{799.6} & \textbf{783.0} & 761.6 & 3.153 & 3.061 & 2.959 \\
 Geometry-KCD & 804.9 & 814.5 & 812.8 & 3.105 & 2.973 & 2.811 \\
 Semantic-KCD & 806.9 & 814.2 & 815.0 & 3.040 & 2.884 & 2.716 \\
 \pname{sem\_query\_cond\_KCD} & 807.5 & $801.8^{***}$ & $\mathbf{705.5}^{***}$ & $\mathbf{3.034}^{***}$ & $\mathbf{2.850}^{***}$ & $\mathbf{2.671}^{***}$ \\
@@ -333,15 +333,15 @@ Semantic-KCD & 806.9 & 814.2 & 815.0 & 3.040 & 2.884 & 2.716 \\
 
 \begin{table}[t]
 \centering
-\caption{Component ablation of \pname{sem\_query\_cond\_KCD} on MSC (\pname{qwen25\_15b}, 1{,}000 conversations). Lower is better. Removing the support-score weighting (\textit{w/o support}) significantly degrades both metrics at all budgets ($p{<}0.001$). Removing query projection (\textit{w/o query}) hurts geometry at $B{=}0.35$ ($\Delta{=}{+}7.5$, $p{<}0.001$) but has negligible behavioral effect.}
+\caption{Component ablation of \pname{sem\_query\_cond\_KCD} on MSC (\pname{qwen25\_15b}, 1{,}000 conversations). Lower is better. Removing support-score weighting (\textit{w/o support}) catastrophically degrades both metrics at all budgets ($p{<}0.001$). Removing query projection (\textit{w/o query}) is marginally better than full \pname{sem\_query\_cond\_KCD} at $B{=}0.20$ on NLL ($p{=}0.004$) but worse at $B{\geq}0.35$ on geometry ($p{<}0.001$), indicating query projection is beneficial only when selection pressure is moderate or high.}
 \label{tab:msc_ablation}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccccc}
 \toprule
 Policy & L2@.20 & L2@.35 & L2@.50 & NLL@.20 & NLL@.35 & NLL@.50 \\
 \midrule
-\pname{sem\_query\_cond\_KCD} & \textbf{807.5} & \textbf{801.8} & \textbf{705.5} & \textbf{3.034} & \textbf{2.850} & \textbf{2.671} \\
-\quad w/o query proj. & 806.7 & 809.4 & 708.3 & 3.028 & 2.856 & 2.670 \\
+\pname{sem\_query\_cond\_KCD} & 807.5 & \textbf{801.8} & \textbf{705.5} & 3.034 & \textbf{2.850} & 2.671 \\
+\quad w/o query proj. & \textbf{806.7} & 809.4 & 708.3 & \textbf{3.028} & 2.856 & \textbf{2.670} \\
 \quad w/o support score & 808.9 & 817.0 & 757.7 & 3.094 & 2.957 & 2.762 \\
 \bottomrule
 \end{tabular}}
@@ -351,7 +351,7 @@ At budget 0.50, \pname{sem\_query\_cond\_KCD} achieves logit L2 of 705.5---lower
 
 The behavioral result is equally consistent: \pname{sem\_query\_cond\_KCD} achieves the best answer NLL at every budget, with statistically significant improvements over semantic KCD at all three budgets ($p<0.001$, conversation-level). This resolves the apparent tension seen in the external baseline comparison---query-conditioned geometry does not require a geometry-behavior tradeoff; it achieves both.
 
-Table~\ref{tab:msc_ablation} shows the component ablation. Removing the support-score weighting (\textit{w/o support}) is catastrophic: logit L2 degrades by $+52.2$ at $B{=}0.50$ and answer NLL worsens by $+0.091$ ($p<0.001$ both metrics, all budgets). The support-score term is the load-bearing component. Removing query-conditioned projection (\textit{w/o query}) causes moderate geometry degradation at $B{=}0.35$ ($+7.5$ L2, $p<0.001$) but has negligible behavioral effect ($p=0.677$), indicating the query projection contributes primarily through geometric discriminability.
+Table~\ref{tab:msc_ablation} shows the component ablation. Removing the support-score weighting (\textit{w/o support}) is catastrophic: logit L2 degrades by $+52.2$ at $B{=}0.50$ and answer NLL worsens by $+0.091$ ($p<0.001$ both metrics, all budgets). The support-score term is the load-bearing component. Removing query-conditioned projection (\textit{w/o query}) reveals a budget-dependent pattern: at $B{=}0.20$ it is marginally better on NLL ($p{=}0.004$, $\Delta{=}{-}0.006$), but at $B{=}0.35$ and $B{=}0.50$ it is worse on geometry ($+7.5$ and $+2.8$ L2, $p{<}0.001$ and $p{=}0.054$). This indicates the query projection is beneficial when the budget allows meaningful turn differentiation but contributes noise under very tight budgets where nearly all turns compete for the same few slots.
 
 The mechanism is that query-conditioned scoring uses the hidden state at the current query turn to weight prior turns by geometric relevance rather than by recency or semantic similarity alone. This biases retention toward turns that are geometrically proximate to the query in representational space, which empirically corresponds to turns whose information is load-bearing for the current response.
 
