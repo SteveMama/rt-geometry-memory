@@ -80,11 +80,11 @@ and study three scoring signals:
 geometry-based (\geokcd{}),
 semantic-based (\semkcd{}),
 and query-conditioned geometry inside a semantic shortlist (\semqcg{}).
-On Multi-Session Conversations (50 conversations, Qwen2.5-1.5B-Instruct),
-\semqcg{} achieves logit $\ell_2$ of $636.4$ at budget $0.50$---lower
-than uniform sampling ($682.8$)---while simultaneously improving answer NLL
+On Multi-Session Conversations (1{,}000 conversations, Qwen2.5-1.5B-Instruct),
+\semqcg{} achieves logit $\ell_2$ of $705.5$ at budget $0.50$---lower
+than uniform sampling ($761.6$)---while simultaneously improving answer NLL
 versus both semantic and geometry variants
-($\Delta{-}113.7$ logit $\ell_2$ and $\Delta{-}0.056$ NLL versus \semkcd{},
+($\Delta{-}109.4$ logit $\ell_2$ and $\Delta{-}0.044$ NLL versus \semkcd{},
 both $p{<}0.001$ at conversation level).
 On a synthetic constraint-critical stress set, geometry-based scoring
 outperforms semantic scoring by up to $+1.1$ nats NLL ($p{<}0.001$, 3B scale),
@@ -477,11 +477,15 @@ Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0
 
 Table~\ref{tab:variants} shows that \semqcg{} uniquely resolves the
 geometry-behavior tradeoff.
-At budget $0.50$, \semqcg{} achieves logit $\ell_2 = 705.5$---\emph{lower
-than uniform sampling} ($761.6$)---meaning the compressed context is more
-faithful to the full-context hidden state than randomly retaining half the turns.
-This is the only regime in our experiments where a compression policy
-is strictly more geometrically faithful than the no-selection baseline.
+A key context: \emph{all} other compression policies are geometrically worse than
+uniform at every budget---\geokcd{} incurs $+5.3/+31.6/+51.2$ logit $\ell_2$
+versus uniform at $B{=}0.20/0.35/0.50$; \semkcd{} incurs $+7.3/+31.3/+53.4$.
+Only at budget $0.50$ does \semqcg{} break this pattern, achieving logit
+$\ell_2 = 705.5$---\emph{lower than uniform sampling} ($761.6$)---meaning the
+compressed context is strictly more faithful to the full-context hidden state
+than randomly retaining half the turns.
+This is the only regime in our experiments where any compression policy
+is geometrically more faithful than the no-selection baseline.
 
 Table~\ref{tab:pairwise_msc} shows that the improvement is statistically
 robust at conversation level: at $B{=}0.35$, the geometry advantage is
@@ -751,10 +755,15 @@ All \kcd{} policies improve behavioral quality versus uniform
 ($p < 0.05$ at conversation level for all NLL comparisons at budgets $0.20$--$0.35$),
 confirming that turn-level selection generalizes across benchmarks.
 
-However, the geometry advantage does \emph{not} replicate at conversation level.
-At budget $0.35$, \semqcg{} is significantly \emph{worse} than \semkcd{}
-on logit $\ell_2$: $\Delta{=}{+}47.6$, $p_\text{conv} = 0.018$, $p_\text{row} < 0.001$.
-On behavior, \semkcd{} achieves the best NLL across all budgets
+However, the geometry advantage does \emph{not} replicate at conversation level---
+the pattern fully reverses.
+At budget $0.35$, \semqcg{} is significantly \emph{worse} than \semkcd{} on
+\emph{both} metrics: logit $\ell_2$ ($\Delta{=}{+}47.6$, $p_\text{conv} = 0.018$)
+and answer NLL ($\Delta{=}{+}0.012$, $p_\text{conv} = 0.001$).
+At budget $0.50$, the L2 difference is not significant ($p_\text{conv} = 0.629$),
+but \semqcg{} remains significantly worse on NLL ($\Delta{=}{+}0.006$,
+$p_\text{conv} < 0.001$; see Table~\ref{tab:lme_pairwise} in the Appendix).
+\semkcd{} achieves the best NLL across all budgets
 ($0.100$ at $B{=}0.20$, vs.\ $0.222$ for uniform; $p<0.001$).
 This reversal has a natural explanation:
 in 400--600 turn conversations, each turn's geometric signature is competing
@@ -768,10 +777,13 @@ a crowded shortlist.
 
 \paragraph{Summary.}
 The geometry advantage is reliable for conversations of roughly $20$--$100$ turns
-(MSC regime).
-For very long conversations ($>400$ turns), semantic similarity
-is the more stable selection criterion.
-Signal design should be conditioned on expected conversation length.
+(MSC regime): at budget $0.50$, \semqcg{} beats uniform on both geometry
+and behavior---the only regime in our experiments where any compression policy
+is strictly more faithful than no selection.
+For very long conversations ($>400$ turns), the advantage inverts:
+\semkcd{} dominates on both metrics and \semqcg{} underperforms it
+on NLL at all budgets.
+Signal design should therefore be conditioned on expected conversation length.
 
 \begin{figure}[t]
 \centering
