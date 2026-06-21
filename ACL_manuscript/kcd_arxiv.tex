@@ -361,8 +361,8 @@ TF-IDF             & 617.4 & 610.5 & 594.0 & 3.249 & 3.074 & 2.930 \\
 \caption{Logit $\ell_2$ vs.\ budget for all policies.
 \emph{Left}: external baselines on MSC ($n{=}1{,}000$ conv).
 LongLLMLingua incurs $+103$--$161$ logit $\ell_2$ above uniform despite modest NLL gains.
-\emph{Right}: KCD signal variants ($n{=}50$ conv). Sem-QCG achieves
-$636.4$ at $B{=}0.50$---below the uniform baseline of $682.8$ (dotted line).}
+\emph{Right}: KCD signal variants ($n{=}1{,}000$ conv). Sem-QCG achieves
+$705.5$ at $B{=}0.50$---below the uniform baseline of $761.6$ (dotted line).}
 \label{fig:logit_l2}
 \end{figure}
 
@@ -370,7 +370,7 @@ $636.4$ at $B{=}0.50$---below the uniform baseline of $682.8$ (dotted line).}
 \centering
 \includegraphics[width=\columnwidth]{figures/fig4_budget_nll.pdf}
 \caption{Answer NLL vs.\ budget. Sem-QCG achieves best behavioral quality at
-all budgets among KCD variants on MSC ($n{=}50$ conv), confirming that
+all budgets among KCD variants on MSC ($n{=}1{,}000$ conv), confirming that
 query-conditioned geometry does not sacrifice behavioral fidelity for geometric gain.}
 \label{fig:nll}
 \end{figure}
@@ -1027,7 +1027,7 @@ to saturate VRAM ($\approx 22$~GB per worker).
 \textbf{MSC valid}: Multi-Session Conversations validation split \citep{xu-etal-2022-beyond}.
 Conversations average 5 sessions of 4--6 turns each.
 All 1{,}000 conversations used for baseline comparison;
-50 conversations for signal variant study (random sample, fixed seed 42).
+1{,}000 conversations for signal variant study (full validation split).
 
 \textbf{LongMemEval-S}: \citet{wu-etal-2025-longmemeval} benchmark.
 100 full-length conversations, 400--600 turns each.
