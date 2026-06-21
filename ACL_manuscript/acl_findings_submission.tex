@@ -32,7 +32,7 @@
 \maketitle
 
 \begin{abstract}
-Compressing long multi-turn conversations requires deciding not only how to compress context, but which signal should rank memory candidates under a fixed budget. We study a sparse keep/compress/drop (KCD) codec and compare geometric, semantic, and hybrid scoring signals across conversational memory regimes. On a stress-test benchmark designed to expose support-turn failures, a geometry-scored codec substantially outperforms a semantic signal swap inside the same codec. On MSC (1{,}000 conversations), we show that geometry-based compression methods substantially outperform LongLLMLingua on geometric fidelity ($\Delta\mathrm{L2} \approx +130$) while LongLLMLingua modestly improves answer NLL---a geometry-behavior divergence confirming that behavioral metrics alone are insufficient to evaluate memory compression. Among KCD signal variants on MSC (50 conversations, Qwen2.5-1.5B), query-conditioned geometry achieves the best combination of geometric fidelity and behavioral quality simultaneously: at budget 0.50 it reduces logit L2 by 113.7 units versus semantic KCD ($p<0.001$, conversation-level) while also achieving best answer NLL across all budgets. On LongMemEval-S (100 full-length conversations), all KCD variants significantly improve behavioral quality over uniform compression. A Llama-3.2-3B cross-model check shows that the geometry signal advantage is model-family-dependent: semantic compression dominates geometry compression on behavior across all budgets for Llama-3B ($p\le 0.01$, conversation-level). The paper's central claim is that geometry-behavior divergence is real and consequential, and that query-conditioned geometry is the signal that best resolves it on Qwen2.5 models.
+Compressing long multi-turn conversations requires deciding not only how to compress context, but which signal should rank memory candidates under a fixed budget. We study a sparse keep/compress/drop (KCD) codec and compare geometric, semantic, and hybrid scoring signals across conversational memory regimes. On a stress-test benchmark designed to expose support-turn failures, a geometry-scored codec substantially outperforms a semantic signal swap inside the same codec. On MSC (1{,}000 conversations), we show that geometry-based compression methods substantially outperform LongLLMLingua on geometric fidelity ($\Delta\mathrm{L2} \approx +130$) while LongLLMLingua modestly improves answer NLL---a geometry-behavior divergence confirming that behavioral metrics alone are insufficient to evaluate memory compression. Among KCD signal variants on MSC (1{,}000 conversations, Qwen2.5-1.5B), query-conditioned geometry achieves the best combination of geometric fidelity and behavioral quality simultaneously: at budget 0.50 it reduces logit L2 by 109.4 units versus semantic KCD ($p<0.001$, conversation-level) while also achieving best answer NLL across all budgets. On LongMemEval-S (100 full-length conversations), all KCD variants significantly improve behavioral quality over uniform compression. A Llama-3.2-3B cross-model check shows that the geometry signal advantage is model-family-dependent: semantic compression dominates geometry compression on behavior across all budgets for Llama-3B ($p\le 0.01$, conversation-level). The paper's central claim is that geometry-behavior divergence is real and consequential, and that query-conditioned geometry is the signal that best resolves it on Qwen2.5 models.
 \end{abstract}
 
 \section{Introduction}
@@ -143,7 +143,7 @@ We use four primary evaluation settings.
 \begin{itemize}[leftmargin=1.25em]
     \item \textbf{Hard stress set}: 36 synthetic but interpretable conversations across long-dependency, retrieval-heavy, and code-conversation families, designed to expose support-turn failures that are plausible in real conversational memory settings.
     \item \textbf{MSC valid (baselines)}: 1{,}000 conversations from the multi-session persona benchmark \cite{msc}, used to compare KCD against external baselines including LongLLMLingua \cite{longllmlingua}, recency, and lexical TF-IDF compression.
-    \item \textbf{MSC valid (signal variants)}: 50 conversations from MSC used to compare KCD signal variants (geometry, semantic, and query-conditioned hybrid) against each other and against uniform compression. Produces approximately 605 evaluation rows per policy per budget.
+    \item \textbf{MSC valid (signal variants)}: 1{,}000 conversations from MSC used to compare KCD signal variants (geometry, semantic, and query-conditioned hybrid) against each other and against uniform compression, including a two-component ablation of \pname{sem\_query\_cond\_KCD}.
     \item \textbf{LongMemEval-S}: 100 conversations from the full-length LongMemEval release \cite{longmemeval} (400--600 turns per conversation, no truncation), used to test cross-benchmark behavioral generalization.
 \end{itemize}
 Primary experiments use \pname{qwen25\_15b} (Qwen2.5-1.5B-Instruct). A cross-model check uses \pname{llama32\_3b} (Llama-3.2-3B-Instruct, 50 MSC conversations). We treat the hard stress set as mechanism evidence and the public benchmarks as external-validity checks.
@@ -312,28 +312,46 @@ Recency-based KCD achieves the best geometry across all budgets while remaining 
 
 \subsection{MSC: Query-Conditioned Geometry Wins Both Metrics}
 \label{sec:msc_signal}
-Among KCD signal variants on MSC (50 conversations, Qwen2.5-1.5B), query-conditioned geometry (\pname{sem\_query\_cond\_KCD}) is the only policy that achieves the best logit L2 \emph{and} best answer NLL simultaneously.
+Among KCD signal variants on MSC (1{,}000 conversations, Qwen2.5-1.5B), query-conditioned geometry (\pname{sem\_query\_cond\_KCD}) is the only policy that achieves the best logit L2 \emph{and} best answer NLL simultaneously.
 
 \begin{table}[t]
 \centering
-\caption{KCD signal variant comparison on MSC (\pname{qwen25\_15b}, 50 conversations). Lower is better. $^{*}p<0.05$, $^{**}p<0.01$, $^{***}p<0.001$ vs.\ \pname{semantic\_KCD}, conversation-level signflip test.}
+\caption{KCD signal variant comparison on MSC (\pname{qwen25\_15b}, 1{,}000 conversations). Lower is better. $^{***}p<0.001$ vs.\ \pname{semantic\_KCD}, conversation-level signflip test.}
 \label{tab:msc_signal}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccccc}
 \toprule
 Policy & L2@.20 & L2@.35 & L2@.50 & NLL@.20 & NLL@.35 & NLL@.50 \\
 \midrule
-Uniform & 705.2 & 692.2 & 682.8 & 3.251 & 3.166 & 3.071 \\
-Geometry-KCD & 709.8 & 724.4 & 737.0 & 3.201 & 3.052 & 2.923 \\
-Semantic-KCD & 713.4 & 740.0 & 750.1 & 3.176 & 2.993 & 2.845 \\
-\pname{sem\_query\_cond\_KCD} & 717.8 & $723.0^{*}$ & $\mathbf{636.4}^{***}$ & $3.143^{*}$ & $2.944^{**}$ & $\mathbf{2.789}^{**}$ \\
+Uniform & 799.6 & 783.0 & 761.6 & 3.153 & 3.061 & 2.959 \\
+Geometry-KCD & 804.9 & 814.5 & 812.8 & 3.105 & 2.973 & 2.811 \\
+Semantic-KCD & 806.9 & 814.2 & 815.0 & 3.040 & 2.884 & 2.716 \\
+\pname{sem\_query\_cond\_KCD} & 807.5 & $801.8^{***}$ & $\mathbf{705.5}^{***}$ & $\mathbf{3.034}^{***}$ & $\mathbf{2.850}^{***}$ & $\mathbf{2.671}^{***}$ \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-At budget 0.50, \pname{sem\_query\_cond\_KCD} achieves logit L2 of 636.4---lower than uniform (682.8), meaning query-conditioned geometry is more faithful to the full-context hidden state than random turn sampling. The improvement over semantic KCD is $\Delta=-113.7$ ($p<0.001$, conversation-level). At budget 0.35, the geometry advantage is $\Delta=-17.0$ ($p=0.005$). At budget 0.20 the advantage is not significant ($\Delta=+4.4$, $p=0.296$), consistent with the pattern that geometry refinement is most useful when budget pressure is binding enough to force real selection decisions.
+\begin{table}[t]
+\centering
+\caption{Component ablation of \pname{sem\_query\_cond\_KCD} on MSC (\pname{qwen25\_15b}, 1{,}000 conversations). Lower is better. Removing the support-score weighting (\textit{w/o support}) significantly degrades both metrics at all budgets ($p{<}0.001$). Removing query projection (\textit{w/o query}) hurts geometry at $B{=}0.35$ ($\Delta{=}{+}7.5$, $p{<}0.001$) but has negligible behavioral effect.}
+\label{tab:msc_ablation}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+Policy & L2@.20 & L2@.35 & L2@.50 & NLL@.20 & NLL@.35 & NLL@.50 \\
+\midrule
+\pname{sem\_query\_cond\_KCD} & \textbf{807.5} & \textbf{801.8} & \textbf{705.5} & \textbf{3.034} & \textbf{2.850} & \textbf{2.671} \\
+\quad w/o query proj. & 806.7 & 809.4 & 708.3 & 3.028 & 2.856 & 2.670 \\
+\quad w/o support score & 808.9 & 817.0 & 757.7 & 3.094 & 2.957 & 2.762 \\
+\bottomrule
+\end{tabular}}
+\end{table}
 
-The behavioral result is equally consistent: \pname{sem\_query\_cond\_KCD} achieves the best answer NLL at every budget, with statistically significant improvements over semantic KCD at all three budgets ($p=0.012$, $0.003$, $0.004$, conversation-level). This resolves the apparent tension seen in the external baseline comparison---query-conditioned geometry does not require a geometry-behavior tradeoff; it achieves both.
+At budget 0.50, \pname{sem\_query\_cond\_KCD} achieves logit L2 of 705.5---lower than uniform (761.6), meaning query-conditioned geometry is more faithful to the full-context hidden state than random turn sampling. The improvement over semantic KCD is $\Delta=-109.4$ ($p<0.001$, conversation-level). At budget 0.35, the geometry advantage is $\Delta=-12.2$ ($p<0.001$). At budget 0.20 the geometry difference is not significant ($p=0.872$), consistent with the pattern that geometry refinement is most useful when budget pressure is binding enough to force real selection decisions.
+
+The behavioral result is equally consistent: \pname{sem\_query\_cond\_KCD} achieves the best answer NLL at every budget, with statistically significant improvements over semantic KCD at all three budgets ($p<0.001$, conversation-level). This resolves the apparent tension seen in the external baseline comparison---query-conditioned geometry does not require a geometry-behavior tradeoff; it achieves both.
+
+Table~\ref{tab:msc_ablation} shows the component ablation. Removing the support-score weighting (\textit{w/o support}) is catastrophic: logit L2 degrades by $+52.2$ at $B{=}0.50$ and answer NLL worsens by $+0.091$ ($p<0.001$ both metrics, all budgets). The support-score term is the load-bearing component. Removing query-conditioned projection (\textit{w/o query}) causes moderate geometry degradation at $B{=}0.35$ ($+7.5$ L2, $p<0.001$) but has negligible behavioral effect ($p=0.677$), indicating the query projection contributes primarily through geometric discriminability.
 
 The mechanism is that query-conditioned scoring uses the hidden state at the current query turn to weight prior turns by geometric relevance rather than by recency or semantic similarity alone. This biases retention toward turns that are geometrically proximate to the query in representational space, which empirically corresponds to turns whose information is load-bearing for the current response.
 
@@ -443,7 +461,7 @@ Two boundary conditions are important to state explicitly. The query-conditioned
 A learned harm predictor achieved reasonable row-level oracle ranking but cross-conversation calibration failed. An object-level compression variant underperformed because the current object boundaries under-retained the available budget. These negatives suggest the remaining gap is not solved by simply replacing heuristic signals with any learned predictor or by coarse object compression without better object definitions.
 
 \section{Limitations}
-The strongest mechanistic evidence comes from a custom hard stress set. Although the stress set uses memory primitives that also appear in MSC, LoCoMo, and LongMemEval, it is a controlled stress test rather than a sampled public benchmark. The query-conditioned geometry advantage on MSC (50 conversations) is statistically significant at conversation level but involves a smaller sample than the baseline comparison (1{,}000 conversations); the effect size is large ($\Delta=-113.7$ at budget 0.50) which mitigates concern, but replication on more conversations would strengthen the claim. The cross-model check uses only one architecture (Llama-3.2-3B), so the finding that the geometry signal is Qwen2.5-specific is a scope observation, not a general architectural claim.
+The strongest mechanistic evidence comes from a custom hard stress set. Although the stress set uses memory primitives that also appear in MSC, LoCoMo, and LongMemEval, it is a controlled stress test rather than a sampled public benchmark. The query-conditioned geometry advantage on MSC is now evaluated on 1{,}000 conversations---the same scale as the baseline comparison---with consistent and highly significant results ($\Delta=-109.4$ at budget 0.50, $p<0.001$). The cross-model check uses only one architecture (Llama-3.2-3B), so the finding that the geometry signal is Qwen2.5-specific is a scope observation, not a general architectural claim.
 
 \paragraph{QA accuracy on LongMemEval.}
 We ran a token-F1 QA proxy evaluation on LME-S (100 conversations) using the next conversation turn as the gold answer. Token F1 scores were uniformly near-zero ($\approx 0.08$) across all policies---indistinguishable from uniform random compression---and we determined this metric is invalid in this setting: LME's conversational gold turns are not faithful proxies for the question-answer pairs the benchmark was designed to evaluate. We therefore do not report these results as primary evidence and rely on NLL and logit~$\ell_2$ for the LME cross-benchmark analysis. The official LME evaluation uses GPT-judged QA accuracy over curated question sets; running that pipeline would provide a more standard result and is left for future work.

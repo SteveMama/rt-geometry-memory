@@ -414,7 +414,7 @@ for completeness but are anti-conservative due to within-conversation dependence
 \begin{table}[t]
 \centering
 \caption{\kcd{} signal variant comparison on MSC valid
-($n{=}50$ conversations, Qwen2.5-1.5B).
+($n{=}1{,}000$ conversations, Qwen2.5-1.5B).
 \textbf{Bold} = best per column. Lower is better.}
 \label{tab:variants}
 \setlength{\tabcolsep}{5pt}
@@ -424,10 +424,10 @@ for completeness but are anti-conservative due to within-conversation dependence
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
 Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ \\
 \midrule
-Uniform   & 705.2 & 692.2 & 682.8 & 3.251 & 3.166 & 3.071 \\
-\geokcd{} & 709.8 & 724.4 & 737.0 & 3.201 & 3.052 & 2.923 \\
-\semkcd{} & 713.4 & 740.0 & 750.1 & 3.176 & 2.993 & 2.845 \\
-\semqcg{} & 717.8 & \textbf{723.0} & \textbf{636.4} & \textbf{3.143} & \textbf{2.944} & \textbf{2.789} \\
+Uniform   & 799.6 & 783.0 & 761.6 & 3.153 & 3.061 & 2.959 \\
+\geokcd{} & 804.9 & 814.5 & 812.8 & 3.105 & 2.973 & 2.811 \\
+\semkcd{} & 806.9 & 814.2 & 815.0 & 3.040 & 2.884 & 2.716 \\
+\semqcg{} & 807.5 & \textbf{801.8} & \textbf{705.5} & \textbf{3.034} & \textbf{2.850} & \textbf{2.671} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -435,7 +435,7 @@ Uniform   & 705.2 & 692.2 & 682.8 & 3.251 & 3.166 & 3.071 \\
 \begin{table}[t]
 \centering
 \caption{Pairwise comparison: \semqcg{} minus \semkcd{}
-on MSC valid ($n{=}50$ conversations).
+on MSC valid ($n{=}1{,}000$ conversations).
 Negative $\Delta$ means \semqcg{} is better.
 $p_\text{row}$ = row-level signflip; $p_\text{conv}$ = conversation-level
 (primary evidence). CI = 95\% bootstrap confidence interval.}
@@ -445,28 +445,50 @@ $p_\text{row}$ = row-level signflip; $p_\text{conv}$ = conversation-level
 \toprule
 Budget & $\Delta$ L2 (row) & $p_\text{row}$ & $\Delta$ L2 (conv) & $p_\text{conv}$ & $\Delta$ NLL (conv) & $p_\text{conv}$ \\
 \midrule
-$0.20$ & $+7.88$ & $0.092$ & $+4.45$ & $0.296$ & $-0.034$ & $0.012$ \\
-$0.35$ & $-14.53$ & $0.014$ & $-17.05$ & $\mathbf{0.005}$ & $-0.049$ & $\mathbf{0.003}$ \\
-$0.50$ & $-114.49$ & $\mathbf{<}0.001$ & $-113.70$ & $\mathbf{<}0.001$ & $-0.056$ & $\mathbf{0.004}$ \\
+$0.20$ & $+0.61$ & $0.599$ & $-0.15$ & $0.872$ & $-0.011$ & $<0.001$ \\
+$0.35$ & $-12.47$ & $\mathbf{<}0.001$ & $-12.23$ & $\mathbf{<}0.001$ & $-0.038$ & $\mathbf{<}0.001$ \\
+$0.50$ & $-109.44$ & $\mathbf{<}0.001$ & $-105.14$ & $\mathbf{<}0.001$ & $-0.044$ & $\mathbf{<}0.001$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Component ablation of \semqcg{} on MSC valid ($n{=}1{,}000$ conversations).
+Removing support-score weighting (\textit{w/o support}) degrades both metrics
+at all budgets ($p{<}0.001$). Removing query projection (\textit{w/o query})
+causes moderate geometry degradation at $B{=}0.35$ ($\Delta{=}{+}7.5$, $p{<}0.001$)
+but negligible behavioral effect ($p{=}0.677$).}
+\label{tab:msc_ablation}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{3}{c}{Logit $\ell_2$ $\downarrow$} & \multicolumn{3}{c}{Answer NLL $\downarrow$} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Policy & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ & $B{=}0.20$ & $B{=}0.35$ & $B{=}0.50$ \\
+\midrule
+\semqcg{} & \textbf{807.5} & \textbf{801.8} & \textbf{705.5} & \textbf{3.034} & \textbf{2.850} & \textbf{2.671} \\
+\quad w/o query proj. & 806.7 & 809.4 & 708.3 & 3.028 & 2.856 & 2.670 \\
+\quad w/o support score & 808.9 & 817.0 & 757.7 & 3.094 & 2.957 & 2.762 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Table~\ref{tab:variants} shows that \semqcg{} uniquely resolves the
 geometry-behavior tradeoff.
-At budget $0.50$, \semqcg{} achieves logit $\ell_2 = 636.4$---\emph{lower
-than uniform sampling} ($682.8$)---meaning the compressed context is more
+At budget $0.50$, \semqcg{} achieves logit $\ell_2 = 705.5$---\emph{lower
+than uniform sampling} ($761.6$)---meaning the compressed context is more
 faithful to the full-context hidden state than randomly retaining half the turns.
 This is the only regime in our experiments where a compression policy
 is strictly more geometrically faithful than the no-selection baseline.
 
 Table~\ref{tab:pairwise_msc} shows that the improvement is statistically
 robust at conversation level: at $B{=}0.35$, the geometry advantage is
-$\Delta{-}17.05$ logit $\ell_2$ ($p_\text{conv} = 0.005$) and the behavioral
-advantage is $\Delta{-}0.049$ NLL ($p_\text{conv} = 0.003$).
+$\Delta{=}{-}12.23$ logit $\ell_2$ ($p_\text{conv} < 0.001$) and the behavioral
+advantage is $\Delta{=}{-}0.038$ NLL ($p_\text{conv} < 0.001$).
 At $B{=}0.50$ the geometry improvement is dramatic
-($\Delta{-}113.70$, $p_\text{conv} < 0.001$)
-with 95\% CI $[-142.3, -87.0]$.
+($\Delta{=}{-}105.1$, $p_\text{conv} < 0.001$)
+with 95\% CI $[-110.3, -100.2]$.
 
 \paragraph{Mechanism.}
 The query-conditioned projection $\uv_t^{(q)}$ biases turn selection toward
@@ -477,6 +499,17 @@ similarly on semantics but differ in their geometric proximity to the query.
 The result is that \semqcg{} fills budget with turns that are both
 semantically relevant (from the shortlist) and geometrically load-bearing
 for the response the model will produce.
+
+Table~\ref{tab:msc_ablation} isolates the two novel components.
+Removing the support-score weighting (\textit{w/o support}) is catastrophic:
+logit $\ell_2$ degrades by $+52.2$ at $B{=}0.50$ ($p_\text{conv} < 0.001$)
+and answer NLL worsens by $+0.059$ ($p_\text{conv} < 0.001$),
+confirming that the support-score term is the load-bearing component of \semqcg{}.
+Removing query-conditioned projection (\textit{w/o query}) causes moderate geometry
+degradation at $B{=}0.35$ ($+7.5$ logit $\ell_2$, $p_\text{conv} < 0.001$) but
+has negligible behavioral effect ($p_\text{conv} = 0.677$ at $B{=}0.50$),
+indicating the query projection contributes primarily through geometric discriminability
+rather than answer quality.
 
 % ---------------------------------------------------------------
 \section{Constraint-Critical Memory}
