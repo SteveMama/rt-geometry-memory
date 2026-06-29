@@ -251,7 +251,7 @@ Budget & $\Delta\Logit$ & $p$ & $\Delta\NLL$ & $p$ \\
 \end{tabular}
 \end{table}
 
-The result is straightforward: on a benchmark designed to expose support-turn failures, semantics is the wrong signal for the codec. At low and mid budgets, \pname{geometry\_KCD} improves both logit fidelity and answer quality. At budget 0.50, the logit difference vanishes, but answer quality still strongly favors geometry. This distinction matters because it shows that the codec structure alone is not the explanation. Changing only the ranking signal changes the result substantially.
+The result is clear: on a benchmark designed to expose support-turn failures, semantics is the wrong signal for the codec. At low and mid budgets, \pname{geometry\_KCD} improves both logit fidelity and answer quality. At budget 0.50, the logit difference vanishes, but answer quality still strongly favors geometry. This distinction matters because it shows that the codec structure alone is not the explanation. Changing only the ranking signal changes the result substantially.
 
 The stress-set finding is deliberately scoped. We do not present it as universal evidence about all conversational memory. Instead, we treat it as mechanism evidence for a specific memory regime: conversations in which exact constraint packets must survive compression.
 
@@ -347,7 +347,7 @@ Policy & L2@.20 & L2@.35 & L2@.50 & NLL@.20 & NLL@.35 & NLL@.50 \\
 \end{tabular}}
 \end{table}
 
-At budget 0.50, \pname{sem\_query\_cond\_KCD} achieves logit L2 of 705.5---lower than uniform (761.6), meaning the compressed context is \emph{more} faithful to the full-context hidden state than randomly retaining half the turns. Notably, all other compression policies are \emph{worse} than uniform on logit L2 at every budget (Geometry-KCD: $+5.3$/$+31.6$/$+51.2$ vs.\ uniform at $B{=}0.20/0.35/0.50$; Semantic-KCD: $+7.3$/$+31.3$/$+53.4$). Budget 0.50 is the \emph{only} regime in our experiments where any policy is strictly more geometrically faithful than no selection at all. The improvement over Semantic-KCD is $\Delta=-109.4$ ($p<0.001$, row-level; $\Delta=-105.1$, $p<0.001$, conversation-level). At budget 0.35, \pname{sem\_query\_cond\_KCD} still beats Semantic-KCD by $\Delta=-12.2$ ($p<0.001$), though both remain worse than uniform. At budget 0.20 the geometry difference vs.\ Semantic-KCD is not significant ($p=0.872$), consistent with the pattern that query-conditioned geometry is most useful when the budget is large enough to allow meaningful turn differentiation.
+At budget 0.50, \pname{sem\_query\_cond\_KCD} achieves logit L2 of 705.5---lower than uniform (761.6), meaning the compressed context is \emph{more} faithful to the full-context hidden state than randomly retaining half the turns. All other compression policies are \emph{worse} than uniform on logit L2 at every budget (Geometry-KCD: $+5.3$/$+31.6$/$+51.2$ vs.\ uniform at $B{=}0.20/0.35/0.50$; Semantic-KCD: $+7.3$/$+31.3$/$+53.4$). Budget 0.50 is the \emph{only} regime in our experiments where any policy is strictly more geometrically faithful than no selection at all. The improvement over Semantic-KCD is $\Delta=-109.4$ ($p<0.001$, row-level; $\Delta=-105.1$, $p<0.001$, conversation-level). At budget 0.35, \pname{sem\_query\_cond\_KCD} still beats Semantic-KCD by $\Delta=-12.2$ ($p<0.001$), though both remain worse than uniform. At budget 0.20 the geometry difference vs.\ Semantic-KCD is not significant ($p=0.872$), consistent with the pattern that query-conditioned geometry is most useful when the budget is large enough to allow meaningful turn differentiation.
 
 The behavioral result is equally consistent: \pname{sem\_query\_cond\_KCD} achieves the best answer NLL at every budget among the four main policies, with statistically significant improvements over Semantic-KCD at all three budgets ($p<0.001$, conversation-level). This resolves the geometry-behavior tradeoff that affects all other methods---query-conditioned geometry is the only policy that simultaneously beats Semantic-KCD on both geometry and behavior at budget 0.50.
 
@@ -455,7 +455,7 @@ Second, the right response to this divergence is not to choose between geometry 
 The paper therefore supports a signal-conditioned view of compression: one codec structure, different scoring signals for different memory regimes, with query-conditioned geometry as the best single signal on semantic-memory benchmarks when the model family produces structurally discriminative per-turn geometry.
 
 \subsection{Scope Conditions}
-Two boundary conditions are important to state explicitly. The query-conditioned geometry advantage is observed on Qwen2.5-1.5B and does not replicate on Llama-3.2-3B, where semantic compression dominates geometry on behavior. This suggests the geometry signal's effectiveness depends on model representation structure rather than parameter count alone. Additionally, the geometric advantage found on MSC-length conversations (20--100 turns) diminishes on LongMemEval (400--600 turns), where the per-turn geometry becomes less discriminative as the number of competing candidates grows.
+Two boundary conditions are important to state explicitly. The query-conditioned geometry advantage is observed on Qwen2.5-1.5B and does not replicate on Llama-3.2-3B, where semantic compression dominates geometry on behavior. This suggests the geometry signal's effectiveness depends on model representation structure rather than parameter count alone. The geometric advantage found on MSC-length conversations (20--100 turns) diminishes on LongMemEval (400--600 turns), where the per-turn geometry becomes less discriminative as the number of competing candidates grows.
 
 \subsection{Informative Negatives}
 A learned harm predictor achieved reasonable row-level oracle ranking but cross-conversation calibration failed. An object-level compression variant underperformed because the current object boundaries under-retained the available budget. These negatives suggest the remaining gap is not solved by simply replacing heuristic signals with any learned predictor or by coarse object compression without better object definitions.
@@ -468,6 +468,11 @@ We ran a token-F1 QA proxy evaluation on LME-S (100 conversations) using the nex
 
 \paragraph{Scale.}
 Our experiments use models up to 3B parameters. The hardset 3B validation uses Qwen2.5-3B, while the cross-architecture check uses Llama-3.2-3B; these validate different questions (scaling within Qwen vs.\ cross-family generalization) and should not be conflated. We do not test 7B+ models due to compute constraints, though the observed scale trend ($+0.628 \to +1.126$ nats NLL, 1.5B$\to$3B) suggests geometry may become more consequential at larger scale.
+
+\section*{Acknowledgments}
+Experiments were conducted on cloud GPU infrastructure. Code, data, and experiment logs are available at \url{https://github.com/SteveMama/rt-geometry-memory}.
+
+The authors used Claude (Anthropic) to assist with manuscript drafting and editing. All experimental results, scientific claims, and final text were verified and approved by the authors.
 
 \bibliography{references}
 

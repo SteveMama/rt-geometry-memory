@@ -50,7 +50,7 @@
 \title{\textbf{Signal-Conditioned Memory Compression\\for Multi-Turn Conversations}}
 
 \author{
-  Anonymous Authors\thanks{Code, data, and experiment logs will be released at publication.} \\
+  Anonymous Authors\thanks{Code, data, and experiment logs: \url{https://github.com/SteveMama/rt-geometry-memory}.} \\
   Anonymous Institution \\
   \texttt{anonymous@anonymous.edu}
 }
@@ -612,7 +612,7 @@ substantially better than semantic scoring on constraint-critical memory.
 At Qwen2.5-3B, budget $0.50$, the NLL damage from using the wrong
 signal is $+1.126$ nats ($p = 0.0003$)---the largest effect size in
 our entire experimental program.
-Notably, the NLL advantage grows with model scale
+The NLL advantage grows with model scale
 (1.5B: $+0.628$ nats; 3B: $+1.126$ nats),
 consistent with the interpretation that richer representations
 make incorrect turn selections more consequential.
@@ -999,6 +999,14 @@ We characterize architecture and length as scope conditions,
 and provide mechanism evidence through support-turn rescue analysis.
 We hope these findings motivate dual-objective evaluation and
 signal-conditioned design as standard practices in conversational memory research.
+
+% ---------------------------------------------------------------
+\section*{Acknowledgments}
+% ---------------------------------------------------------------
+Experiments were conducted on cloud GPU infrastructure.
+Code, data, and experiment logs are available at \url{https://github.com/SteveMama/rt-geometry-memory}.
+
+The authors used Claude (Anthropic) to assist with manuscript drafting and editing. All experimental results, scientific claims, and final text were verified and approved by the authors.
 
 % ---------------------------------------------------------------
 % BIBLIOGRAPHY
