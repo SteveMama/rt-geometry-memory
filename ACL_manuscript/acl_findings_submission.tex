@@ -371,35 +371,6 @@ The authors used Claude (Anthropic) to assist with manuscript drafting and editi
 \bibliography{references}
 
 \appendix
-\section{Geometry Characterization}
-\label{app:geometry}
-The geometric characterization motivating the scoring signal is stable across three compact model families: mean rank-95 ranges from 1.049 to 1.528, and geometry--logit correlation ranges from 0.989 to 0.994. These values indicate that within-segment conversational motion is highly compact and closely tied to decoder behavior, which motivates using transported geometry as a control signal.
-
-\section{Learned Harm Predictor}
-We trained a two-head MLP (\texttt{HarmPredictor}) on MSC oracle ablation rows to predict logit damage and answer-level harm when a turn is removed. The selected model used 28 features, including semantic scores, geometry scores, support-aware structural features, and attention-derived features. It learned row-level ranking reasonably well: validation Kendall $\tau = 0.637$ and held-out test Kendall $\tau = 0.612$. However, conversation-level calibration failed. On validation, the predictor assigned larger absolute harm scores to lower-harm conversations, yielding inverted conversation-level ranking. When deployed as a policy (\pname{semantic\_harm\_KCD}), it lost to the query-conditioned hybrid at budget 0.35 by $\Delta\Logit = +51.2$ with both row- and conversation-level significance in the original checkpoint study. We therefore treat learned harm prediction as a promising but not yet successful extension.
-
-\section{Object-Level Compression}
-We also tested an object-level KCD variant in which turns were grouped into coarse memory objects (persona, event, constraint, update, generic), then kept, compressed, or evicted at object granularity. On MSC, this underperformed turn-level baselines and chronically underused the available budget.
-
-\begin{table}[t]
-\centering
-\caption{Object-level vs.\ turn-level compression on MSC valid (\pname{qwen25\_15b}).}
-\label{tab:object_appendix}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lccc}
-\toprule
-Policy & Logit L2 @ 0.35 & NLL @ 0.35 & Token frac @ 0.35 \\
-\midrule
-\texttt{semantic} & 928.9 & 2.438 & 0.743 \\
-\texttt{budget\_aware\_sem\_KCD} & 931.2 & 2.487 & 0.736 \\
-\texttt{sem\_object\_KCD} & 970.9 & 2.979 & 0.519 \\
-\texttt{sem\_object\_harm\_KCD} & 1023.0 & 3.251 & 0.431 \\
-\bottomrule
-\end{tabular}}
-\end{table}
-
-The main failure was mechanical rather than conceptual: the current marker-based object boundaries over-segmented conversations, and after within-object compression each object retained too little content. As a result, only 43--52\% of the target budget was realized in the failing object policies.
-
 \section{Single-Model 3B Validation (Hard Stress Set)}
 \label{app:3b}
 To test whether the constraint-critical geometry advantage is specific to compact 1.5B models, we rerun the signal-swap comparison on \pname{qwen25\_3b} (Qwen2.5-3B-Instruct). The qualitative pattern persists and the answer-quality gap widens.
@@ -422,8 +393,8 @@ Budget & $\Delta\Logit$ & $p$ & $\Delta\NLL$ & $p$ \\
 Geometry remains the stronger signal on the stress set at 3B, and the NLL gap grows from $+0.628$ (1.5B) to $+1.126$ (3B) at $B{=}0.50$. We avoid stronger scaling claims because the validation covers only one 3B architecture.
 
 \section{Geometry Characterization}
-\label{app:geometry_table}
-Conversation-state trajectories are highly compact (rank-95 near 1.0) and geometric distortion closely tracks decoder drift (correlation $>0.989$). Table~\ref{tab:geometry_summary} summarizes the characterization across model families that motivates using transported geometry as a compression-control signal.
+\label{app:geometry}
+Conversation-state trajectories are highly compact (rank-95 near 1.0) and geometric distortion closely tracks decoder drift (correlation $>0.989$). These values indicate that within-segment conversational motion is tightly coupled to decoder behavior, which motivates using transported geometry as a compression-control signal.
 
 \begin{table}[h]
 \centering
@@ -440,6 +411,31 @@ smollm2\_17b & 1.528 & [1.500, 1.576] & 1.799 & 0.0122 & 0.989 & 0.0000 \\
 \bottomrule
 \end{tabular}}
 \end{table}
+
+\section{Learned Harm Predictor}
+We trained a two-head MLP (\texttt{HarmPredictor}) on MSC oracle ablation rows to predict logit damage and answer-level harm when a turn is removed. The selected model used 28 features, including semantic scores, geometry scores, support-aware structural features, and attention-derived features. It learned row-level ranking reasonably well: validation Kendall $\tau = 0.637$ and held-out test Kendall $\tau = 0.612$. However, conversation-level calibration failed. On validation, the predictor assigned larger absolute harm scores to lower-harm conversations, yielding inverted conversation-level ranking. When deployed as a policy (\pname{semantic\_harm\_KCD}), it lost to the query-conditioned hybrid at budget 0.35 by $\Delta\Logit = +51.2$ with both row- and conversation-level significance in the original checkpoint study. We therefore treat learned harm prediction as a promising but not yet successful extension.
+
+\section{Object-Level Compression}
+We also tested an object-level KCD variant in which turns were grouped into coarse memory objects (persona, event, constraint, update, generic), then kept, compressed, or evicted at object granularity. On MSC, this underperformed turn-level baselines and chronically underused the available budget.
+
+\begin{table}[h]
+\centering
+\caption{Object-level vs.\ turn-level compression on MSC valid (\pname{qwen25\_15b}).}
+\label{tab:object_appendix}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccc}
+\toprule
+Policy & Logit L2 @ 0.35 & NLL @ 0.35 & Token frac @ 0.35 \\
+\midrule
+\texttt{semantic} & 928.9 & 2.438 & 0.743 \\
+\texttt{budget\_aware\_sem\_KCD} & 931.2 & 2.487 & 0.736 \\
+\texttt{sem\_object\_KCD} & 970.9 & 2.979 & 0.519 \\
+\texttt{sem\_object\_harm\_KCD} & 1023.0 & 3.251 & 0.431 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+The main failure was mechanical rather than conceptual: the current marker-based object boundaries over-segmented conversations, and after within-object compression each object retained too little content. As a result, only 43--52\% of the target budget was realized in the failing object policies.
 
 \section{Additional Negative Results}
 Three further negative findings help define the current claim boundary.
