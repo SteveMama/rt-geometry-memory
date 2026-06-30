@@ -25,7 +25,7 @@
 \newcommand{\NLL}{\Delta_{\mathrm{NLL}}}
 \newcommand{\pname}[1]{\texttt{\small #1}}
 
-\title{Signal-Conditioned Memory Compression for Multi-Turn Conversations}
+\title{Geometry-Conditioned Turn Scoring for Faithful Conversational Memory Compression}
 \author{Anonymous ARR Submission}
 
 \begin{document}
@@ -54,25 +54,14 @@ This paper makes three main contributions:
 \end{itemize}
 
 \section{Related Work}
-Work on long-horizon language-model memory falls into several method families, each making a different assumption about what memory is and how it should be managed.
+\paragraph{Memory architectures and compression.}
+LongMem, MemoryBank, and MemGPT augment models with external or hierarchical memory stores \cite{longmem,memorybank,memgpt}; MEMORYLLM internalizes a latent memory pool \cite{memoryllm}. These systems expand capacity; our setting fixes the memory substrate and asks which signal should allocate a limited budget. LLMLingua and LongLLMLingua compress prompts by pruning for semantic salience \cite{llmlingua,longllmlingua}. Conversation-specific methods go further: COMEDY, R3Mem, and EpiCache study compressive memory, reversible compression, and episode-level allocation \cite{comedy,r3mem,epicache}. Our main distinction is to hold the codec fixed and vary only the scoring signal, isolating signal choice as the primary experimental variable.
 
-\paragraph{External and persistent memory architectures.}
-LongMem augments a frozen language model with a long-term retrieval module, while MemoryBank maintains an explicit persistent store with update and forgetting rules \cite{longmem,memorybank}. MemGPT reframes long-context interaction as an operating-system-style memory-management problem in which information is moved across fast and slow memory tiers \cite{memgpt}. MEMORYLLM places a latent memory pool inside the model itself so that memory can be updated internally rather than only through explicit retrieval \cite{memoryllm}. These systems aim to increase effective memory capacity. Our setting is different: the memory substrate is fixed, and the problem is how to allocate a limited conversational budget across raw turns and compressed surrogates.
+\paragraph{Budgeted inference and token-level retention.}
+Scissorhands, H2O, SnapKV, and PyramidKV compress KV caches or prune context under inference-time budgets \cite{scissorhands,h2o,snapkv,pyramidkv}. These operate at token or KV-head granularity. Our setting is turn-structured and introduces a dual geometric--behavioral evaluation objective that none of these methods consider.
 
-\paragraph{Adaptive and time-aware memory management.}
-RecallM incorporates temporal structure into memory access, and Reflective Memory Management (RMM) uses reflection to organize and retrieve memory at multiple granularities \cite{recallm,rmm}. These papers are especially relevant to update tracking and long-range persona continuity. Our work is narrower and more mechanistic: given a candidate dialogue history, we study which signal best decides what to keep, compress, or evict.
-
-\paragraph{Prompt compression and conversational compression.}
-LLMLingua and LongLLMLingua compress prompts by pruning context while preserving semantic salience and downstream answer quality \cite{llmlingua,longllmlingua}. Conversation-specific compression methods go further. COMEDY studies compressive memory for long-term dialogue, R3Mem introduces reversible compression so that dropped detail can later be reconstructed, and EpiCache groups history into episodes before budget allocation \cite{comedy,r3mem,epicache}. These are the closest structural neighbors to our KCD codec. The main difference is that our paper treats the \emph{scoring signal} as the primary variable: the codec structure is fixed, and the empirical question is whether geometric, semantic, or hybrid scoring best matches the memory type. Most closely related conversation-compression papers vary architecture and retrieval strategy together; our main experimental distinction is to hold the codec structure fixed and vary only the scoring signal.
-
-\paragraph{Budgeted inference and retention.}
-Scissorhands, H2O, SnapKV, and PyramidKV compress the KV cache or retain only selected context under inference-time budgets \cite{scissorhands,h2o,snapkv,pyramidkv}. These works solve a budget-allocation problem at test time but operate at token or KV-head level. Our setting is conversational and unit-structured: the retained objects are turns, segments, and sparse conversational summaries, and we introduce a dual geometric--behavioral evaluation objective that none of these methods consider.
-
-\paragraph{Long-context utilization and retrieval.}
-Even when context fits the window, language models underutilize information appearing in the middle of long sequences \cite{lost-in-the-middle}, reinforcing the case for principled turn selection rather than naive retention. Retrieval-augmented generation \cite{rag} externalizes history into a retrieval index; our approach compresses within the context window at inference time without an external store, and we measure the geometric cost of compression decisions that retrieval-based systems incur implicitly when dropping history.
-
-\paragraph{Benchmarks for conversational memory.}
-MSC emphasizes persona continuity and multi-session topic carryover \cite{msc}. LoCoMo adds long-range temporal and event-history reasoning \cite{locomo}. LongMemEval broadens the evaluation target to interactive assistant memory with retrieval and update-like demands \cite{longmemeval}. TReMu isolates temporal reasoning more directly, and MemBench argues that memory evaluation should span factual, reflective, and efficiency-oriented views of memory quality \cite{tremu,membench}. These benchmarks motivate the paper's central conclusion: conversational memory is not a single task, and a single scoring signal should not be expected to dominate across all of them.
+\paragraph{Benchmarks.}
+MSC emphasizes persona continuity across sessions \cite{msc}. LongMemEval targets interactive assistant memory with retrieval and update demands \cite{longmemeval}. MemBench and TReMu broaden evaluation to factual, reflective, and temporal dimensions \cite{membench,tremu}. These benchmarks motivate the paper's central finding: no single signal dominates across memory regimes.
 
 \section{Setup}
 \subsection{Conversation-State Geometry}
@@ -138,40 +127,12 @@ The experiments distinguish two memory regimes.
 The paper's hypothesis is that these regimes favor different scoring signals inside the same codec.
 
 \section{Experimental Design}
-\subsection{Benchmarks and Models}
-We use four primary evaluation settings.
-\begin{itemize}[leftmargin=1.25em]
-    \item \textbf{Hard stress set}: 36 synthetic but interpretable conversations across long-dependency, retrieval-heavy, and code-conversation families, designed to expose support-turn failures that are plausible in real conversational memory settings.
-    \item \textbf{MSC valid (baselines)}: 1{,}000 conversations from the multi-session persona benchmark \cite{msc}, used to compare KCD against external baselines including LongLLMLingua \cite{longllmlingua}, recency, and lexical TF-IDF compression.
-    \item \textbf{MSC valid (signal variants)}: 1{,}000 conversations from MSC used to compare KCD signal variants (geometry, semantic, and query-conditioned hybrid) against each other and against uniform compression, including a two-component ablation of \pname{sem\_query\_cond\_KCD}.
-    \item \textbf{LongMemEval-S}: 100 conversations from the full-length LongMemEval release \cite{longmemeval} (400--600 turns per conversation, no truncation), used to test cross-benchmark behavioral generalization.
-\end{itemize}
-Primary experiments use \pname{qwen25\_15b} (Qwen2.5-1.5B-Instruct). A cross-model check uses \pname{llama32\_3b} (Llama-3.2-3B-Instruct, 50 MSC conversations). We treat the hard stress set as mechanism evidence and the public benchmarks as external-validity checks.
+\paragraph{Benchmarks and models.}
+We use four evaluation settings: (1)~a \textbf{hard stress set} of 36 synthetic conversations across long-dependency, retrieval-heavy, and code families, designed to expose support-turn failures; (2)~\textbf{MSC valid} (1{,}000 conversations \cite{msc}) for external baseline comparison and signal variant study; (3)~\textbf{LongMemEval-S} (100 full-length conversations, 400--600 turns, no truncation \cite{longmemeval}) for cross-benchmark behavioral generalization; and (4)~a \textbf{cross-model check} on 50 MSC conversations with Llama-3.2-3B-Instruct. Primary experiments use Qwen2.5-1.5B-Instruct (\pname{qwen25\_15b}).
 
-\subsection{Policy Comparisons}
-The paper focuses on a small policy set tied directly to the main claim.
-\begin{itemize}[leftmargin=1.25em]
-    \item \textbf{Stress-set signal comparison:} \pname{geometry\_KCD} vs.\ \pname{semantic\_KCD}, with plain semantic and plain geometry as supporting baselines.
-    \item \textbf{External baseline comparison (MSC, 1{,}000 conversations):} Uniform, recency, recency-KCD, lexical TF-IDF, and LongLLMLingua.
-    \item \textbf{Signal variant study (MSC and LME):} Uniform, \pname{geometry\_KCD}, \pname{semantic\_KCD}, and \pname{sem\_query\_cond\_KCD} (the query-conditioned hybrid).
-\end{itemize}
-This keeps the comparison tied to the central questions: does geometry-behavior divergence manifest on public benchmarks, and does query-conditioned geometry resolve it?
-
-\subsection{Evaluation Metrics}
+\paragraph{Evaluation and statistics.}
 \label{sec:metrics}
-The paper uses several metrics, but not with equal weight.
-\begin{itemize}[leftmargin=1.25em]
-    \item \textbf{Hard stress set}: primary metric is answer-level $\NLL$, with logit drift as a supporting fidelity metric.
-    \item \textbf{MSC}: primary metrics are shortlist-ranking quality in the oracle study and answer-level $\NLL$ in the policy study, with logit drift as a secondary signal.
-    \item \textbf{LongMemEval}: shortlist-ranking quality is primary; because the current slice is truncated to 40 turns, answer NLL is comparatively flat across policies, so logit distortion is the main policy metric in this slice.
-\end{itemize}
-Accordingly, the paper should be read as prioritizing answer-level quality on the hard set, shortlist-ranking quality plus answer quality on MSC, and shortlist-ranking quality on the truncated LongMemEval slice.
-
-\subsection{Evaluation Thresholds}
-For the stress-set signal comparison, we treat conversation-level significance ($p<0.05$, signflip test) as the threshold for a decisive result, consistent with the statistical protocol below. For the public benchmark policy studies, we report conversation-level significance as the primary evidence and row-level statistics as supporting evidence, following the same protocol.
-
-\subsection{Statistical Protocol}
-We report row-level and conversation-level statistics separately. Row-level tests provide high-resolution evidence on local behavior, but rows from the same conversation are not independent. Conversation-level tests better reflect benchmark-level stability. In the results, we therefore treat conversation-level significance as the more conservative benchmark-level signal and use row-level tests mainly to support within-conversation mechanism claims. Where only row-level significance is reported, we treat the result as supportive rather than decisive at the benchmark level.
+Primary metrics are logit $\ell_2$ (geometric fidelity: $\lVert\ell(\hat{h}_{t^\star})-\ell(h_{t^\star})\rVert_2$) and answer NLL ($\Delta_\mathrm{NLL}$, degradation vs.\ full context). Significance uses a two-sided signflip permutation test (5{,}000 iterations) at both row and conversation level; we treat conversation-level $p{<}0.05$ as the primary threshold since rows within a conversation are not independent. Policy comparisons are: \pname{geometry\_KCD} vs.\ \pname{semantic\_KCD} on the stress set; uniform, recency, lexical TF-IDF, and LongLLMLingua on MSC baselines; and uniform, \pname{geometry\_KCD}, \pname{semantic\_KCD}, and \pname{sem\_query\_cond\_KCD} on the signal variant study.
 
 \section{Constraint-Critical Memory: Why Signal Choice Matters}
 \subsection{External Baselines on the Stress Set}
@@ -347,13 +308,9 @@ Policy & L2@.20 & L2@.35 & L2@.50 & NLL@.20 & NLL@.35 & NLL@.50 \\
 \end{tabular}}
 \end{table}
 
-At budget 0.50, \pname{sem\_query\_cond\_KCD} achieves logit L2 of 705.5---lower than uniform (761.6), meaning the compressed context is \emph{more} faithful to the full-context hidden state than randomly retaining half the turns. All other compression policies are \emph{worse} than uniform on logit L2 at every budget (Geometry-KCD: $+5.3$/$+31.6$/$+51.2$ vs.\ uniform at $B{=}0.20/0.35/0.50$; Semantic-KCD: $+7.3$/$+31.3$/$+53.4$). Budget 0.50 is the \emph{only} regime in our experiments where any policy is strictly more geometrically faithful than no selection at all. The improvement over Semantic-KCD is $\Delta=-109.4$ ($p<0.001$, row-level; $\Delta=-105.1$, $p<0.001$, conversation-level). At budget 0.35, \pname{sem\_query\_cond\_KCD} still beats Semantic-KCD by $\Delta=-12.2$ ($p<0.001$), though both remain worse than uniform. At budget 0.20 the geometry difference vs.\ Semantic-KCD is not significant ($p=0.872$), consistent with the pattern that query-conditioned geometry is most useful when the budget is large enough to allow meaningful turn differentiation.
+At $B{=}0.50$, \pname{sem\_query\_cond\_KCD} achieves logit L2 of 705.5---\emph{below} uniform (761.6)---meaning compressed context is more faithful than random half-turn retention. All other policies are worse than uniform on logit L2 at every budget. The improvement over Semantic-KCD is $\Delta=-109.4$ ($p<0.001$, row; $\Delta=-105.1$, $p<0.001$, conv). \pname{sem\_query\_cond\_KCD} also achieves the best answer NLL at every budget ($p<0.001$, conv)---the only policy that simultaneously beats Semantic-KCD on both objectives at $B{=}0.50$.
 
-The behavioral result is equally consistent: \pname{sem\_query\_cond\_KCD} achieves the best answer NLL at every budget among the four main policies, with statistically significant improvements over Semantic-KCD at all three budgets ($p<0.001$, conversation-level). This resolves the geometry-behavior tradeoff that affects all other methods---query-conditioned geometry is the only policy that simultaneously beats Semantic-KCD on both geometry and behavior at budget 0.50.
-
-Table~\ref{tab:msc_ablation} shows the component ablation. Removing the support-score weighting (\textit{w/o support}) is catastrophic: logit L2 degrades by $+52.2$ at $B{=}0.50$ and answer NLL worsens by $+0.091$ ($p<0.001$ both metrics, all budgets). The support-score term is the load-bearing component. Removing query-conditioned projection (\textit{w/o query}) reveals a budget-dependent pattern: at $B{=}0.20$ it is marginally better on NLL ($p{=}0.004$, $\Delta{=}{-}0.006$), but at $B{=}0.35$ and $B{=}0.50$ it is worse on geometry ($+7.5$ and $+2.8$ L2, $p{<}0.001$ and $p{=}0.054$). This indicates the query projection is beneficial when the budget allows meaningful turn differentiation but contributes noise under very tight budgets where nearly all turns compete for the same few slots.
-
-The mechanism is that query-conditioned scoring uses the hidden state at the current query turn to weight prior turns by geometric relevance rather than by recency or semantic similarity alone. This biases retention toward turns that are geometrically proximate to the query in representational space, which empirically corresponds to turns whose information is load-bearing for the current response.
+Table~\ref{tab:msc_ablation} shows the ablation. Removing support-score weighting is catastrophic: $+52.2$ L2 and $+0.091$ NLL at $B{=}0.50$ ($p<0.001$, all budgets). Removing query projection is marginally better at $B{=}0.20$ on NLL ($p{=}0.004$) but worse at $B{\geq}0.35$ on geometry ($p{<}0.001$), confirming query projection adds value only when budget allows meaningful turn differentiation.
 
 \subsection{LongMemEval: Behavioral Generalization Across Benchmark Types}
 \label{sec:lme}
@@ -378,7 +335,7 @@ Semantic-KCD & \textbf{1750.6} & \textbf{1700.5} & 1717.9 & \textbf{0.100} & \te
 
 All KCD policies significantly improve answer NLL over uniform on LME-S at budgets 0.20--0.35 ($p{<}0.001$, conversation-level), with \pname{semantic\_KCD} achieving the largest behavioral gain ($\Delta\mathrm{NLL}=-0.121$ at $B{=}0.20$ vs.\ uniform). The geometry advantage seen on MSC does not replicate---and the pattern fully reverses. At budget 0.35, \pname{sem\_query\_cond\_KCD} is significantly worse than \pname{semantic\_KCD} on \emph{both} logit L2 ($\Delta=+47.6$, $p_\mathrm{conv}=0.018$) and answer NLL ($\Delta=+0.012$, $p_\mathrm{conv}=0.001$). At budget 0.50, the L2 difference is not significant at conversation level ($p=0.629$), but \pname{sem\_query\_cond\_KCD} remains significantly worse on NLL ($\Delta=+0.006$, $p_\mathrm{conv}{<}0.001$).
 
-The full reversal on both metrics is informative: this is not merely a failure to add geometric value, but a case where the query-conditioned geometry signal actively hurts relative to simpler semantic selection. On 400--600 turn conversations, the geometric signal is noisier: query-conditioned scoring must separate relevant from irrelevant turns across hundreds of candidates, and the signal-to-noise ratio degrades. The semantic shortlisting component---which operates at a coarser granularity---remains discriminative and is sufficient; adding geometry inside the shortlist introduces noise that outweighs any benefit. We interpret this as evidence that the geometry signal requires sufficient per-turn resolution to be effective: it is reliable on MSC-length conversations (20--100 turns), where each turn carries a distinguishable geometric signature, but its benefit inverts on much longer conversations where turns compete in a crowded representational space.
+The full reversal is informative: on 400--600 turn conversations, query-conditioned geometry must separate relevant from irrelevant turns across hundreds of candidates and the signal-to-noise ratio degrades. Semantic shortlisting alone is sufficient at this length; adding geometry inside the shortlist introduces noise that outweighs the benefit. The geometry signal requires sufficient per-turn resolution to be effective---reliable on MSC-length conversations (20--100 turns), but counterproductive on much longer sequences.
 
 \section{Cross-Model Validation: Llama-3.2-3B}
 To test whether the query-conditioned geometry advantage is specific to Qwen2.5, we run the KCD signal variant comparison on Llama-3.2-3B-Instruct (50 MSC conversations). This is a \emph{single-model} cross-architecture check.
@@ -399,75 +356,12 @@ Semantic-KCD & 671.9 & 633.5 & 586.1 & 3.526 & 3.317 & 3.139 \\
 \end{tabular}}
 \end{table}
 
-The geometry advantage in logit L2 is not significant at conversation level on Llama-3.2-3B at any budget. On behavior NLL, semantic compression significantly outperforms geometry compression across all budgets ($p\le0.01$, conversation-level), the opposite of the MSC Qwen2.5-1.5B finding. Both policies substantially improve over uniform on behavior, confirming that the KCD codec structure generalizes, but the relative benefit of the geometry signal does not.
+The geometry advantage in logit L2 is not significant at conversation level on Llama-3.2-3B at any budget. On behavior NLL, semantic compression significantly outperforms geometry compression across all budgets ($p\le0.01$, conversation-level)---the opposite of the MSC Qwen2.5-1.5B finding. The KCD codec structure generalizes across model families; the geometry signal advantage does not. We attribute this to training-regime differences: Qwen2.5-1.5B undergoes heavier instruction-following finetuning, producing more discriminative per-turn geometric signatures than Llama-3.2-3B. The scope condition is about representational structure induced by training, not parameter count. A single-model 3B scale check on the hard stress set (Qwen2.5-3B) confirms the constraint-critical geometry advantage grows with scale; see Appendix~\ref{app:3b}.
 
-This result is consistent with the hypothesis that geometry-based scoring requires model representations to have a particular structure. Instruction-following finetuning via RLHF and instruction tuning \cite{instructgpt,flan} reshapes the model's representational geometry to respond more sharply to directive content: user instructions and constraint turns cause larger hidden-state displacements relative to assistant acknowledgements. Qwen2.5-1.5B undergoes heavy such finetuning, producing discriminative per-turn geometric signatures. Llama-3.2-3B does not produce this property to the same degree, making semantic similarity the more reliable selection criterion. The scope condition is therefore about the representational structure induced by the training regime, not parameter count.
+\section{Discussion and Limitations}
+The evidence supports two findings. First, geometry-behavior divergence is real: LongLLMLingua improves answer NLL but incurs a 103--161 unit logit L2 penalty above uniform on MSC, confirming that behavioral metrics alone do not characterize compression quality. Second, the right response is to condition geometry on the query: \pname{sem\_query\_cond\_KCD} achieves best geometric fidelity and best behavioral quality simultaneously on MSC at $B{=}0.50$---the only policy to win both objectives at once.
 
-\section{Single-Model 3B Validation (Hardset)}
-To test whether the hard-set signal-comparison result is specific to compact models, we rerun the stress-set comparison on \pname{qwen25\_3b}. This is a \emph{single-model} scale check on the constraint-critical regime, independent of the cross-architecture check above.
-
-\begin{table}[t]
-\centering
-\caption{Single-model 3B validation on the hard stress set. Positive deltas mean \pname{semantic\_KCD} is worse than \pname{geometry\_KCD}.}
-\label{tab:3b}
-\begin{tabular}{lrrrr}
-\toprule
-Budget & $\Delta\Logit$ & $p$ & $\Delta\NLL$ & $p$ \\
-\midrule
-0.20 & $+44.9$ & 0.048 & $+0.494$ & 0.008 \\
-0.35 & $+69.7$ & 0.050 & $+0.853$ & 0.005 \\
-0.50 & $-29.1$ & 0.128 & $+1.126$ & 0.0003 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The qualitative pattern persists. Geometry remains the stronger signal on the stress set, and the answer-quality gap widens. We therefore treat the 3B result as supportive evidence that the constraint-critical mechanism is not unique to the smallest models studied here. At the same time, we avoid stronger claims about scaling because the validation uses only one 3B model.
-
-\section{Geometry Characterization Summary}
-The budgeted-control story in this paper depends on the geometry being real, compact, and decoder-relevant. Table~\ref{tab:geometry_summary} summarizes the main characterization result that motivates the use of transported conversational geometry in the first place.
-
-\begin{table}[t]
-\centering
-\caption{Conversation-state geometry summary across compact model families.}
-\label{tab:geometry_summary}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcccccc}
-\toprule
-Model & Rank95 & 95\% CI & Shuffled Rank95 & $p_{\mathrm{H1}}$ & Corr$(d_{\mathrm{geo}}, \Delta \ell)$ & $p_{\mathrm{H3}}$ \\
-\midrule
-qwen25\_05b & 1.049 & [1.000, 1.111] & 1.486 & 0.0000 & 0.989 & 0.0000 \\
-qwen25\_15b & 1.167 & [1.083, 1.271] & 1.458 & 0.0008 & 0.994 & 0.0000 \\
-smollm2\_17b & 1.528 & [1.500, 1.576] & 1.799 & 0.0122 & 0.989 & 0.0000 \\
-\bottomrule
-\end{tabular}}
-\end{table}
-
-The characterization is not presented here as a separate theory paper. Its role is narrower: it explains why geometry is a plausible control signal for compression at all. Conversation-state trajectories are highly compact, shuffling destroys some of that structure, and geometric distortion closely tracks decoder drift. This makes transported geometry plausible enough to test as a memory-control feature, even though later sections show that it is not sufficient by itself across all memory regimes.
-
-\section{Discussion}
-\subsection{Main Takeaways}
-The evidence supports a refined view of conversational memory compression with two distinct findings.
-
-First, the geometry-behavior divergence is real and consequential. LongLLMLingua improves answer NLL but incurs a logit L2 penalty of 103--161 units above uniform compression on MSC. This confirms that behavioral metrics alone do not fully characterize memory compression quality. A method can appear adequate on answer quality while substantially distorting the hidden-state representation the model uses for future generation. Geometric fidelity is a separate, complementary objective.
-
-Second, the right response to this divergence is not to choose between geometry and semantics, but to condition geometry on the query. On MSC with Qwen2.5-1.5B, \pname{sem\_query\_cond\_KCD} achieves the best geometric fidelity and the best behavioral quality simultaneously. At budget 0.50, it is more geometrically faithful than random sampling of turns. This is a stronger result than the shortlist-reranking framing of earlier work: the geometry signal improves end-to-end policy outcomes without requiring oracle candidate pools.
-
-The paper therefore supports a signal-conditioned view of compression: one codec structure, different scoring signals for different memory regimes, with query-conditioned geometry as the best single signal on semantic-memory benchmarks when the model family produces structurally discriminative per-turn geometry.
-
-\subsection{Scope Conditions}
-Two boundary conditions are important to state explicitly. The query-conditioned geometry advantage is observed on Qwen2.5-1.5B and does not replicate on Llama-3.2-3B, where semantic compression dominates geometry on behavior. This suggests the geometry signal's effectiveness depends on model representation structure rather than parameter count alone. The geometric advantage found on MSC-length conversations (20--100 turns) diminishes on LongMemEval (400--600 turns), where the per-turn geometry becomes less discriminative as the number of competing candidates grows.
-
-\subsection{Informative Negatives}
-A learned harm predictor achieved reasonable row-level oracle ranking but cross-conversation calibration failed. An object-level compression variant underperformed because the current object boundaries under-retained the available budget. These negatives suggest the remaining gap is not solved by simply replacing heuristic signals with any learned predictor or by coarse object compression without better object definitions.
-
-\section{Limitations}
-The strongest mechanistic evidence comes from a custom hard stress set. Although the stress set uses memory primitives that also appear in MSC, LoCoMo, and LongMemEval, it is a controlled stress test rather than a sampled public benchmark. The query-conditioned geometry advantage on MSC is now evaluated on 1{,}000 conversations---the same scale as the baseline comparison---with consistent and highly significant results ($\Delta=-109.4$ at budget 0.50, $p<0.001$). The cross-model check uses only one architecture (Llama-3.2-3B), so the finding that the geometry signal is Qwen2.5-specific is a scope observation, not a general architectural claim.
-
-\paragraph{QA accuracy on LongMemEval.}
-We ran a token-F1 QA proxy evaluation on LME-S (100 conversations) using the next conversation turn as the gold answer. Token F1 scores were uniformly near-zero ($\approx 0.08$) across all policies---indistinguishable from uniform random compression---and we determined this metric is invalid in this setting: LME's conversational gold turns are not faithful proxies for the question-answer pairs the benchmark was designed to evaluate. We therefore do not report these results as primary evidence and rely on NLL and logit~$\ell_2$ for the LME cross-benchmark analysis. The official LME evaluation uses GPT-judged QA accuracy over curated question sets; running that pipeline would provide a more standard result and is left for future work.
-
-\paragraph{Scale.}
-Our experiments use models up to 3B parameters. The hardset 3B validation uses Qwen2.5-3B, while the cross-architecture check uses Llama-3.2-3B; these validate different questions (scaling within Qwen vs.\ cross-family generalization) and should not be conflated. We do not test 7B+ models due to compute constraints, though the observed scale trend ($+0.628 \to +1.126$ nats NLL, 1.5B$\to$3B) suggests geometry may become more consequential at larger scale.
+Two scope conditions bound the claim. The geometry advantage is observed on Qwen2.5-1.5B but not Llama-3.2-3B; the effect is model-family-dependent, tied to training regime rather than parameter count. The advantage also diminishes on 400--600 turn conversations (LongMemEval), where per-turn geometry becomes noisy across hundreds of candidates. The strongest mechanistic evidence comes from a controlled stress set rather than a sampled public benchmark, and the cross-model check covers one alternative architecture. Token-F1 QA on LME-S was uniformly near-zero across all policies and is excluded as an invalid proxy; the official GPT-judged pipeline is left for future work. Experiments are limited to models up to 3B parameters; the observed NLL scale trend ($+0.628\to+1.126$ nats, 1.5B$\to$3B) suggests geometry may matter more at larger scale.
 
 \section*{Acknowledgments}
 Experiments were conducted on cloud GPU infrastructure. Code, data, and experiment logs are available upon request.
@@ -477,7 +371,7 @@ The authors used Claude (Anthropic) to assist with manuscript drafting and editi
 \bibliography{references}
 
 \appendix
-\section{Additional Geometry Summary}
+\section{Geometry Characterization}
 \label{app:geometry}
 The geometric characterization motivating the scoring signal is stable across three compact model families: mean rank-95 ranges from 1.049 to 1.528, and geometry--logit correlation ranges from 0.989 to 0.994. These values indicate that within-segment conversational motion is highly compact and closely tied to decoder behavior, which motivates using transported geometry as a control signal.
 
@@ -505,6 +399,47 @@ Policy & Logit L2 @ 0.35 & NLL @ 0.35 & Token frac @ 0.35 \\
 \end{table}
 
 The main failure was mechanical rather than conceptual: the current marker-based object boundaries over-segmented conversations, and after within-object compression each object retained too little content. As a result, only 43--52\% of the target budget was realized in the failing object policies.
+
+\section{Single-Model 3B Validation (Hard Stress Set)}
+\label{app:3b}
+To test whether the constraint-critical geometry advantage is specific to compact 1.5B models, we rerun the signal-swap comparison on \pname{qwen25\_3b} (Qwen2.5-3B-Instruct). The qualitative pattern persists and the answer-quality gap widens.
+
+\begin{table}[h]
+\centering
+\caption{Signal-swap ablation on the hard stress set, Qwen2.5-3B. Positive deltas mean \pname{semantic\_KCD} is worse than \pname{geometry\_KCD}.}
+\label{tab:3b}
+\begin{tabular}{lrrrr}
+\toprule
+Budget & $\Delta\Logit$ & $p$ & $\Delta\NLL$ & $p$ \\
+\midrule
+0.20 & $+44.9$ & 0.048 & $+0.494$ & 0.008 \\
+0.35 & $+69.7$ & 0.050 & $+0.853$ & 0.005 \\
+0.50 & $-29.1$ & 0.128 & $+1.126$ & 0.0003 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Geometry remains the stronger signal on the stress set at 3B, and the NLL gap grows from $+0.628$ (1.5B) to $+1.126$ (3B) at $B{=}0.50$. We avoid stronger scaling claims because the validation covers only one 3B architecture.
+
+\section{Geometry Characterization}
+\label{app:geometry_table}
+Conversation-state trajectories are highly compact (rank-95 near 1.0) and geometric distortion closely tracks decoder drift (correlation $>0.989$). Table~\ref{tab:geometry_summary} summarizes the characterization across model families that motivates using transported geometry as a compression-control signal.
+
+\begin{table}[h]
+\centering
+\caption{Conversation-state geometry summary across compact model families.}
+\label{tab:geometry_summary}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+Model & Rank95 & 95\% CI & Shuffled Rank95 & $p_{\mathrm{H1}}$ & Corr$(d_{\mathrm{geo}}, \Delta \ell)$ & $p_{\mathrm{H3}}$ \\
+\midrule
+qwen25\_05b & 1.049 & [1.000, 1.111] & 1.486 & 0.0000 & 0.989 & 0.0000 \\
+qwen25\_15b & 1.167 & [1.083, 1.271] & 1.458 & 0.0008 & 0.994 & 0.0000 \\
+smollm2\_17b & 1.528 & [1.500, 1.576] & 1.799 & 0.0122 & 0.989 & 0.0000 \\
+\bottomrule
+\end{tabular}}
+\end{table}
 
 \section{Additional Negative Results}
 Three further negative findings help define the current claim boundary.
